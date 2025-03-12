@@ -1,45 +1,9 @@
-import { useGlobalSearchParams, useRouter } from 'expo-router';
+import { useGlobalSearchParams } from 'expo-router';
 import React, { useEffect, useState  } from 'react';
-import { View, Text, Modal, ScrollView , TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Modal, ScrollView , TouchableOpacity, StyleSheet, ActivityIndicator  } from 'react-native';
 import { Image } from 'expo-image';
-import { Ionicons } from '@expo/vector-icons';
-
-const teamLogos = {
-  ANA: require('../assets/images/logos/ANA.png'), // Anaheim Ducks
-  UTA: require('../assets/images/logos/UTA.png'), // Arizona Coyotes
-  BOS: require('../assets/images/logos/BOS.png'), // Boston Bruins
-  BUF: require('../assets/images/logos/BUF.png'), // Buffalo Sabres
-  CGY: require('../assets/images/logos/CGY.png'), // Calgary Flames
-  CAR: require('../assets/images/logos/CAR.png'), // Carolina Hurricanes
-  CHI: require('../assets/images/logos/CHI.png'), // Chicago Blackhawks
-  COL: require('../assets/images/logos/COL.png'), // Colorado Avalanche
-  CBJ: require('../assets/images/logos/CBJ.png'), // Columbus Blue Jackets
-  DAL: require('../assets/images/logos/DAL.png'), // Dallas Stars
-  DET: require('../assets/images/logos/DET.png'), // Detroit Red Wings
-  EDM: require('../assets/images/logos/EDM.png'), // Edmonton Oilers
-  FLA: require('../assets/images/logos/FLA.png'), // Florida Panthers
-  LAK: require('../assets/images/logos/LAK.png'), // Los Angeles Kings
-  MIN: require('../assets/images/logos/MIN.png'), // Minnesota Wild
-  MTL: require('../assets/images/logos/MTL.png'), // Montreal Canadiens
-  NSH: require('../assets/images/logos/NSH.png'), // Nashville Predators
-  NJD: require('../assets/images/logos/NJD.png'), // New Jersey Devils
-  NYI: require('../assets/images/logos/NYI.png'), // New York Islanders
-  NYR: require('../assets/images/logos/NYR.png'), // New York Rangers
-  OTT: require('../assets/images/logos/OTT.png'), // Ottawa Senators
-  PHI: require('../assets/images/logos/PHI.png'), // Philadelphia Flyers
-  PIT: require('../assets/images/logos/PIT.png'), // Pittsburgh Penguins
-  SJS: require('../assets/images/logos/SJS.png'), // San Jose Sharks
-  SEA: require('../assets/images/logos/SEA.png'), // Seattle Kraken
-  STL: require('../assets/images/logos/STL.png'), // St. Louis Blues
-  TBL: require('../assets/images/logos/TBL.png'), // Tampa Bay Lightning
-  TOR: require('../assets/images/logos/TOR.png'), // Toronto Maple Leafs
-  VAN: require('../assets/images/logos/VAN.png'), // Vancouver Canucks
-  VGK: require('../assets/images/logos/VGK.png'), // Vegas Golden Knights
-  WSH: require('../assets/images/logos/WSH.png'), // Washington Capitals
-  WPG: require('../assets/images/logos/WPG.png'), // Winnipeg Jets
-  
-  DEFAULT: require('../assets/images/logos/WSH.png'), // Default placeholder image
-};
+import { LinearGradient } from 'expo-linear-gradient';
+import teamLogos from './logos';
 
 const countryCodeMap = {
   USA: 'US',
@@ -79,13 +43,6 @@ const TeamInfoScreen = () => {
   const [showRoster, setShowRoster] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [teamStats, setTeamStats] = useState([]);
-  const router = useRouter();
-  
-  const goToTeam = () => {
-    router.push({
-      pathname: './teams',
-    });
-  };
 
   const pastDateFormat = new Intl.DateTimeFormat('default', { day: 'numeric', month: 'numeric'});
   const futDateFormat = new Intl.DateTimeFormat('default', { weekday: 'short', day: 'numeric', month: 'numeric', hour: 'numeric', minute: 'numeric' });
@@ -111,7 +68,6 @@ const TeamInfoScreen = () => {
     const controller = new AbortController();
     const signal = controller.signal;
     try {
-      setLoading(true);
       const response = await fetch(`https://api-web.nhle.com/v1/roster/${params.abbr}/${yearRange}`, { signal });
 
       if (!response.ok) {
@@ -158,8 +114,6 @@ const TeamInfoScreen = () => {
       if (error.name !== 'AbortError') {
         console.error('Error fetching roster:', error);
       }
-    } finally {
-      setLoading(false);
     }
 
     return () => controller.abort();
@@ -169,7 +123,6 @@ const TeamInfoScreen = () => {
     const controller = new AbortController();
     const signal = controller.signal;
     try {
-      setLoading(true);
       const response = await fetch(`https://api-web.nhle.com/v1/club-schedule-season/${params.abbr}/now`, { signal });
   
       if (!response.ok) {
@@ -210,8 +163,6 @@ const TeamInfoScreen = () => {
       if (error.name !== 'AbortError') {
         console.error('Error fetching schedule:', error);
       }
-    } finally {
-      setLoading(false);
     }
   
     return () => controller.abort();
@@ -221,7 +172,6 @@ const TeamInfoScreen = () => {
     const controller = new AbortController();
     const signal = controller.signal;
     try {
-      setLoading(true);
       const response = await fetch(`https://api-web.nhle.com/v1/standings/now`, { signal });
       
       if (!response.ok) {
@@ -256,8 +206,6 @@ const TeamInfoScreen = () => {
       if (error.name !== 'AbortError') {
         console.error('Error fetching stats:', error);
       }
-    } finally {
-      setLoading(false);
     }
   
     return () => controller.abort();
@@ -265,177 +213,194 @@ const TeamInfoScreen = () => {
 
   useEffect(() => {
     if (params.abbr && yearRange) {
-        fetchRoster();
-        fetchSchedule();
-        fetchStats();
+      setLoading(true);
+  
+      Promise.all([fetchRoster(), fetchSchedule(), fetchStats()])
+        .then(() => {
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+          setLoading(false);
+        });
     }
   }, [params.abbr, yearRange]);
 
   return (
     <View style={styles.container}>
-      {/* Header with Team Name and Logo */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>{params.name}</Text>
-        <Image
-          source={teamLogos[params.abbr] || teamLogos.DEFAULT}
-          style={styles.image}
-        />
-      </View>
-
-      {/* Schedule Button with Summary of Past & Upcoming Games */}
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={() => setShowSchedule(true)} 
-      >
-        <View style={styles.buttonContent}>
-          <Text style={styles.gamesText}>Recent games</Text>
-          <View style={styles.resultsContainer}>
-            {(pastGames ?? []).slice(-7).map((game, index) => (
-              <View 
-                key={index}
-                style={[
-                  styles.resultBox, 
-                  { backgroundColor: game.result === 'W' ? '#26ad5f' : '#b35b5b' }
-                ]}
-              >
-                <Text style={styles.resultText}>{game.result}</Text>
-              </View>
-            ))}
-          </View>
-
-          <Text style={styles.gamesText}>Upcoming games</Text>
-          <View style={styles.upcomingGamesContainer}>
-            {(futGames ?? []).slice(0, 3).map((game, index) => (
-              <View key={index} style={styles.upcomingGame}>
-                <Image
-                  source={teamLogos[game.opponent] || teamLogos.DEFAULT}
-                  style={styles.imageOpp}
-                />
-                <Text style={styles.gameText}>
-                  {futDateFormat2.format(new Date(game.startTime))}
-                </Text>
-              </View>
-            ))}
-          </View>
-          <Text style={styles.modalHint}>click for more</Text>
+      <ScrollView style={styles.scroll}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>{params.name}</Text>
+          <Image
+            source={teamLogos[params.abbr] || teamLogos.DEFAULT}
+            style={styles.image}
+          />
         </View>
-      </TouchableOpacity>
+        {loading ? (
+          <View style={{ flex: 1, top: '100%', right: '50%', position: 'absolute', height: '500%', justifyContent: 'center' }}>
+            <ActivityIndicator size="large" color="white" style={styles.activityIndicator} />
+          </View>
+        ) : (
+        <>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => setShowSchedule(true)} 
+        >
+          <View style={styles.buttonContent}>
+            <Text style={styles.gamesText}>Recent games</Text>
+            <View style={styles.resultsContainer}>
+              {(pastGames ?? []).slice(-7).map((game, index) => (
+                <View 
+                  key={index}
+                  style={[
+                    styles.resultBox, 
+                    { backgroundColor: game.result === 'W' ? '#26ad5f' : '#b35b5b' }
+                  ]}
+                >
+                  <Text style={styles.resultText}>{game.result}</Text>
+                </View>
+              ))}
+            </View>
 
-      <Modal
-        visible={showSchedule}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowSchedule(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <ScrollView>
-              {([...pastGames ?? [], ...futGames ?? []]).map((item, index) => {
-                const date = new Date(item.startTime);
-                const formattedDate = item.result 
-                  ? pastDateFormat.format(date)
-                  : futDateFormat.format(date);
-                const bgColor = item.result === 'W' ? '#26ad5f' : item.result === 'L' ? '#b35b5b' : 'transparent';
-                const isOpponentHome = item.homeTeam === item.opponent;
+            <Text style={styles.gamesText}>Upcoming games</Text>
+            <View style={styles.upcomingGamesContainer}>
+              {(futGames ?? []).slice(0, 3).map((game, index) => (
+                <View key={index} style={styles.upcomingGame}>
+                  <Image
+                    source={teamLogos[game.opponent] || teamLogos.DEFAULT}
+                    style={styles.imageOpp}
+                  />
+                  <Text style={styles.gameText}>
+                    {futDateFormat2.format(new Date(game.startTime))}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            <Text style={styles.modalHint}>click for more</Text>
+          </View>
+        </TouchableOpacity>
 
-                return (
-                  <View style={styles.gameItem}>
-                    <Text style={styles.gameOppText}>{item.opponent}</Text>
-                    {item.homeScore !== undefined && item.awayScore !== undefined && (
-                      <View style={styles.scoreContainer}>
-                        <Text style={[styles.gameScoreText, { backgroundColor: bgColor }]}>
-                          {isOpponentHome
-                            ? `${item.awayScore} - ${item.homeScore}`
-                            : `${item.homeScore} - ${item.awayScore}`}
-                        </Text>
+        <Modal
+          visible={showSchedule}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowSchedule(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <ScrollView>
+                {([...pastGames ?? [], ...futGames ?? []]).map((item, index) => {
+                  const date = new Date(item.startTime);
+                  const formattedDate = item.result 
+                    ? pastDateFormat.format(date)
+                    : futDateFormat.format(date);
+                  const bgColor = item.result === 'W' ? '#26ad5f' : item.result === 'L' ? '#b35b5b' : 'transparent';
+                  const isOpponentHome = item.homeTeam === item.opponent;
+
+                  return (
+                    <View style={styles.gameItem}>
+                      <Text style={styles.gameOppText}>{item.opponent}</Text>
+                      {item.homeScore !== undefined && item.awayScore !== undefined && (
+                        <View style={styles.scoreContainer}>
+                          <Text style={[styles.gameScoreText, { backgroundColor: bgColor }]}>
+                            {isOpponentHome
+                              ? `${item.awayScore} - ${item.homeScore}`
+                              : `${item.homeScore} - ${item.awayScore}`}
+                          </Text>
+                        </View>
+                      )}
+                      <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                        <Text style={styles.gameDateText}>{formattedDate}</Text>
                       </View>
-                    )}
-                    <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                      <Text style={styles.gameDateText}>{formattedDate}</Text>
                     </View>
-                  </View>
-                );
-              })}
-            </ScrollView>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setShowSchedule(false)}>
-              <Text style={styles.closeText}>close</Text>
-            </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+              <TouchableOpacity style={styles.closeButton} onPress={() => setShowSchedule(false)}>
+                <Text style={styles.closeText}>close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
-      <TouchableOpacity style={styles.button} onPress={() => setShowRoster(true)}>
-        <Text style={styles.buttonText}>Roster</Text>
-      </TouchableOpacity>
+        </Modal>
+        <TouchableOpacity style={styles.button} onPress={() => setShowRoster(true)}>
+          <Text style={styles.buttonText}>Roster</Text>
+        </TouchableOpacity>
 
-      <Modal
-        visible={showRoster}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowRoster(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <ScrollView>
-              <View style={styles.rosterContainer}>
-                <Text style={styles.columnHeader}>Forwards</Text>
-                {(roster?.forwards ?? []).map((player, index) => (
-                  <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '70%', alignSelf: 'center'}}>
-                    <Text style={styles.playerText}>{player.country} {player.name}</Text>
-                    <Text style={styles.playerText}>#{player.number}</Text>
-                  </View>
-                ))}
-                <Text style={styles.columnHeader}>Defensemen</Text>
-                {(roster?.defensemen ?? []).map((player, index) => (
-                  <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '70%', alignSelf: 'center'}}>
-                    <Text style={styles.playerText}>{player.country} {player.name}</Text>
-                    <Text style={styles.playerText}>#{player.number}</Text>
-                  </View>
-                ))}
-                <Text style={styles.columnHeader}>Goalies</Text>
-                {(roster?.goalies ?? []).map((player, index) => (
-                  <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '70%', alignSelf: 'center'}}>
-                    <Text style={styles.playerText}>{player.country} {player.name}</Text>
-                    <Text style={styles.playerText}>#{player.number}</Text>
-                  </View>
-                ))}
-              </View>
-            </ScrollView>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setShowRoster(false)}>
-              <Text style={styles.closeText}>close</Text>
-            </TouchableOpacity>
+        <Modal
+          visible={showRoster}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowRoster(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <ScrollView>
+                <View style={styles.rosterContainer}>
+                  <Text style={styles.columnHeader}>Forwards</Text>
+                  {(roster?.forwards ?? []).map((player, index) => (
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '70%', alignSelf: 'center'}}>
+                      <Text style={styles.playerText}>{player.country} {player.name}</Text>
+                      <Text style={styles.playerText}>#{player.number}</Text>
+                    </View>
+                  ))}
+                  <Text style={styles.columnHeader}>Defensemen</Text>
+                  {(roster?.defensemen ?? []).map((player, index) => (
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '70%', alignSelf: 'center'}}>
+                      <Text style={styles.playerText}>{player.country} {player.name}</Text>
+                      <Text style={styles.playerText}>#{player.number}</Text>
+                    </View>
+                  ))}
+                  <Text style={styles.columnHeader}>Goalies</Text>
+                  {(roster?.goalies ?? []).map((player, index) => (
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '70%', alignSelf: 'center'}}>
+                      <Text style={styles.playerText}>{player.country} {player.name}</Text>
+                      <Text style={styles.playerText}>#{player.number}</Text>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+              <TouchableOpacity style={styles.closeButton} onPress={() => setShowRoster(false)}>
+                <Text style={styles.closeText}>close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        <View style={styles.button}>
+          <Text style={styles.buttonText}>Team stats</Text>
+          <View style={styles.row}>
+            <Text style={styles.gameText}>{teamStats?.rank}. in {teamStats?.division} division</Text>
+            <Text style={styles.gameText}>{teamStats?.points}p / {teamStats?.gamesPlayed}gp</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.gameText}>Total wins / losses</Text>
+            <Text style={styles.gameText}>{teamStats?.roadWins + teamStats?.homeWins} / {teamStats?.roadLosses + teamStats?.homeLosses}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.gameText}>Home</Text>
+            <Text style={styles.gameText}>{teamStats?.homeWins} / {teamStats?.homeLosses}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.gameText}>Road</Text>
+            <Text style={styles.gameText}>{teamStats?.roadWins} / {teamStats?.roadLosses}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.gameText}>Goals for</Text>
+            <Text style={styles.gameText}>{teamStats?.goals} ({teamStats?.gfpg})</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.gameText}>Goals against</Text>
+            <Text style={styles.gameText}>{teamStats?.goalAgainst} ({teamStats?.gapg})</Text>
           </View>
         </View>
-      </Modal>
-      <View style={styles.button}>
-        <Text style={styles.buttonText}>Team stats</Text>
-        <View style={styles.row}>
-          <Text style={styles.gameText}>{teamStats?.rank}. in {teamStats?.division} division</Text>
-          <Text style={styles.gameText}>{teamStats?.points}p / {teamStats?.gamesPlayed}gp</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.gameText}>Total wins / losses</Text>
-          <Text style={styles.gameText}>{teamStats?.roadWins + teamStats?.homeWins} / {teamStats?.roadLosses + teamStats?.homeLosses}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.gameText}>Home</Text>
-          <Text style={styles.gameText}>{teamStats?.homeWins} / {teamStats?.homeLosses}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.gameText}>Road</Text>
-          <Text style={styles.gameText}>{teamStats?.roadWins} / {teamStats?.roadLosses}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.gameText}>Goals for</Text>
-          <Text style={styles.gameText}>{teamStats?.goals} ({teamStats?.gfpg})</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.gameText}>Goals against</Text>
-          <Text style={styles.gameText}>{teamStats?.goalAgainst} ({teamStats?.gapg})</Text>
-        </View>
-      </View>
-      <TouchableOpacity style={styles.redirectButton} onPress={goToTeam}>
-        <Text style={styles.rText}>back</Text>
-      </TouchableOpacity>
+        <View style={{height: 40}} />
+        </>)}
+      </ScrollView>
+      <LinearGradient
+        colors={['transparent', 'black']}
+        locations={[0.2, 0.85]} 
+        style={styles.bottomGradient}
+        pointerEvents="none" 
+      />
     </View>
   );
 };
@@ -452,6 +417,13 @@ const styles = StyleSheet.create({
     width: 50,
     contentFit: 'contain',
   },
+  bottomGradient: {
+    position: 'absolute',
+    bottom: -1,
+    left: 0,
+    right: 0,
+    height: 150,
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -463,26 +435,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     flex: 1,
   },
-  redirectButton: {
-    height: 50,
-    width: '50%',
-    backgroundColor: 'white',
-    borderColor: 'white',
-    borderWidth: 1,
-    position: 'absolute',
-    right: '25%',
-    bottom: '2%',
-    zIndex: 10,
-    elevation: 10, 
-    borderRadius: 15,
-    justifyContent: 'center',
-  },
-  rText: {
-    textAlign: 'center',
-    color: 'black',
-    padding: 10,
-    fontSize: 15,
-    fontWeight: 700,
+  scroll: {
+    width: '100%',
+    left: '5%',
+    maxHeight: '95%',
   },
   header: {
     flexDirection: 'row',
@@ -492,7 +448,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 15,
     borderColor: 'white',
-    marginTop: 70,
+    marginTop: 60,
     width: '90%',
   },
   headerText: {
@@ -510,7 +466,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: '90%',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 15,
   },
   buttonText: {
     fontWeight: 500,

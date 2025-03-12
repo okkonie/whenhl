@@ -29,12 +29,54 @@ export default function RootLayout() {
         screenOptions={() => ({
           tabBarShowLabel: false,
           headerShown: false,
-          tabBarStyle: { display: 'none' },
+          tabBarStyle: {
+            borderTopWidth: 0,
+            height: '7%',
+            position: 'absolute',
+            backgroundColor: 'transparent',
+            width: '40%',
+            transform: [{ translateX: '75%' }],
+          },
         })}
       >
-        <Tabs.Screen name="index"/>
-        <Tabs.Screen name="teams"/>
-        <Tabs.Screen name="teaminfo"/>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'home',
+            tabBarIcon: ({ focused }) => (
+              <Ionicons
+                name="calendar"
+                size={focused ? 26 : 24}
+                color={'white'}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="teams"
+          options={{
+            title: 'teams',
+            tabBarIcon: ({ focused }) => (
+              <Ionicons
+                name="list"
+                size={focused ? 26 : 24}
+                color={'white'}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="teaminfo"
+          options={{
+            href: null
+          }}
+        />
+        <Tabs.Screen
+          name="logos"
+          options={{
+            href: null
+          }}
+        />
       </Tabs>
     </>
   );

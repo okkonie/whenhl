@@ -1,63 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Pressable, StyleSheet, FlatList, StatusBar, ActivityIndicator, Modal, ScrollView } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useRouter } from 'expo-router'; 
+import { useFocusEffect } from 'expo-router'; 
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
-
-const teamLogos = {
-  ANA: require('../assets/images/logos/ANA.png'), // Anaheim Ducks
-  UTA: require('../assets/images/logos/UTA.png'), // Arizona Coyotes
-  BOS: require('../assets/images/logos/BOS.png'), // Boston Bruins
-  BUF: require('../assets/images/logos/BUF.png'), // Buffalo Sabres
-  CGY: require('../assets/images/logos/CGY.png'), // Calgary Flames
-  CAR: require('../assets/images/logos/CAR.png'), // Carolina Hurricanes
-  CHI: require('../assets/images/logos/CHI.png'), // Chicago Blackhawks
-  COL: require('../assets/images/logos/COL.png'), // Colorado Avalanche
-  CBJ: require('../assets/images/logos/CBJ.png'), // Columbus Blue Jackets
-  DAL: require('../assets/images/logos/DAL.png'), // Dallas Stars
-  DET: require('../assets/images/logos/DET.png'), // Detroit Red Wings
-  EDM: require('../assets/images/logos/EDM.png'), // Edmonton Oilers
-  FLA: require('../assets/images/logos/FLA.png'), // Florida Panthers
-  LAK: require('../assets/images/logos/LAK.png'), // Los Angeles Kings
-  MIN: require('../assets/images/logos/MIN.png'), // Minnesota Wild
-  MTL: require('../assets/images/logos/MTL.png'), // Montreal Canadiens
-  NSH: require('../assets/images/logos/NSH.png'), // Nashville Predators
-  NJD: require('../assets/images/logos/NJD.png'), // New Jersey Devils
-  NYI: require('../assets/images/logos/NYI.png'), // New York Islanders
-  NYR: require('../assets/images/logos/NYR.png'), // New York Rangers
-  OTT: require('../assets/images/logos/OTT.png'), // Ottawa Senators
-  PHI: require('../assets/images/logos/PHI.png'), // Philadelphia Flyers
-  PIT: require('../assets/images/logos/PIT.png'), // Pittsburgh Penguins
-  SJS: require('../assets/images/logos/SJS.png'), // San Jose Sharks
-  SEA: require('../assets/images/logos/SEA.png'), // Seattle Kraken
-  STL: require('../assets/images/logos/STL.png'), // St. Louis Blues
-  TBL: require('../assets/images/logos/TBL.png'), // Tampa Bay Lightning
-  TOR: require('../assets/images/logos/TOR.png'), // Toronto Maple Leafs
-  VAN: require('../assets/images/logos/VAN.png'), // Vancouver Canucks
-  VGK: require('../assets/images/logos/VGK.png'), // Vegas Golden Knights
-  WSH: require('../assets/images/logos/WSH.png'), // Washington Capitals
-  WPG: require('../assets/images/logos/WPG.png'), // Winnipeg Jets
-  
-  DEFAULT: require('../assets/images/logos/NHL.png'), // Default placeholder image
-};
+import teamLogos from './logos';
 
 const Home = () => {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
-  const flatListRef = useRef(null);
   const [favorites, setFavorites] = useState([]); 
   const [showFavorites, setShowFavorites] = useState(false);
   const [gameInfo, setGameInfo] = useState([]);
   const [showGame, setShowGame] = useState(false);
-  const router = useRouter();
-
-  const goToTeam = () => {
-    router.push({
-      pathname: './teams',
-    });
-  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -236,18 +192,22 @@ const Home = () => {
   const renderItem = ({ item, index }) => {
     const isFirstOfDay = index === 0 || item.localDate !== filteredGames[index - 1]?.localDate;
 
-    const homeOddsExist = item.homeTeam?.odds?.[0]?.value !== undefined;
-    const awayOddsExist = item.awayTeam?.odds?.[0]?.value !== undefined;
+    const homeOddsExist = item.homeTeam?.odds?.[0]?.value !== undefined && item.homeTeam?.odds?.[0]?.value > 1 && item.homeTeam?.odds?.[0]?.value < 20;
+    
+    if (homeOddsExist) {
+      const sum = item.homeTeam?.odds?.[0]?.value + item.awayTeam?.odds?.[0]?.value
+      awayOdds = ((item.homeTeam?.odds?.[0]?.value * 100) / (parseFloat(item.awayTeam?.odds?.[0]?.value) + parseFloat(item.homeTeam?.odds?.[0]?.value))).toFixed(0);
+      homeOdds = 100 - awayOdds;
+    }
   
-    const lowerOddsStyle = homeOddsExist && awayOddsExist && item.homeTeam.odds[0].value < item.awayTeam.odds[0].value
+    const lowerOddsStyle = homeOddsExist && homeOdds > awayOdds
       ? styles.lowerOdd
       : styles.higherOdd;
   
-    const higherOddsStyle = homeOddsExist && awayOddsExist && item.homeTeam.odds[0].value > item.awayTeam.odds[0].value
+    const higherOddsStyle = homeOddsExist && homeOdds < awayOdds
       ? styles.lowerOdd
       : styles.higherOdd;
-    
-    
+      
     return (
       <View>
         {isFirstOfDay && <Text style={styles.dayHeader}>{item.localDate}</Text>}
@@ -276,13 +236,13 @@ const Home = () => {
               <View style={styles.futGameContainer}>
                 <Text style={styles.dateText}>{item.localTime}</Text>
 
-                {item.homeTeam?.odds?.[0]?.value && (
+                {homeOddsExist && (
                   <View style={styles.oddsContainer}>
                       <Text style={[styles.oddsText, lowerOddsStyle]}>
-                        {item.homeTeam.odds[0].value}
+                        {homeOdds}%
                       </Text>
                       <Text style={[styles.oddsText, higherOddsStyle]}>
-                        {item.awayTeam.odds[0].value}
+                        {awayOdds}%
                       </Text>
                   </View>
                 )}
@@ -319,11 +279,6 @@ const Home = () => {
           <Ionicons name="heart" size={24} color="white" />
         )}
       </TouchableOpacity>
-
-      <TouchableOpacity style={styles.redirectButton} onPress={goToTeam}>
-        <Text style={styles.rText}>teams</Text>
-        <Ionicons name="list" size={20} color="white" />
-      </TouchableOpacity>
       
       <View style={{ flex: 1 }}>
         {loading ? (
@@ -333,12 +288,12 @@ const Home = () => {
         ) : (
           <>
             <FlatList
-              ref={flatListRef}
               data={filteredGames}
               keyExtractor={(item) => item.id.toString()}
               renderItem={renderItem}
               getItemLayout={getItemLayout}
-              ListFooterComponent={<View style={{ height: 70 }} />}
+              ListHeaderComponent={<View style={{ height: 30 }} />}
+              ListFooterComponent={<View style={{ height: 60 }} />}
             />
             <LinearGradient
               colors={['transparent', 'black']}
@@ -462,33 +417,10 @@ const styles = StyleSheet.create({
     zIndex: 10,
     elevation: 10, 
   },
-  redirectButton: {
-    height: 50,
-    width: '85%',
-    backgroundColor: 'black',
-    borderColor: 'white',
-    borderWidth: 1,
-    position: 'absolute',
-    right: '5%',
-    bottom: '2%',
-    zIndex: 10,
-    elevation: 10,
-    borderRadius: 25,
-    flexDirection: 'row', // Align text and icon horizontally
-    justifyContent: 'space-between', // Space between the text and icon
-    alignItems: 'center', // Vertically align the text and icon in the center
-    paddingHorizontal: 30, // Padding on the left and right of the button
-  },
-  rText: {
-    color: 'white',
-    fontSize: 15,
-    fontWeight: '700',
-  },
   container: {
     flex: 1,
     padding: 20,
     backgroundColor: 'black',
-    marginTop: 30,
   },
   dayHeader: {
     textAlign: 'center',

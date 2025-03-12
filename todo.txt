@@ -1,4 +1,0 @@
-- teaminfo responsiveness
-- team ranks maybe
-- better buttons
-- animations maybe

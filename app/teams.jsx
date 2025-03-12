@@ -5,43 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-
-const teamLogos = {
-  ANA: require('../assets/images/logos/ANA.png'), // Anaheim Ducks
-  UTA: require('../assets/images/logos/UTA.png'), // Arizona Coyotes
-  BOS: require('../assets/images/logos/BOS.png'), // Boston Bruins
-  BUF: require('../assets/images/logos/BUF.png'), // Buffalo Sabres
-  CGY: require('../assets/images/logos/CGY.png'), // Calgary Flames
-  CAR: require('../assets/images/logos/CAR.png'), // Carolina Hurricanes
-  CHI: require('../assets/images/logos/CHI.png'), // Chicago Blackhawks
-  COL: require('../assets/images/logos/COL.png'), // Colorado Avalanche
-  CBJ: require('../assets/images/logos/CBJ.png'), // Columbus Blue Jackets
-  DAL: require('../assets/images/logos/DAL.png'), // Dallas Stars
-  DET: require('../assets/images/logos/DET.png'), // Detroit Red Wings
-  EDM: require('../assets/images/logos/EDM.png'), // Edmonton Oilers
-  FLA: require('../assets/images/logos/FLA.png'), // Florida Panthers
-  LAK: require('../assets/images/logos/LAK.png'), // Los Angeles Kings
-  MIN: require('../assets/images/logos/MIN.png'), // Minnesota Wild
-  MTL: require('../assets/images/logos/MTL.png'), // Montreal Canadiens
-  NSH: require('../assets/images/logos/NSH.png'), // Nashville Predators
-  NJD: require('../assets/images/logos/NJD.png'), // New Jersey Devils
-  NYI: require('../assets/images/logos/NYI.png'), // New York Islanders
-  NYR: require('../assets/images/logos/NYR.png'), // New York Rangers
-  OTT: require('../assets/images/logos/OTT.png'), // Ottawa Senators
-  PHI: require('../assets/images/logos/PHI.png'), // Philadelphia Flyers
-  PIT: require('../assets/images/logos/PIT.png'), // Pittsburgh Penguins
-  SJS: require('../assets/images/logos/SJS.png'), // San Jose Sharks
-  SEA: require('../assets/images/logos/SEA.png'), // Seattle Kraken
-  STL: require('../assets/images/logos/STL.png'), // St. Louis Blues
-  TBL: require('../assets/images/logos/TBL.png'), // Tampa Bay Lightning
-  TOR: require('../assets/images/logos/TOR.png'), // Toronto Maple Leafs
-  VAN: require('../assets/images/logos/VAN.png'), // Vancouver Canucks
-  VGK: require('../assets/images/logos/VGK.png'), // Vegas Golden Knights
-  WSH: require('../assets/images/logos/WSH.png'), // Washington Capitals
-  WPG: require('../assets/images/logos/WPG.png'), // Winnipeg Jets
-  
-  DEFAULT: require('../assets/images/logos/WSH.png'), // Default placeholder image
-};
+import teamLogos from './logos';
 
 const SORTING_KEY = 'sortingCriteria'
 
@@ -51,12 +15,6 @@ const Teams = () => {
   const [loading, setLoading] = useState(true);
   const [sortingCriteria, setSortingCriteria] = useState('all');
   const router = useRouter();
-
-  const goBack = () => {
-    router.push({
-      pathname: './',
-    });
-  };
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -113,13 +71,13 @@ const Teams = () => {
       const eastern = teams.filter(team => team.conference === 'Eastern').sort((a, b) => b.points - a.points);
       const western = teams.filter(team => team.conference === 'Western').sort((a, b) => b.points - a.points);
       return [
-        { title: 'Eastern Conference', data: eastern },
-        { title: 'Western Conference', data: western }
+        { title: 'Eastern conference', data: eastern },
+        { title: 'Western conference', data: western }
       ];
     } else if (sortingCriteria === 'division') {
       const divisions = ['Atlantic', 'Metropolitan', 'Central', 'Pacific'];
       return divisions.map(division => ({
-        title: `${division} Division`,
+        title: `${division}`,
         data: teams.filter(team => team.division === division).sort((a, b) => b.points - a.points),
       }));
     } else {
@@ -137,31 +95,31 @@ const Teams = () => {
     await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {  
     const isFavorite = favorites.some(fav => fav.abbrev === item.abbrev);
-
+  
     const goToTeamInfo = (item) => {
       router.push({
         pathname: './teaminfo',
         params: { abbr: item.abbrev, name: item.name, points: item.points, gp: item.gp, logo: item.logo },
       });
     };
-
+  
     return (
       <Pressable style={styles.teamItem} onPress={() => goToTeamInfo(item)}>
         <View style={styles.leftContainer}>
+          {/* ✅ Make sure index is inside a <Text> component */}
+          <Text style={styles.rankText}>{index + 1}.</Text>  
+  
           <Image
             source={teamLogos[item.abbrev] || teamLogos.DEFAULT}
             style={styles.image}
           />
           <Text style={styles.teamText}>{item.name}</Text>
         </View>
-
+  
         <View style={styles.rightContainer}>
-          <View style={styles.pointsContainer}>
-            <Text style={styles.ptsText}>{item.points}p</Text>
-            <Text style={styles.gpText}>{item.gp}g</Text>
-          </View>
+          <Text style={styles.ptsText}>{item.points}p</Text>
           <TouchableOpacity
             style={styles.favoriteButton}
             onPress={() => toggleFavorite(item)}
@@ -194,6 +152,7 @@ const Teams = () => {
               renderItem={renderItem}
               renderSectionHeader={renderSectionHeader}
               ListEmptyComponent={<Text style={styles.teamText}>No teams found</Text>}
+              ListHeaderComponent={<View style={{ height: 30 }} />}
               ListFooterComponent={<View style={{ height: 70 }} />}
             />
             <LinearGradient
@@ -218,10 +177,6 @@ const Teams = () => {
         : <Octicons name="sort-desc" size={24} color="white" style={{ transform: [{ scale: 1 }] }} />
         }
       </TouchableOpacity>
-      <TouchableOpacity style={styles.redirectButton} onPress={goBack}>
-        <Text style={styles.rText}>schedule</Text>
-        <Ionicons name="calendar" size={20} color="white" />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -230,37 +185,14 @@ export default Teams;
 
 
 const styles = StyleSheet.create({
-  redirectButton: {
-    height: 50,
-    width: '85%',
-    backgroundColor: 'black',
-    borderColor: 'white',
-    borderWidth: 1,
-    position: 'absolute',
-    right: '5%',
-    bottom: '2%',
-    zIndex: 10,
-    elevation: 10,
-    borderRadius: 25,
-    flexDirection: 'row', // Align text and icon horizontally
-    justifyContent: 'space-between', // Space between the text and icon
-    alignItems: 'center', // Vertically align the text and icon in the center
-    paddingHorizontal: 30, // Padding on the left and right of the button
-  },
-  rText: {
-    color: 'white',
-    fontSize: 15,
-    fontWeight: '700',
-  },
   sectionHeader: {
     textAlign: 'center',
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
-    marginTop: 30,
     paddingHorizontal: 10,
     borderRadius: 10,
-    marginVertical: 5,
+    marginVertical: 10,
   },
   image: {
     width: 40,
@@ -321,6 +253,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     marginHorizontal: 10,
+  },
+  rankText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginRight: 10,
   },
   ptsText: {
     color: 'white',
