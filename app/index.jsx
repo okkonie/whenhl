@@ -14,7 +14,7 @@ const Home = () => {
   const [showFavorites, setShowFavorites] = useState(false);
   const [gameInfo, setGameInfo] = useState([]);
   const [showGame, setShowGame] = useState(false);
-
+  
   useFocusEffect(
     React.useCallback(() => {
       const loadFavorites = async () => {
