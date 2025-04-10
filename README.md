@@ -1,6 +1,6 @@
 # whenhl
-nhl related app made to search data using nhl's public api <br>
-The document i used: https://gitlab.com/dword4/nhlapi/-/blob/master/new-api.md
+nhl app made using the nhl public api <br> <br>
+The documentation i used: https://gitlab.com/dword4/nhlapi/-/blob/master/new-api.md
 
 <br><br>
 
