@@ -24,7 +24,7 @@ export default function RootLayout() {
 
   return (
     <>
-      <StatusBar style="dark" backgroundColor="black" />
+      <StatusBar style="dark" backgroundColor="#000" translucent={false}/>
       <Tabs
         screenOptions={() => ({
           tabBarShowLabel: false,
@@ -45,7 +45,7 @@ export default function RootLayout() {
             title: 'home',
             tabBarIcon: ({ focused }) => (
               <Ionicons
-                name="calendar"
+                name={focused ? 'calendar' : 'calendar-outline'}
                 size={focused ? 26 : 24}
                 color={'white'}
               />
@@ -53,12 +53,26 @@ export default function RootLayout() {
           }}
         />
         <Tabs.Screen
+          name="players"
+          options={{
+            title: 'players',
+            tabBarIcon: ({ focused }) => (
+              <Ionicons
+                name={focused ? 'people' : 'people-outline'}
+                size={focused ? 26 : 24}
+                color={'white'}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+        
           name="teams"
           options={{
             title: 'teams',
             tabBarIcon: ({ focused }) => (
               <Ionicons
-                name="list"
+                name={focused ? 'albums' : 'albums-outline'}
                 size={focused ? 26 : 24}
                 color={'white'}
               />
@@ -66,13 +80,7 @@ export default function RootLayout() {
           }}
         />
         <Tabs.Screen
-          name="teaminfo"
-          options={{
-            href: null
-          }}
-        />
-        <Tabs.Screen
-          name="logos"
+          name="gameinfo"
           options={{
             href: null
           }}

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SectionList, StatusBar, TouchableOpacity, ActivityIndicator, Pressable } from 'react-native';
-import { Ionicons, Octicons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, SectionList, StatusBar, TouchableOpacity, ActivityIndicator, Pressable, Dimensions } from 'react-native';
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import teamLogos from './logos';
+import teamLogos from '../../assets/logos';
+
+const { width, height } = Dimensions.get('window')
 
 const SORTING_KEY = 'sortingCriteria'
 
@@ -13,7 +15,7 @@ const Teams = () => {
   const [teams, setTeams] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortingCriteria, setSortingCriteria] = useState('all');
+  const [sortingCriteria, setSortingCriteria] = useState('conference');
   const router = useRouter();
 
   useEffect(() => {
@@ -26,6 +28,8 @@ const Teams = () => {
         let fetchedTeams = [];
         data.standings.forEach((team) => {
           const conference = team.conferenceName;
+          const placeName = team.placeName.default;
+          const commonName = team.teamCommonName.default;
           const division = team.divisionName;
           const gamesPlayed = team.gamesPlayed;
           const teamAbbrev = team.teamAbbrev.default || 'N/A';
@@ -34,6 +38,8 @@ const Teams = () => {
 
           if (teamAbbrev !== 'N/A' && teamName !== 'Unknown Team' && points !== 'N/A') {
             fetchedTeams.push({
+              placeName: placeName,
+              commonName: commonName,
               name: teamName,
               points: points,
               abbrev: teamAbbrev,
@@ -66,6 +72,16 @@ const Teams = () => {
     fetchTeams();
   }, []);
 
+  const toggleFavorite = async (team) => {
+    const isFavorite = favorites.some(fav => fav.abbrev === team.abbrev);
+    const updatedFavorites = isFavorite
+      ? favorites.filter(fav => fav.abbrev !== team.abbrev)
+      : [...favorites, team];
+
+    setFavorites(updatedFavorites);
+    await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+  };
+
   const getGroupedData = () => {
     if (sortingCriteria === 'conference') {
       const eastern = teams.filter(team => team.conference === 'Eastern').sort((a, b) => b.points - a.points);
@@ -84,23 +100,13 @@ const Teams = () => {
       return [{ title: 'All Teams', data: teams.sort((a, b) => b.points - a.points) }];
     }
   };
-
-  const toggleFavorite = async (team) => {
-    const isFavorite = favorites.some(fav => fav.abbrev === team.abbrev);
-    const updatedFavorites = isFavorite
-      ? favorites.filter(fav => fav.abbrev !== team.abbrev)
-      : [...favorites, team];
-
-    setFavorites(updatedFavorites);
-    await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-  };
-
+  
   const renderItem = ({ item, index }) => {  
     const isFavorite = favorites.some(fav => fav.abbrev === item.abbrev);
   
     const goToTeamInfo = (item) => {
       router.push({
-        pathname: './teaminfo',
+        pathname: 'teams/teaminfo',
         params: { abbr: item.abbrev, name: item.name, points: item.points, gp: item.gp, logo: item.logo },
       });
     };
@@ -108,25 +114,26 @@ const Teams = () => {
     return (
       <Pressable style={styles.teamItem} onPress={() => goToTeamInfo(item)}>
         <View style={styles.leftContainer}>
-          {/* ✅ Make sure index is inside a <Text> component */}
-          <Text style={styles.rankText}>{index + 1}.</Text>  
-  
-          <Image
-            source={teamLogos[item.abbrev] || teamLogos.DEFAULT}
-            style={styles.image}
-          />
-          <Text style={styles.teamText}>{item.name}</Text>
+          <Text style={styles.teamText}>{index + 1}.</Text>  
+            <Image
+              source={teamLogos[item.abbrev] || teamLogos.DEFAULT}
+              style={styles.image}
+            />
+            <View>
+            <Text style={styles.teamText}>{item.placeName}</Text>
+            <Text style={styles.teamText}>{item.commonName}</Text>
+          </View>
         </View>
   
         <View style={styles.rightContainer}>
-          <Text style={styles.ptsText}>{item.points}p</Text>
+          <Text style={styles.teamText}>{item.points}p</Text>
           <TouchableOpacity
             style={styles.favoriteButton}
             onPress={() => toggleFavorite(item)}
           >
             {isFavorite ? 
-              <Ionicons name="heart" size={26} color={'white'} /> : 
-              <Ionicons name="heart-outline" size={26} color={'white'} />
+              <AntDesign name="star" size={20} color={'gold'} /> : 
+              <AntDesign name="staro" size={20} color={'white'} />
             }
           </TouchableOpacity>
         </View>
@@ -140,12 +147,25 @@ const Teams = () => {
 
   return (
     <View style={styles.container}>
+
       <StatusBar barStyle="light-content" />
-      <View style={{ flex: 1, justifyContent: 'center' }}>
+      
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         {loading ? (
           <ActivityIndicator size="large" color="white" />
         ) : (
           <>
+            <TouchableOpacity
+              style={styles.sortButton}
+              onPress={async () => {
+                const nextSort = sortingCriteria === 'all' ? 'conference' : sortingCriteria === 'conference' ? 'division' : 'all';
+                setSortingCriteria(nextSort);
+                await AsyncStorage.setItem(SORTING_KEY, nextSort);
+              }}
+            >
+              <MaterialCommunityIcons name="sort" size={28} color='white' />
+            </TouchableOpacity>
+
             <SectionList
               sections={getGroupedData()}
               keyExtractor={(item, index) => index.toString()}
@@ -154,29 +174,25 @@ const Teams = () => {
               ListEmptyComponent={<Text style={styles.teamText}>No teams found</Text>}
               ListHeaderComponent={<View style={{ height: 30 }} />}
               ListFooterComponent={<View style={{ height: 70 }} />}
+              showsVerticalScrollIndicator={false}
             />
+
             <LinearGradient
               colors={['transparent', 'black']}
               locations={[0.2, 0.85]} 
               style={styles.bottomGradient}
               pointerEvents="none" 
             />
+            <LinearGradient
+              colors={['black', 'transparent']}
+              locations={[0, 0.5]}
+              style={styles.topGradient}
+              pointerEvents="none"
+            />
           </>
         )}
       </View>
-      <TouchableOpacity
-        style={styles.sortButton}
-        onPress={async () => {
-          const nextSort = sortingCriteria === 'all' ? 'conference' : sortingCriteria === 'conference' ? 'division' : 'all';
-          setSortingCriteria(nextSort);
-          await AsyncStorage.setItem(SORTING_KEY, nextSort); // 💾 Save to AsyncStorage
-        }}
-      >
-        {sortingCriteria === 'all' ? <Octicons name="sort-desc" size={24} color="white" style={{ transform: [{ scale: 0.90 }] }}/>
-        : sortingCriteria === 'conference' ? <Octicons name="sort-desc" size={24} color="white" style={{ transform: [{ scale: 0.95 }] }} /> 
-        : <Octicons name="sort-desc" size={24} color="white" style={{ transform: [{ scale: 1 }] }} />
-        }
-      </TouchableOpacity>
+  
     </View>
   );
 };
@@ -185,14 +201,26 @@ export default Teams;
 
 
 const styles = StyleSheet.create({
-  sectionHeader: {
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginVertical: 10,
+  teamItem: {
+    backgroundColor: '#242424',
+    marginBottom: 5,
+    borderRadius: 15,
+    width: width * 0.9,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  favoriteButton: {
+    padding: 20,
+  },
+  leftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
   },
   image: {
     width: 40,
@@ -204,49 +232,25 @@ const styles = StyleSheet.create({
     bottom: -1,
     left: 0,
     right: 0,
-    height: 150,
+    height: 120,
+  },
+  topGradient: {
+    position: 'absolute',
+    top: -1,
+    left: 0,
+    right: 0,
+    height: 70,
   },
   sortButton: {
-    backgroundColor: 'black',
-    borderColor: 'white',
-    borderWidth: 1,
     position: 'absolute',
-    bottom: 0,
-    left: '5%',
-    padding: '3%',
-    borderRadius: '50%',
-    bottom: '2%',
+    bottom: height * 0.02,
+    left: width * 0.05,
+    padding: 5,
     zIndex: 10,
-    elevation: 10, 
   },
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: 'black',
-  },
-  teamItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 5,
-    borderWidth: 1,
-    borderColor: 'white',
-    marginVertical: 8,
-    borderRadius: 15,
-  },
-  leftContainer: {
-    marginLeft: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  rightContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end', 
-  },
-  pointsContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
   },
   teamText: {
     color: 'white',
@@ -254,23 +258,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginHorizontal: 10,
   },
-  rankText: {
+  headerText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginRight: 10,
+    margin: 5,
   },
-  ptsText: {
+  pText: {
     color: 'white',
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginHorizontal: 10,
   },
-  gpText: {
+  sectionHeader: {
     color: 'white',
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  favoriteButton: {
-    padding: 15,
-  },
+    fontSize: 18,
+    fontWeight: 900,
+    paddingVertical: 10
+  }
 });
