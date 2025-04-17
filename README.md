@@ -1,5 +1,5 @@
 # whenhl
-nhl app made using the nhl public api <br> <br>
+ NHL mobile app built with react native to show data from nhl's public api. <br>
 The documentation i used: https://gitlab.com/dword4/nhlapi/-/blob/master/new-api.md
 
 <br><br>
