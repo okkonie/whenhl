@@ -29,7 +29,7 @@ export default function RootLayout() {
       <StatusBar
         barStyle="light-content"
         backgroundColor="black"
-        translucent={false}
+        translucent={true}
         hidden={false}
       />
       <Tabs
