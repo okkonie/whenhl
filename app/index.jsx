@@ -4,15 +4,16 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import teamLogos from '../assets/logos';
 import GameInfo from './gameinfo';
+import "./global.css";
 
 
 const {width, height} = Dimensions.get('window')
 
 const Home = () => {
-  const [games, setGames] = useState({});
+  const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState([]); 
   const [showFavorites, setShowFavorites] = useState(false);
@@ -114,8 +115,12 @@ const Home = () => {
         return acc;
       }, {});
   
-      setGames(groupedGamesByTime); 
-  
+      const sections = Object.entries(groupedGamesByTime).map(([time, games]) => ({
+        title: time,
+        data: games,
+      }));
+      setGames(sections);
+
     } catch (e) {
       console.error('Error fetching games', e);
     } finally {
@@ -144,130 +149,97 @@ const Home = () => {
       : styles.higherOdd;
       
     return (
-      <View>
-        <TouchableOpacity
-          key={index}
-          style={styles.gameItem}
-          onPress={() => handleGamePress(item)}
-        >
-          <Image
-            source={teamLogos[item.homeAbbrev] || teamLogos.DEFAULT}
-            style={styles.image}
-          />
-          {item.gameState === "OFF" || item.gameState === "FINAL" ? (
-            <View style={styles.offGameContainer}>
-              <Text style={styles.score}>{item.homeScore} - {item.awayScore}</Text>
-              <Text style={styles.period}>{item.period}</Text>
-            </View>
-          ) : item.gameState === "LIVE" ? (
-            <View style={styles.liveGameContainer}>
-              <Text style={styles.liveScore}>{item.homeScore}</Text>
-              <Text style={styles.liveText}>LIVE</Text>
-              <Text style={styles.liveScore}>{item.awayScore}</Text>
-            </View>
-          ) : (
-            <View style={styles.futGameContainer}>
-              <Text style={styles.dateText}>{item.localTime}</Text>
-              {item.homeOdds && item.awayOdds && (
-                <View style={styles.oddsContainer}>
-                  <Text style={[styles.oddsText, lowerOddsStyle]}>
-                    {item.homeOdds}
-                  </Text>
-                  <Text style={[styles.oddsText, higherOddsStyle]}>
-                    {item.awayOdds}
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
-          <Image
-            source={teamLogos[item.awayAbbrev] || teamLogos.DEFAULT}
-            style={styles.image}
-          />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        key={index}
+        className="bg-neutral-800 rounded-2xl mb-2 flex-row justify-between items-center self-center w-5/6 py-4 px-10"
+        onPress={() => handleGamePress(item)}
+      >
+        <Image
+          source={teamLogos[item.homeAbbrev] || teamLogos.DEFAULT}
+          style={styles.image}
+        />
+        {item.gameState === "OFF" || item.gameState === "FINAL" ? (
+          <View className="justify-center items-center">
+            <Text className="text-white font-black text-xl">{item.homeScore} - {item.awayScore}</Text>
+            <Text style={styles.period}>{item.period}</Text>
+          </View>
+        ) : item.gameState === "LIVE" ? (
+          <View className="justify-between items-center flex-row w-1/3">
+            <Text className="text-white font-black text-xl">{item.homeScore}</Text>
+            <Text className="text-white font-extrabold text-xs rounded-md text-center px-2 py-1 bg-red-800">LIVE</Text>
+            <Text className="text-white font-black text-xl">{item.awayScore}</Text>
+          </View>
+        ) : (
+          <View className="justify-center items-center flex-col gap-2">
+            <Text className="text-white font-black text-xl">{item.localTime}</Text>
+            {item.homeOdds && item.awayOdds && (
+              <View className="flex-row justify-center gap-1">
+                <Text className="px-1 rounded-sm color-black font-extrabold text-xs" style={lowerOddsStyle}>
+                  {item.homeOdds.toFixed(2)}
+                </Text>
+                <Text className="px-1 rounded-sm color-black font-extrabold text-xs" style={higherOddsStyle}>
+                  {item.awayOdds.toFixed(2)}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+        <Image
+          source={teamLogos[item.awayAbbrev] || teamLogos.DEFAULT}
+          style={styles.image}
+        />
+      </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.container}>
-
-      <View style={{ flex: 1 }}>
-
+    <View className="bg-black flex-1">
       {loading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View className="flex-1 justify-center align-center">
           <ActivityIndicator size="large" color="white" />
         </View>
       ) : (
         <>
-        <GameInfo
-          showGame={showGame}
-          setShowGame={setShowGame}
-          selectedGame={selectedGame} 
-        />
-        <TouchableOpacity
-          style={styles.sortButton}
-          onPress={async () => {
-            const newValue = !showFavorites;
-            setShowFavorites(newValue);
-            await AsyncStorage.setItem('showFavorites', JSON.stringify(newValue));
-          }}
-        >
-          <AntDesign name={showFavorites ? 'star' : 'staro'} color={showFavorites ? 'gold' : 'white'} size={28} />
-        </TouchableOpacity>
+          <GameInfo
+            showGame={showGame}
+            setShowGame={setShowGame}
+            selectedGame={selectedGame} 
+          />
+          <TouchableOpacity
+            className="absolute h-[6%] aspect-square bottom-0 left-0 z-10"
+            onPress={async () => {const newValue = !showFavorites; setShowFavorites(newValue); await AsyncStorage.setItem('showFavorites', JSON.stringify(newValue)); }}
+          > 
+            <View className="items-end h-full w-full">
+              <AntDesign name={showFavorites ? 'star' : 'staro'} color={showFavorites ? 'gold' : 'white'} size={28} />
+            </View>
+          </TouchableOpacity>
 
-        <ScrollView 
-          horizontal 
-          pagingEnabled 
-          style={{ flex: 1 }}
-          contentOffset={{ x: 2 * Dimensions.get('window').width, y: 0 }} 
-          onScroll={(event) => {
-            const contentOffsetX = event.nativeEvent.contentOffset.x;
-            const index = Math.floor(contentOffsetX / Dimensions.get('window').width);
-            setCurrentIndex(index);
-          }}
-        >
-          {Object.keys(games).map((time, index) => {
-            const filteredGames = showFavorites && favorites.length > 0
-              ? games[time].filter(game => favorites.some(fav => fav.abbrev === game.homeAbbrev || fav.abbrev === game.awayAbbrev))
-              : games[time];
-
-            return (
-              <View key={time} style={{ width: Dimensions.get('window').width }}>
-
-                <FlatList
-                  data={filteredGames}
-                  keyExtractor={item => item.id.toString()}
-                  renderItem={renderItem}
-                  ListHeaderComponent={<View style={{ height: height * 0.13 }} />}
-                  ListEmptyComponent={<Text style={styles.dateText}>no games</Text>}
-                  ListFooterComponent={<View style={{ height: height * 0.11 }} />}
-                  bounces={false}
-                />
-
-                <LinearGradient
-                  colors={['black', 'transparent']}
-                  locations={[0.4, 0.8 ]} 
-                  style={styles.topGradient}
-                  pointerEvents="none" 
-                />
-
-                <View style={styles.headerContainer}>
-                  <Text style={styles.headerText}>{time}</Text>
-                </View>
-              </View>
-            );
-          })}
-        </ScrollView>
-        <LinearGradient
-          colors={['transparent', 'black']}
-          locations={[0.25, 0.85]} 
-          style={styles.bottomGradient}
-          pointerEvents="none" 
-        />
+          <SectionList
+            sections={games}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItem}
+            renderSectionHeader={({ section: { title } }) => (
+                <Text className="text-white font-extrabold text-2xl w-[95%] self-center text-center py-2 m-2 bg-gradient-to-r bg-neutral-900 rounded-xl">{title}</Text>
+            )}
+            ListEmptyComponent={<Text className="text-white font-bold text-lg text-center">no games</Text>}
+            ListHeaderComponent={<View style={{ height: height * 0.05 }} />}
+            ListFooterComponent={<View style={{ height: height * 0.11 }} />}
+            bounces={false}
+          />
+          <LinearGradient
+            colors={['black', 'transparent']}
+            locations={[0.2, 1]} 
+            style={styles.topGradient}
+            pointerEvents="none" 
+          />
+          <LinearGradient
+            colors={['transparent', 'black']}
+            locations={[0.25, 0.85]} 
+            style={styles.bottomGradient}
+            pointerEvents="none" 
+          />
         </>
       )}
-      </View>
     </View>
   );
 };
@@ -276,10 +248,8 @@ const Home = () => {
 const styles = StyleSheet.create({
   headerContainer: {
     width: width,
-    position: 'absolute',
     alignItems: 'center',
-    marginTop: height * 0.07,
-    paddingBottom: height * 0.02,
+    padding: height * 0.02,
     borderColor: 'white',
     zIndex: 2000,
   },
@@ -312,11 +282,7 @@ const styles = StyleSheet.create({
     top: -1,
     left: 0,
     right: 0,
-    height: height * 0.17,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: 'black',
+    height: height * 0.06,
   },
   gameItem: {
     alignItems: 'center',
@@ -330,69 +296,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#242424',
     borderRadius: width * 0.03,
   },
-  dateText: {
-    textAlign: 'center',
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  liveGameContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    width: '30%',
-    justifyContent: 'space-between',
-  },
-  offGameContainer: {
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  futGameContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    gap: 10,
-  },
-  liveText: {
-    color: 'white',
-    backgroundColor: 'red',
-    fontSize: 10,
-    padding: 5,
-    fontWeight: 800,
-    borderRadius: 3,
-    textAlign: 'center',
-  },
-  liveScore: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  score: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '900',
-    paddingHorizontal: 6,
-  },
   period: {
     color: '#C4C4C4',
     fontSize: 10,
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: 5,
-  },
-  oddsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderColor: '#ccc',
-    borderRadius: 5,
-    gap: 5,
-  },
-  oddsText: {
-    paddingHorizontal: 3,
-    borderRadius: 2,
-    backgroundColor: '#ccc',
-    color: 'black',
-    fontSize: 9,
-    fontWeight: '800',
   },
   lowerOdd: {
     backgroundColor: '#ccc',
