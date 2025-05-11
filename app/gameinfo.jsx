@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import colors from '../assets/colors';
 import teamLogos from '../assets/logos';
 
 const { width, height } = Dimensions.get('window');
@@ -89,42 +90,55 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
   
     return () => controller.abort();
   }, [showGame, selectedGame]);
+
   
   return (
     <Modal animationType="slide" transparent={true} visible={showGame} onRequestClose={() => setShowGame(false)}>
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <TouchableOpacity onPress={() => setShowGame(false)} style={styles.closeButton}>
+      <View className="flex-1 justify-end items-center bg-transparent">
+        <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
+          <View className='items-center justify-between flex-row w-full px-5 h-14'>
+            <Text className="text-white text-lg font-extrabold">Game Details</Text>
+
+          <TouchableOpacity onPress={() => setShowGame(false)} className='pl-5 h-full items-center justify-center'>
             <Ionicons name="close" size={24} color="white" />
           </TouchableOpacity>
+          </View>
           {loading ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View className='flex-1 justify-center items-center'>
               <ActivityIndicator size="large" color="white" />
             </View>
           ) : (
             <>
+              <View className="flex-row justify-between w-full border-b border-neutral-500 pb-4">
+                <View className="items-center px-4 pb-1 rounded-xl w-1/3 ml-3" style={{backgroundColor: colors[selectedGame.homeAbbrev]}}>
+                  <Image source={teamLogos[selectedGame.homeAbbrev] || teamLogos.DEFAULT} style={styles.image} />
+                  <Text className='text-white font-bold text-sm'>{selectedGame.homeName}</Text>
+                </View>
+                {selectedGame.gameState !== 'FUT' ? (
+                  <View className="flex-col items-center justify-center gap-2">
+                    <Text className='text-white font-extrabold text-xl'>{gameInfo.homeScore} - {gameInfo.awayScore}</Text>
+                    <Text className='text-neutral-400 font-bold text-sm'>{gameInfo.prd}</Text>
+                  </View>
+                ) : (
+                  <View className="flex-col items-center justify-center gap-2">
+                    <Text className='text-white font-extrabold text-xl'>{selectedGame.localTime}</Text>
+                    <Text className='text-neutral-400 font-bold text-sm'>{selectedGame.localDate}</Text>
+                  </View>
+                )}
+                <View className="items-center px-4 pb-1 rounded-xl w-1/3 mr-3" style={{backgroundColor: colors[selectedGame.awayAbbrev]}}>
+                  <Image source={teamLogos[selectedGame.awayAbbrev] || teamLogos.DEFAULT} style={styles.image} />
+                  <Text className='text-white font-medium text-sm'>{selectedGame.awayName}</Text>
+                </View>
+              </View>
+              <View>
               {selectedGame.gameState !== 'FUT' ? (
                 <View>
-                  <View style={[styles.row, { height: height * 0.1 }]}>
-                    <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                      <Text style={{ color: 'white', fontSize: 14, fontWeight: 600 }}>{selectedGame.homeAbbrev}</Text>
-                      <Image source={teamLogos[selectedGame.homeAbbrev] || teamLogos.DEFAULT} style={styles.image} />
-                    </View>
-                    <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                      <Text style={styles.score}>{gameInfo.homeScore} - {gameInfo.awayScore}</Text>
-                      <Text style={styles.period}>{gameInfo.prd}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'column', alignItems: 'center'}}>
-                      <Text style={{ color: 'white', fontSize: 14, fontWeight: 600 }}>{selectedGame.awayAbbrev}</Text>
-                      <Image source={teamLogos[selectedGame.awayAbbrev] || teamLogos.DEFAULT} style={styles.image} />
-                    </View>
+                  <View className="flex-row justify-between w-full py-3 px-5 border-b border-neutral-500">
+                    <Text className="text-white font-extrabold text-lg">{gameInfo.homeSOG}</Text>
+                    <Text className="text-white font-extrabold text-lg">SOG</Text>
+                    <Text className="text-white font-extrabold text-lg">{gameInfo.awaySOG}</Text>
                   </View>
-                  <View style={[styles.row, { height: height * 0.04 }]}>
-                    <Text style={styles.goalScorer}>{gameInfo.homeSOG}</Text>
-                    <Text style={styles.goalScorer}>SOG</Text>
-                    <Text style={styles.goalScorer}>{gameInfo.awaySOG}</Text>
-                  </View>
-                  <ScrollView style={{ maxHeight: height * 0.42 }} showsVerticalScrollIndicator={false}>
+                  <ScrollView className="max-h-full p-5" showsVerticalScrollIndicator={false}>
                     {gameInfo.goals?.length > 0 && (
                       gameInfo.goals.map((goal, index) => (
                         <View key={index} style={styles.goalRow}>
@@ -138,24 +152,11 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                         </View>
                       ))
                     )}
+                    <View className='h-96' />
                   </ScrollView>
                 </View>
               ) : (
                 <View>
-                  <View style={styles.row}>
-                    <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                      <Text style={{ color: 'white', fontSize: 14, fontWeight: 600 }}>{selectedGame.homeAbbrev}</Text>
-                      <Image source={teamLogos[selectedGame.homeAbbrev] || teamLogos.DEFAULT} style={styles.image} />
-                    </View>
-                    <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                      <Text style={styles.score}>{selectedGame.localTime}</Text>
-                      <Text style={styles.period}>{selectedGame.localDate}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                      <Text style={{ color: 'white', fontSize: 14, fontWeight: 600 }}>{selectedGame.awayAbbrev}</Text>
-                      <Image source={teamLogos[selectedGame.awayAbbrev] || teamLogos.DEFAULT} style={styles.image} />
-                    </View>
-                  </View>
                   <View style={styles.row}>
                     <Text style={styles.goalScorer}>{gameInfo.homeRec}</Text>
                     <Text style={styles.goalScorer}>record</Text>
@@ -168,9 +169,9 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                       <Text style={styles.goalScorer}>{selectedGame.awayOdds}</Text>
                     </View>
                   )}
-                  
+                
                   {gameInfo.teamLeaders && (
-                    <>
+                    <View>
                       <Text style={[styles.goalScorer, {marginBottom: 10, textAlign:'center'}]}>team leaders</Text>
                       <View style={styles.row}>
                       <View style={{flexDirection: 'column', maxWidth: width * 0.39, overflow: 'hidden', gap: 5}}>
@@ -206,8 +207,8 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                           ) : null
                         )}
                       </View>
-                      </View>
-                    </>
+                    </View>
+                  </View>
                   )}
                   <View style={styles.row}>
                     <Text style={[styles.goalScorer, {fontSize: 12}]}>location:</Text>
@@ -215,7 +216,8 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
 
                   </View>
                 </View>
-            )}
+              )}
+              </View>
             </>
           )}
         </View>
@@ -229,31 +231,6 @@ const styles = StyleSheet.create({
     width: width * 0.16,
     height: width * 0.16,
     contentFit: 'contain',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-  },
-  modalContent: {
-    alignItems: 'center',
-    height: 0.7 * height,
-    width: width,
-    backgroundColor: '#242424',
-    borderTopRightRadius: 10,
-    borderTopLeftRadius: 10,
-    alignItems: 'center',
-    elevation: 10,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  closeButton: {
-    alignSelf: 'flex-end',
-    padding: width * 0.05,
-    height: height * 0.1,
   },
   row: {
     width: 0.8 * width,

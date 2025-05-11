@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import colors from '../assets/colors';
 import teamLogos from '../assets/logos';
 import GameInfo from './gameinfo';
@@ -57,12 +57,28 @@ const Home = () => {
   };
 
   const convertToLocalDate = (utcDateString) => {
-    const date = new Date(utcDateString);
-    return new Intl.DateTimeFormat('default', {
-      weekday: 'short',
+    const localDate = new Date(utcDateString);
+    const now = new Date();
+
+    const normalize = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const target = normalize(localDate);
+    const today = normalize(now);
+
+    const oneDay = 24 * 60 * 60 * 1000;
+    const diffDays = Math.round((target - today) / oneDay);
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === -1) return 'Yesterday';
+    if (diffDays === 1) return 'Tomorrow';
+
+    // Fallback: weekday + date
+    const dayLabel = new Intl.DateTimeFormat('en', { weekday: 'short' }).format(localDate);
+    const formattedDate = new Intl.DateTimeFormat('en', {
       month: 'numeric',
       day: 'numeric',
-    }).format(date);
+    }).format(localDate);
+
+    return `${dayLabel}, ${formattedDate}`;
   };
 
   const getDay = () => {
@@ -99,6 +115,8 @@ const Home = () => {
               awayScore: game.awayTeam?.score ?? null,
               period: game.periodDescriptor?.periodType ?? null,
               homeAbbrev: game.homeTeam?.abbrev ?? null,
+              homeName: game.homeTeam?.commonName?.default ?? null,
+              awayName: game.awayTeam?.commonName?.default ?? null,
               awayAbbrev: game.awayTeam?.abbrev ?? null,
               startTimeUTC: game.startTimeUTC,
               localDate: convertToLocalDate(game.startTimeUTC),
@@ -185,20 +203,19 @@ const Home = () => {
                 : section.data;
 
               return (
-                <View className="w-full self-center mb-2 pt-4 border-neutral-500">
+                <View className="w-full self-center pt-4 border-neutral-500">
                   {filteredGames.length === 0 ? (
-                    <Text className="text-white font-medium text-md pl-4 pb-2">{section.title} no games 🙁</Text>
+                    <Text className="text-white font-medium text-md pl-5 pb-2">{section.title} no games 🙁</Text>
                   ) : (
-                    <Text className="text-white font-extrabold text-2xl pl-4 pb-2">{section.title}</Text>
+                    <Text className="text-white font-bold text-xl pl-5 pt-4 border-t border-neutral-800">{section.title}</Text>
 
                   )}
-
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} className="w-full">
+                  <View className="flex-wrap flex-row px-4 py-2">
                   {filteredGames.map((item) => {
                     return (
                       <TouchableOpacity
                         key={item.id}
-                        className= "justify-between items-center w-48 p-1"
+                        className= "justify-between items-center w-1/2 p-1"
                         onPress={() => handleGamePress(item)}
                       >
                         <View className={`flex-row justify-evenly items-center py-2 item-center w-full rounded-t-xl`} style={{ backgroundColor: colors[item.homeAbbrev] || colors.DEFAULT }}>
@@ -225,22 +242,23 @@ const Home = () => {
                           </View>
                         ) : (
                           <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                            
+                            {item.homeOdds && item.awayOdds && (
+                            <Text 
+                              className={`px-1 rounded-sm font-extrabold text-xs 
+                              ${item.homeOdds <= item.awayOdds ? 'text-black' : 'text-neutral-400'}
+                              ${item.homeOdds <= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
+                              {item.homeOdds}
+                            </Text>
+                            )}
                             <Text className="text-white font-black text-xl">{item.localTime}</Text>
                             {item.homeOdds && item.awayOdds && (
-                              <View className="flex-row justify-center gap-1">
-                                <Text 
-                                  className={`px-1 rounded-sm font-extrabold text-xs 
-                                  ${item.homeOdds <= item.awayOdds ? 'text-black' : 'text-neutral-400'}
-                                  ${item.homeOdds <= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
-                                  {item.homeOdds}
-                                </Text>
-                                <Text 
-                                  className={`px-1 rounded-sm font-extrabold text-xs 
-                                  ${item.homeOdds >= item.awayOdds ? 'text-black' : 'text-neutral-400'}
-                                  ${item.homeOdds >= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
-                                  {item.awayOdds}
-                                </Text>
-                              </View>
+                              <Text 
+                                className={`px-1 rounded-sm font-extrabold text-xs 
+                                ${item.homeOdds >= item.awayOdds ? 'text-black' : 'text-neutral-400'}
+                                ${item.homeOdds >= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
+                                {item.awayOdds}
+                              </Text>
                             )}
                           </View>
                         )}
@@ -248,7 +266,7 @@ const Home = () => {
                       </TouchableOpacity>
                     );
                   })}
-                  </ScrollView>
+                  </View>
                 </View>
               );
             }}
