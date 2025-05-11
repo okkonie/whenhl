@@ -54,7 +54,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 name={focused ? 'calendar' : 'calendar-outline'}
-                size={focused ? 26 : 24}
+                size={height * 0.03}
                 color={'white'}
               />
             ),
@@ -67,7 +67,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 name={focused ? 'people' : 'people-outline'}
-                size={focused ? 26 : 24}
+                size={height * 0.03}
                 color={'white'}
               />
             ),
@@ -81,7 +81,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 name={focused ? 'albums' : 'albums-outline'}
-                size={focused ? 26 : 24}
+                size={height * 0.03}
                 color={'white'}
               />
             ),
