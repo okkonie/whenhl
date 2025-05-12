@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/splash-icon.png",
-        "backgroundColor": "#242424"
+        "backgroundColor": "#262626"
       },
       "package": "com.okkonie.whenhl"
     },
@@ -31,7 +31,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#242424"
+          "backgroundColor": "#262626"
         }
       ]
     ],

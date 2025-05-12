@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import getFlagEmoji from '../assets/getflag'
 import teamLogos from "../assets/logos"
+import "./global.css"
 const {width, height} = Dimensions.get('window')
 
 const players = () => {
@@ -29,23 +30,30 @@ const players = () => {
   useEffect(() => {
     const fetchStats = async (season) => {
       setLoading(true)
-      const response = await fetch(`https://api-web.nhle.com/v1/skater-stats-leaders/${season.key}?limit=30`);
-      const response2 = await fetch(`https://api-web.nhle.com/v1/goalie-stats-leaders/${season.key}?limit=30`);
-      const data = await response.json();
-      const data2 = await response2.json();
-      setSkaterStats(data)
-      setGoalieStats(data2)
-      setLoading(false)
+      if (skaterOn) {
+        const response = await fetch(`https://api-web.nhle.com/v1/skater-stats-leaders/${season.key}?limit=30`);
+        const data = await response.json();
+        setSkaterStats(data)
+        setLoading(false)
+      }
+      if (!skaterOn) {
+        const response = await fetch(`https://api-web.nhle.com/v1/goalie-stats-leaders/${season.key}?limit=30`);
+        const data = await response.json();
+        setGoalieStats(data)
+        setLoading(false)
+      }
     };
 
     fetchStats(season);
-  }, [season]);
+  }, [season, skaterOn]);
 
   useEffect(() => {
     const fetchResults = async (search) => {
+      setLoading(true)
       const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=30&q=${search}&active=${active}`);
       const data = await response.json();
       setResults(data)
+      setLoading(false)
     };
     search !== '' && fetchResults(search);
   }, [search, active])
@@ -90,15 +98,25 @@ const players = () => {
 
   const SkaterSortButton = ({ sort, skaterSort, setSkaterSort }) => {
     return (
-      <TouchableOpacity key={sort} style={[{borderColor: skaterSort === sort ? '#82ff80' : 'transparent',},styles.sortButton]} onPress={() => setSkaterSort(sort)}>
-        <Text style={styles.text2}>{sort}</Text>
+      <TouchableOpacity 
+        className="px-5 border-2 rounded-full h-7 justify-center items-center" 
+        key={sort} 
+        style={{borderColor: skaterSort === sort ? '#82ff80' : 'transparent'}} 
+        onPress={() => setSkaterSort(sort)}
+      >
+        <Text className="text-white font-bold text-sm">{sort}</Text>
       </TouchableOpacity>
     );
   };
   const GoalieSortButton = ({ sort, goalieSort, setGoalieSort }) => {
     return (
-      <TouchableOpacity key={sort} style={[{borderColor: goalieSort === sort ? '#82ff80' : 'transparent',},styles.sortButton]} onPress={() => setGoalieSort(sort)}>
-        <Text style={styles.text2}>{sort}</Text>
+      <TouchableOpacity 
+        className="px-5 border-2 rounded-full h-7 justify-center items-center" 
+        key={sort} 
+        style={{borderColor: goalieSort === sort ? '#82ff80' : 'transparent'}} 
+        onPress={() => setGoalieSort(sort)}
+      >
+        <Text className="text-white font-bold text-sm">{sort}</Text>
       </TouchableOpacity>
     );
   };
@@ -113,18 +131,18 @@ const players = () => {
     const flag = item.birthCountry ? getFlagEmoji(item.birthCountry) : '🏳️';
   
     return (
-      <TouchableOpacity style={styles.resultItem} 
+      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-900 w-full px-5 py-1 mb-1 ruonded-lg h-10"
         onPress={() => {
           const selected = { ...item, flag };
           setSelectedPlayer(selected);
           fetchPlayerStats(item.playerId);
           setShowStats(true);
         }}>
-        <Text style={styles.text}>{flag + '   ' + item.name}</Text>
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+        <Text className="text-white font-bold text-md">{flag + '   ' + item.name}</Text>
+        <View className="flex-row items-center gap-4">
         {item.sweaterNumber && item.lastTeamAbbrev && 
           <>
-            <Text style={styles.text}>#{item.sweaterNumber}</Text>
+            <Text className="text-white font-bold text-md">#{item.sweaterNumber}</Text>
             <Image
               source={teamLogos[item.lastTeamAbbrev]}
               style={styles.image}
@@ -154,30 +172,30 @@ const players = () => {
       };
     };
   
-  const renderOtherItem = ({ item, index }) => {
+  const renderTopItem = ({ item, index }) => {
     return (
-      <TouchableOpacity style={styles.resultItem}
+      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-900 w-full px-5 py-1 mb-1 ruonded-lg h-10"
         onPress={() => {
           const selected = { ...item };
           setSelectedPlayer(selected);
           fetchPlayerStats(item.id);
           setShowStats(true);
         }}>
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+        <View className="flex-row items-center gap-3">
           {item.sweaterNumber && item.teamAbbrev &&
             <>
-              <Text style={styles.text}>{index + 1}.</Text>
+              <Text className="text-white font-bold text-md">{index + 1}.</Text>
               <Image
                 source={teamLogos[item.teamAbbrev]}
                 style={styles.image}
               />
-              <Text style={styles.text}>{item.firstName.default + ' ' +item.lastName.default}</Text>
+              <Text className="text-white font-bold text-md">{item.firstName.default + ' ' +item.lastName.default}</Text>
             </>
           }
         </View>
         {item.value &&
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-            <Text style={styles.text}>
+          <View className="items-center">
+            <Text className="text-white font-bold text-md">
               {skaterOn && skaterSort === 'time on ice' ? (item.value / 60).toFixed(2) 
               : skaterOn && skaterSort === 'faceoff%' ? (item.value * 100).toFixed(2) + '%'
               : !skaterOn && goalieSort === 'save%' ? item.value.toFixed(3) 
@@ -185,17 +203,16 @@ const players = () => {
               : item.value}</Text>
           </View>
         }
-        
       </TouchableOpacity>
     );
   };
 
   return (
-    <View style={{flex: 1, alignItems: 'center', backgroundColor: 'black'}}>
+    <View className="flex-1 items-center bg-black">
       <LinearGradient
         colors={['black', 'transparent']}
         locations={[0, 0.8 ]} 
-        style={[{top: searching ? height * 0.05 : height * 0.1}, styles.topGradient]}
+        style={styles.topGradient}
         pointerEvents="none" 
       />
 
@@ -284,7 +301,7 @@ const players = () => {
             keyExtractor={(item, index) => item.id?.toString() || index.toString()}
             ListHeaderComponent={<View  style={{height: height * 0.08}}/>}
             ListFooterComponent={<View  style={{height: 100}}/>}
-            renderItem={renderOtherItem}
+            renderItem={renderTopItem}
           />
         </>
       )}
@@ -511,16 +528,6 @@ const players = () => {
 }
 
 const styles = StyleSheet.create({
-  sortButton: {
-    paddingHorizontal: 20,
-    borderWidth: 2,
-    borderRadius: 20,
-    backgroundColor: '#242424',
-    marginHorizontal: 3,
-    height: height * 0.035,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   skaterButton: {
     width: '84%',
     height: height * 0.06,
@@ -607,6 +614,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     left: 0,
     right: 0,
+    top: height * 0.05,
     height: 100,
   },
   activeText: {

@@ -59,7 +59,28 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
             ) || [],
           };
         }
+
         if (selectedGame.gameState === 'FUT') {
+          const homeGoalies = data.matchup.goalieComparison.homeTeam.leaders.filter(
+            (leader) => typeof leader.gamesPlayed === 'number'
+          );
+
+          const topHomeGoalie = homeGoalies.length
+            ? homeGoalies.reduce((max, leader) =>
+                leader.gamesPlayed > max.gamesPlayed ? leader : max
+              )
+            : null;
+
+          const awayGoalies = data.matchup.goalieComparison.awayTeam.leaders.filter(
+            (leader) => typeof leader.gamesPlayed === 'number'
+          );
+
+          const topAwayGoalie = awayGoalies.length
+            ? awayGoalies.reduce((max, leader) =>
+                leader.gamesPlayed > max.gamesPlayed ? leader : max
+              )
+            : null;
+
           gameInfo = {
             homeRec: data.homeTeam.record,
             awayRec: data.awayTeam.record,
@@ -71,14 +92,14 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
               awayLeader: category.awayLeader.name.default,
               awayValue: category.awayLeader.value,
             })),
-            goalieLeaders: data.matchup.goalieComparison.homeTeam.leaders.map((leader) => ({
-              name: leader.name.default,
-              gp: leader.gamesPlayed,
-              record: leader.record,
-              gaa: leader.gaa,
-              svPctg: leader.savePctg,
-              so: leader.shutouts,
-            })),
+            homeGoalie: topHomeGoalie.name.default,
+            homeGoalieGaa: topHomeGoalie.gaa,
+            homeGoalieGp: topHomeGoalie.gamesPlayed,
+            homeGoalieSv: topHomeGoalie.savePctg,
+            awayGoalie: topAwayGoalie.name.default,
+            awayGoalieGp: topAwayGoalie.gamesPlayed,
+            awayGoalieGaa: topAwayGoalie.gaa,
+            awayGoalieSv: topAwayGoalie.savePctg,
           };
         }
         setGameInfo(gameInfo); 
@@ -215,7 +236,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                     {gameInfo.skaterLeaders && (
                         
                         <View className="flex-col items-center justify-between w-full py-3 px-5 border-b border-neutral-500">
-                          <Text className="text-white w-full font-extrabold text-lg mb-2">Team leaders</Text>
+                          <Text className="text-white w-full font-extrabold text-md my-2">Team leaders</Text>
                           <View className="flex-col w-full justify-between">
                             {gameInfo.skaterLeaders.map((category, index) =>
                               <View key={index} className="flex-row justify-between w-full gap-2">
@@ -235,6 +256,22 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                                 </View>
                               </View>
                             )}
+                            <View className='flex-row gap-2'>
+                            <View className="w-1/2 px-3 py-1 mb-2 rounded-lg justify-between flex-row items-center" style={{backgroundColor: colors[selectedGame.homeAbbrev]}}>
+                              <Text className="text-white text-md font-bold">{gameInfo.homeGoalie}</Text>
+                              <View className="items-end">
+                                <Text className="text-white text-xl font-bold">{(gameInfo.homeGoalieSv * 100).toFixed(1)}</Text>
+                                <Text className="text-white text-sm font-bold">save%</Text>
+                              </View>
+                            </View>
+                            <View className="w-1/2 px-3 py-1 mb-2 rounded-lg justify-between flex-row items-center" style={{backgroundColor: colors[selectedGame.awayAbbrev]}}>
+                              <Text className="text-white text-md font-bold">{gameInfo.awayGoalie}</Text>
+                              <View className="items-end">
+                                <Text className="text-white text-xl font-bold">{(gameInfo.awayGoalieSv * 100).toFixed(1)}</Text>
+                                <Text className="text-white text-sm font-bold">save%</Text>
+                              </View>
+                            </View>
+                            </View>
                           </View>
                         </View>
                     )}
@@ -258,56 +295,6 @@ const styles = StyleSheet.create({
     width: width * 0.16,
     height: width * 0.16,
     contentFit: 'contain',
-  },
-  row: {
-    width: 0.8 * width,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    paddingBottom: 15,
-    borderColor: '#ccc',
-  },
-  goalRow: {
-    alignItems:'center',
-    width: 'auto',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: height * 0.015,
-  },
-  score: {
-    fontWeight: 900,
-    color: 'white',
-    fontSize: 24,
-  },
-  period: {
-    fontWeight: 600,
-    color: '#ccc',
-    fontSize: 14,
-  },
-  goalScorer: {
-    fontWeight: 700,
-    color: 'white',
-    fontSize: 14,
-  },
-  goalAssists: {
-    fontWeight: 600,
-    color: '#ccc',
-    fontSize: 12,
-  },
-  goalScore: { 
-    borderWidth: 1,
-    borderColor: '#ccc',
-    textAlign: 'right',
-    fontWeight: 600,
-    color: 'white',
-    fontSize: 14,
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
   },
 });
 
