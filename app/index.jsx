@@ -118,6 +118,12 @@ const Home = () => {
               homeName: game.homeTeam?.commonName?.default ?? null,
               awayName: game.awayTeam?.commonName?.default ?? null,
               awayAbbrev: game.awayTeam?.abbrev ?? null,
+              gameNumber: game.seriesStatus?.gameNumberOfSeries,
+              seriesLeader: game.seriesStatus?.topSeedWins > game.seriesStatus?.bottomSeedWins
+                ? `${game.seriesStatus?.topSeedTeamAbbrev}` : game.seriesStatus?.topSeedWins < game.seriesStatus?.bottomSeedWins
+                ? `${game.seriesStatus?.bottomSeedTeamAbbrev}` : 'Tied',
+              seriesScore: game.seriesStatus?.topSeedWins > game.seriesStatus?.bottomSeedWins
+                ? `${game.seriesStatus?.topSeedWins}-${game.seriesStatus?.bottomSeedWins}` : `${game.seriesStatus?.bottomSeedWins}-${game.seriesStatus?.topSeedWins}`,
               startTimeUTC: game.startTimeUTC,
               localDate: convertToLocalDate(game.startTimeUTC),
               localTime: game.gameScheduleState === 'OK' ? convertUTCToLocalTime(game.startTimeUTC) : 'TBD',
@@ -205,67 +211,66 @@ const Home = () => {
               return (
                 <View className="w-full self-center pt-4 border-neutral-500">
                   {filteredGames.length === 0 ? (
-                    <Text className="text-white font-medium text-md pl-5 pb-2">{section.title} no games 🙁</Text>
+                    <Text className="text-white font-medium text-md pl-6 pt-4 border-t border-neutral-800">{section.title} no games 🙁</Text>
                   ) : (
-                    <Text className="text-white font-bold text-xl pl-5 pt-4 border-t border-neutral-800">{section.title}</Text>
+                    <Text className="text-white font-bold text-xl pl-6 pt-4 border-t border-neutral-800">{section.title}</Text>
 
                   )}
-                  <View className="flex-wrap flex-row px-4 py-2">
-                  {filteredGames.map((item) => {
-                    return (
-                      <TouchableOpacity
-                        key={item.id}
-                        className= "justify-between items-center w-1/2 p-1"
-                        onPress={() => handleGamePress(item)}
-                      >
-                        <View className={`flex-row justify-evenly items-center py-2 item-center w-full rounded-t-xl`} style={{ backgroundColor: colors[item.homeAbbrev] || colors.DEFAULT }}>
-                          <Image
-                            source={teamLogos[item.homeAbbrev] || teamLogos.DEFAULT}
-                            style={styles.image}
-                          />
-                          <Image
-                            source={teamLogos[item.awayAbbrev] || teamLogos.DEFAULT}
-                            style={styles.image}
-                          />
-                        </View>
-                        {item.gameState === "OFF" || item.gameState === "FINAL" ? (
-                          <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
-                            <Text className="text-white font-black text-xl">{item.homeScore}</Text>
-                            <Text className="text-xs text-neutral-400 font-bold mt-1">{item.period}</Text>
-                            <Text className="text-white font-black text-xl">{item.awayScore}</Text>
+                  <View className="flex-wrap flex-row px-4 pt-2">
+                    {filteredGames.map((item) => {
+                      return (
+                        <TouchableOpacity
+                          key={item.id}
+                          className= "justify-between items-center w-1/2 p-1"
+                          onPress={() => handleGamePress(item)}
+                        >
+                          <View className={`flex-row justify-evenly items-center py-2 item-center w-full rounded-t-xl`} style={{ backgroundColor: colors[item.homeAbbrev] || colors.DEFAULT }}>
+                            <Image
+                              source={teamLogos[item.homeAbbrev] || teamLogos.DEFAULT}
+                              style={styles.image}
+                            />
+                            <Image
+                              source={teamLogos[item.awayAbbrev] || teamLogos.DEFAULT}
+                              style={styles.image}
+                            />
                           </View>
-                        ) : item.gameState === "LIVE" ? (
-                          <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
-                            <Text className="text-white font-black text-xl">{item.homeScore}</Text>
-                            <Text className="text-white font-extrabold text-xs rounded-md text-center px-2 py-1 bg-red-800">LIVE</Text>
-                            <Text className="text-white font-black text-xl">{item.awayScore}</Text>
-                          </View>
-                        ) : (
-                          <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
-                            
-                            {item.homeOdds && item.awayOdds && (
-                            <Text 
-                              className={`px-1 rounded-sm font-extrabold text-xs 
-                              ${item.homeOdds <= item.awayOdds ? 'text-black' : 'text-neutral-400'}
-                              ${item.homeOdds <= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
-                              {item.homeOdds}
-                            </Text>
-                            )}
-                            <Text className="text-white font-black text-xl">{item.localTime}</Text>
-                            {item.homeOdds && item.awayOdds && (
+                          {item.gameState === "OFF" || item.gameState === "FINAL" ? (
+                            <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                              <Text className="text-white font-black text-xl">{item.homeScore}</Text>
+                              <Text className="text-xs text-neutral-400 font-bold mt-1">{item.period}</Text>
+                              <Text className="text-white font-black text-xl">{item.awayScore}</Text>
+                            </View>
+                          ) : item.gameState === "LIVE" ? (
+                            <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                              <Text className="text-white font-black text-xl">{item.homeScore}</Text>
+                              <Text className="text-white font-extrabold text-xs rounded-md text-center px-2 py-1 bg-red-800">LIVE</Text>
+                              <Text className="text-white font-black text-xl">{item.awayScore}</Text>
+                            </View>
+                          ) : (
+                            <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                              
+                              {item.homeOdds && item.awayOdds && (
                               <Text 
                                 className={`px-1 rounded-sm font-extrabold text-xs 
-                                ${item.homeOdds >= item.awayOdds ? 'text-black' : 'text-neutral-400'}
-                                ${item.homeOdds >= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
-                                {item.awayOdds}
+                                ${item.homeOdds <= item.awayOdds ? 'text-black' : 'text-neutral-400'}
+                                ${item.homeOdds <= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
+                                {item.homeOdds}
                               </Text>
-                            )}
-                          </View>
-                        )}
-                        
-                      </TouchableOpacity>
-                    );
-                  })}
+                              )}
+                              <Text className="text-white font-black text-xl">{item.localTime}</Text>
+                              {item.homeOdds && item.awayOdds && (
+                                <Text 
+                                  className={`px-1 rounded-sm font-extrabold text-xs 
+                                  ${item.homeOdds >= item.awayOdds ? 'text-black' : 'text-neutral-400'}
+                                  ${item.homeOdds >= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
+                                  {item.awayOdds}
+                                </Text>
+                              )}
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })}
                   </View>
                 </View>
               );
@@ -316,13 +321,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: height * 0.06,
-  },
-  lowerOdd: {
-    backgroundColor: '#ccc',
-    color: 'black',
-  },
-  higherOdd: {
-    color: '#C4C4C4',
-    backgroundColor: 'transparent',
   },
 });
