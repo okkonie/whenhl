@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Dimensions,
   FlatList,
   Modal,
   Pressable,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
-
-const { height, width } = Dimensions.get('window');
+import '../app/global.css';
 
 const generateSeasons = () => {
   const now = new Date();
@@ -37,8 +34,7 @@ const generateSeasons = () => {
   return seasons;
 };
 
-const SeasonDropdown = ({ season, setSeason }) => {
-  const [modalVisible, setModalVisible] = useState(false);
+const SeasonDropdown = ({ season, setSeason, setModalVisible, modalVisible }) => {
   const seasons = generateSeasons();
 
   const handleSelect = (selected) => {
@@ -47,77 +43,27 @@ const SeasonDropdown = ({ season, setSeason }) => {
   };
 
   return (
-    <>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.text2}>{season.label}</Text>
-      </TouchableOpacity>
-
       <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
-          <View style={styles.modalContent}>
+        <Pressable className='flex-1 justify-center items-center' style={{backgroundColor: 'rgba(0,0,0,0.7)'}} onPress={() => setModalVisible(false)}>
+          <View className='bg-neutral-800 rounded-xl p-3' style={{maxHeight: '70%', width: '70%'}}>
             <FlatList
               showsVerticalScrollIndicator={false}
               data={seasons}
+              ListFooterComponent={<View className='h-4' />}
               keyExtractor={(item) => item.key}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={styles.item}
+                  className='border-b border-neutral-500 px-4 py-3'
                   onPress={() => handleSelect(item)} 
                 >
-                  <Text style={styles.text}>{item.label}</Text>
+                  <Text className='text-white font-bold text-sm'>{item.label}</Text>
                 </TouchableOpacity>
               )}
             />
           </View>
         </Pressable>
       </Modal>
-    </>
   );
 };
 
 export default SeasonDropdown;
-
-const styles = StyleSheet.create({
-  button: {
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: '#242424',
-    marginHorizontal: 3,
-    height: height * 0.035,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 10,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text:  {
-    fontWeight: '600',
-    color: 'white',
-    fontSize: 14,
-  },
-  text2: {
-    fontWeight: '600',
-    color: 'white',
-    fontSize: 12,
-  },
-  modalContent: {
-    width: width * 0.6,
-    maxHeight: height * 0.7,
-    backgroundColor: '#242424',
-    borderRadius: 15,
-    padding: 10,
-  },
-  item: {
-    paddingVertical: 10,
-    borderBottomColor: 'grey',
-     borderBottomWidth: 1,
-  },
-});

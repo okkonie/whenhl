@@ -183,12 +183,12 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                               </View>
                               <View className='px-4'>
                                 <Text className="text-white font-bold text-md">
-                                  {goal.scorerName}
+                                  {goal.scorerName} ({goal.goalNumber})
                                 </Text>
                                 {goal.assists.length > 0 && (
                                   <Text className="text-neutral-400 font-medium text-sm">
                                     {goal.assists
-                                      .map((assist) => `${assist.assistName}`)
+                                      .map((assist) => `${assist.assistName} (${assist.assistNumber})`)
                                       .join(', ')}
                                   </Text>
                                 )}
@@ -198,12 +198,12 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                             <View key={index} className="flex-row w-full items-center self-end justify-end mb-2 rounded-xl px-1">
                               <View className='px-4 items-end'>
                                 <Text className="text-white font-bold text-md">
-                                  {goal.scorerName}
+                                  {goal.scorerName} ({goal.goalNumber})
                                 </Text>
                                 {goal.assists.length > 0 && (
                                   <Text className="text-neutral-400 font-medium text-sm">
                                     {goal.assists
-                                      .map((assist) => `${assist.assistName}`)
+                                      .map((assist) => `${assist.assistName} (${assist.assistNumber})`)
                                       .join(', ')}
                                   </Text>
                                 )}

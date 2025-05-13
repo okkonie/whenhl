@@ -1,12 +1,15 @@
+import Category from "@/assets/category"
 import SeasonDropdown from "@/assets/seasondropdown"
 import { Ionicons } from "@expo/vector-icons"
 import { Image } from 'expo-image'
 import { LinearGradient } from "expo-linear-gradient"
 import React, { useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { ActivityIndicator, Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import colors from '../assets/colors'
 import getFlagEmoji from '../assets/getflag'
 import teamLogos from "../assets/logos"
 import "./global.css"
+
 const {width, height} = Dimensions.get('window')
 
 const players = () => {
@@ -19,6 +22,7 @@ const players = () => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showStats, setShowStats] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
   const [skaterOn, setSkaterOn] = useState(true);
   const [skaterSort, setSkaterSort] = useState('points');
   const [goalieSort, setGoalieSort] = useState('save%');
@@ -26,44 +30,58 @@ const players = () => {
   const [skaterStats, setSkaterStats] = useState([]);
   const [goalieStats, setGoalieStats] = useState([]);
   const scrollRef = useRef(null);
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [seasonModalVisible, setSeasonModalVisible] = useState(false);
 
   useEffect(() => {
-    const fetchStats = async (season) => {
-      setLoading(true)
-      if (skaterOn) {
-        const response = await fetch(`https://api-web.nhle.com/v1/skater-stats-leaders/${season.key}?limit=30`);
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        const statType = skaterOn ? 'skater-stats-leaders' : 'goalie-stats-leaders';
+        const response = await fetch(`https://api-web.nhle.com/v1/${statType}/${season.key}?limit=30`);
         const data = await response.json();
-        setSkaterStats(data)
-        setLoading(false)
-      }
-      if (!skaterOn) {
-        const response = await fetch(`https://api-web.nhle.com/v1/goalie-stats-leaders/${season.key}?limit=30`);
-        const data = await response.json();
-        setGoalieStats(data)
-        setLoading(false)
+
+        if (skaterOn) {
+          setSkaterStats(data);
+        } else {
+          setGoalieStats(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      } finally {
+        setLoading(false);
       }
     };
-
-    fetchStats(season);
+    fetchStats();
   }, [season, skaterOn]);
 
   useEffect(() => {
     const fetchResults = async (search) => {
-      setLoading(true)
-      const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=30&q=${search}&active=${active}`);
-      const data = await response.json();
-      setResults(data)
-      setLoading(false)
+      try {
+        setLoading(true)
+        const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=30&q=${search}&active=${active}`);
+        const data = await response.json();
+        setResults(data)
+      } catch (error) {
+        console.error('Failed to fetch results:', error)
+      } finally {
+        setLoading(false)
+      };
     };
     search !== '' && fetchResults(search);
   }, [search, active])
 
   const fetchPlayerStats = async (id) => {
-    setLoading(true)
-    const response = await fetch(`https://api-web.nhle.com/v1/player/${id}/landing`)
-    const data = await response.json();
-    setPlayerStats(data)
-    setLoading(false)
+    try {
+      setModalLoading(true)
+      const response = await fetch(`https://api-web.nhle.com/v1/player/${id}/landing`)
+      const data = await response.json();
+      setPlayerStats(data)
+    } catch (error) {
+      console.error('Failed fetching player stats:', error)
+    } finally {
+      setModalLoading(false)
+    };
   };
 
   const getOrdinalSuffix = (num) => {
@@ -95,32 +113,7 @@ const players = () => {
   
     return age;
   };
-
-  const SkaterSortButton = ({ sort, skaterSort, setSkaterSort }) => {
-    return (
-      <TouchableOpacity 
-        className="px-5 border-2 rounded-full h-7 justify-center items-center" 
-        key={sort} 
-        style={{borderColor: skaterSort === sort ? '#82ff80' : 'transparent'}} 
-        onPress={() => setSkaterSort(sort)}
-      >
-        <Text className="text-white font-bold text-sm">{sort}</Text>
-      </TouchableOpacity>
-    );
-  };
-  const GoalieSortButton = ({ sort, goalieSort, setGoalieSort }) => {
-    return (
-      <TouchableOpacity 
-        className="px-5 border-2 rounded-full h-7 justify-center items-center" 
-        key={sort} 
-        style={{borderColor: goalieSort === sort ? '#82ff80' : 'transparent'}} 
-        onPress={() => setGoalieSort(sort)}
-      >
-        <Text className="text-white font-bold text-sm">{sort}</Text>
-      </TouchableOpacity>
-    );
-  };
-
+  
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ x: 0, animated: false });
@@ -129,22 +122,23 @@ const players = () => {
 
   const renderItem = ({ item }) => {
     const flag = item.birthCountry ? getFlagEmoji(item.birthCountry) : '🏳️';
+    const abbr = item.lastTeamAbbrev
   
     return (
-      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-900 w-full px-5 py-1 mb-1 ruonded-lg h-10"
+      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-800 w-full px-5 py-1 mb-1 rounded-md h-10"
         onPress={() => {
-          const selected = { ...item, flag };
+          const selected = { ...item, flag, abbr };
           setSelectedPlayer(selected);
           fetchPlayerStats(item.playerId);
           setShowStats(true);
         }}>
-        <Text className="text-white font-bold text-md">{flag + '   ' + item.name}</Text>
+        <Text className="text-white font-bold text-md">{flag} {item.name}</Text>
         <View className="flex-row items-center gap-4">
         {item.sweaterNumber && item.lastTeamAbbrev && 
           <>
             <Text className="text-white font-bold text-md">#{item.sweaterNumber}</Text>
             <Image
-              source={teamLogos[item.lastTeamAbbrev]}
+              source={teamLogos[abbr]}
               style={styles.image}
             />
           </>
@@ -173,10 +167,11 @@ const players = () => {
     };
   
   const renderTopItem = ({ item, index }) => {
+    const abbr = item.teamAbbrev
     return (
-      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-900 w-full px-5 py-1 mb-1 ruonded-lg h-10"
+      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-800 w-full px-5 py-1 mb-1 rounded-md h-10"
         onPress={() => {
-          const selected = { ...item };
+          const selected = { ...item, abbr };
           setSelectedPlayer(selected);
           fetchPlayerStats(item.id);
           setShowStats(true);
@@ -185,10 +180,7 @@ const players = () => {
           {item.sweaterNumber && item.teamAbbrev &&
             <>
               <Text className="text-white font-bold text-md">{index + 1}.</Text>
-              <Image
-                source={teamLogos[item.teamAbbrev]}
-                style={styles.image}
-              />
+              <Image source={teamLogos[abbr]} style={styles.image}/>
               <Text className="text-white font-bold text-md">{item.firstName.default + ' ' +item.lastName.default}</Text>
             </>
           }
@@ -207,310 +199,211 @@ const players = () => {
     );
   };
 
+  const StatItem = ({head, stat}) => {
+    return (
+      <View>
+        <View className="p-2 justify-center items-center">
+          <Text className="text-white text-lg font-bold">{stat}</Text>
+          <Text className="text-white text-sm font-medium">{head}</Text>
+        </View>
+      </View>
+    )
+  }
+
   return (
-    <View className="flex-1 items-center bg-black">
+    <View className="flex-1 items-center bg-black px-5">
       <LinearGradient
         colors={['black', 'transparent']}
-        locations={[0, 0.8 ]} 
-        style={styles.topGradient}
+        locations={[0,1]} 
+        className="absolute z-40 left-0 right-0"
+        style={{top: height * 0.13, height: height * 0.03}}
         pointerEvents="none" 
       />
 
-      {searching ? (
-        <View style={styles.input}>
-          <TextInput 
-            style={styles.textInput} 
-            placeholder="search for players" 
-            placeholderTextColor={'#ccc'}
-            cursorColor={'#ccc'}
-            value={tempText}
-            onChangeText={setTempText}
-            onEndEditing={() => {
-              const formattedText = tempText
-                .replace(/[^a-zA-Z\s]/g, '') 
-              setSearch(formattedText);
-            }}
-          />
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <TouchableOpacity onPress={() => {setActive(!active)}}>
-              <Text style={[{borderColor: active ? '#82ff80' : '#ccc'}, styles.activeText]}>{active ? 'active' : 'inactive'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{paddingHorizontal: 15}} onPress={() => {setSearching(!searching); setSearch('')}}>
-              <Ionicons name='close' size={24} color='white' />
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : (
-        <>
-          <View style={{flexDirection: 'column', alignItems: 'center', zIndex: 20, top: 50, height: height * 0.12}}>
-
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: width * 0.9}}>
-              <View style={styles.skaterButton}>
-                <TouchableOpacity style={[{borderColor: skaterOn ? '#82ff80' : '#242424'}, styles.skaterOption]} onPress={() => setSkaterOn(true)}>
-                  <Text style={styles.text}>skater</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[{borderColor: skaterOn ? '#242424' : '#82ff80'}, styles.skaterOption]} onPress={() => setSkaterOn(false)}>
-                  <Text style={styles.text}>goalie</Text>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity style={styles.searchButton} onPress={() => setSearching(!searching)}>
-                <Ionicons name='search' size={24} color='white' />
+      
+      <View className="bg-neutral-800 w-full p-2 flex-row justify-between items-center rounded-xl z-50" style={{top: height * 0.07, height: height * 0.07}}>
+        {searching ? (
+          <>
+            <TextInput 
+              className="text-white text-normal ml-4 flex-1"
+              placeholder="search for players" 
+              placeholderTextColor={'#ccc'}
+              cursorColor={'#ccc'}
+              value={tempText}
+              onChangeText={setTempText}
+              onEndEditing={() => {
+                const formattedText = tempText
+                  .replace(/[^a-zA-Z\s]/g, '') 
+                setSearch(formattedText);
+              }}
+            />
+            <View className="flex-row items-center">
+              <TouchableOpacity onPress={() => {setActive(!active)}} className={`items-center justify-center border-2 rounded-full px-2 py-1 ${active ? "border-green-400" : "border-neutral-500"}`}>
+                <Text className="text-white font-bold text-md">{active ? 'active' : 'inactive'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="px-3" onPress={() => {setSearching(!searching); setSearch(''); setTempText('')}}>
+                <Ionicons name='close' size={24} color='white' />
               </TouchableOpacity>
             </View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} ref={scrollRef}
-              contentContainerStyle={{
-                flexDirection: 'row',
-                paddingHorizontal: width * 0.05,
-              }}
-              style={{
-                width: width,
-                marginTop: 10, // add spacing if needed
-              }}>
-              {skaterOn ? (
-                <>
-                  <SeasonDropdown season={season} setSeason={setSeason} />
-                  <SkaterSortButton sort="points" skaterSort={skaterSort} setSkaterSort={setSkaterSort} />
-                  <SkaterSortButton sort="goals" skaterSort={skaterSort} setSkaterSort={setSkaterSort} />
-                  <SkaterSortButton sort="assists" skaterSort={skaterSort} setSkaterSort={setSkaterSort} />
-                  <SkaterSortButton sort="+/-" skaterSort={skaterSort} setSkaterSort={setSkaterSort} />
-                  <SkaterSortButton sort="time on ice" skaterSort={skaterSort} setSkaterSort={setSkaterSort} />
-                  <SkaterSortButton sort="pp goals" skaterSort={skaterSort} setSkaterSort={setSkaterSort} />
-                  <SkaterSortButton sort="faceoff%" skaterSort={skaterSort} setSkaterSort={setSkaterSort} />
-                  <SkaterSortButton sort="penalty mins" skaterSort={skaterSort} setSkaterSort={setSkaterSort} />
-                </>
-              ) : (
-                <>
-                  <SeasonDropdown season={season} setSeason={setSeason} />
-                  <GoalieSortButton sort="save%" goalieSort={goalieSort} setGoalieSort={setGoalieSort} />
-                  <GoalieSortButton sort="goals against" goalieSort={goalieSort} setGoalieSort={setGoalieSort} />
-                  <GoalieSortButton sort="wins" goalieSort={goalieSort} setGoalieSort={setGoalieSort} />
-                  <GoalieSortButton sort="shutouts" goalieSort={goalieSort} setGoalieSort={setGoalieSort} />
-                </>
-              )}
-            </ScrollView>
-          </View>
-          <FlatList 
-            style={{
-              maxHeight: height * 0.9,
-              position: 'absolute',
-              top: height * 0.1,
-            }}
-            showsVerticalScrollIndicator={false}
-            data={getWhatStats()}
-            keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-            ListHeaderComponent={<View  style={{height: height * 0.08}}/>}
-            ListFooterComponent={<View  style={{height: 100}}/>}
-            renderItem={renderTopItem}
-          />
-        </>
-      )}
-
-      {results.length > 0 && search !== '' ? (
+          </>
+        ) : (
+          <>  
+            <View className="flex-row items-center justify-between flex-1">
+              <TouchableOpacity className="h-full border-r border-neutral-400 px-3 w-3/12 gap-0.5" onPress={() => setSkaterOn(!skaterOn)}>
+                <Text className={`${skaterOn ? 'bg-green-400 text-neutral-900' : 'text-white'} font-bold text-xs rounded-md px-1 text-center`}>skater</Text>
+                <Text className={`${!skaterOn ? 'bg-green-400 text-neutral-900' : 'text-white'} font-bold text-xs rounded-md px-1 text-center`}>goalie</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className='h-full px-3 border-r border-neutral-400 w-5/12'
+                onPress={() => setCategoryModalVisible(true)}
+              >
+                <Text className='text-white font-medium text-xs'>category:</Text>
+                <Text className='text-white font-bold text-sm'>{skaterOn ? skaterSort : goalieSort}</Text>
+              </TouchableOpacity>
+              <Category 
+                skaterOn={skaterOn} skaterSort={skaterSort} goalieSort={goalieSort} 
+                setSkaterSort={setSkaterSort} setGoalieSort={setGoalieSort} 
+                modalVisible={categoryModalVisible} setModalVisible={setCategoryModalVisible}
+              />
+              <TouchableOpacity
+                className='h-full px-3 border-r border-neutral-400 w-4/12'
+                onPress={() => setSeasonModalVisible(true)}
+              >
+                <Text className={`text-white font-bold ${season.key === 'current' ? 'text-xs' : 'text-sm'}`}>{season.key === 'current' ? 'season:' : season.label.slice(0,7)}</Text>
+                <Text className={`text-white font-bold ${season.key === 'current' ? 'text-sm' : 'text-xs'}`}>{season.key === 'current' ? 'current' : season.label.slice(8)}</Text>
+              </TouchableOpacity>
+              <SeasonDropdown season={season} setSeason={setSeason} modalVisible={seasonModalVisible} setModalVisible={setSeasonModalVisible} />
+              
+            </View>
+            <TouchableOpacity className="px-3" onPress={() => setSearching(!searching)}>
+              <Ionicons name='search' size={24} color='white' />
+            </TouchableOpacity>
+            
+          </>
+        )}
+      </View>
+      
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="white" />
+        </View>
+      ) : (
         <FlatList 
           style={{
-            maxHeight: height * 0.95,
+            maxHeight: height,
             position: 'absolute',
-            top: height * 0.05,
+            top: height * 0.10,
           }}
           showsVerticalScrollIndicator={false}
-          data={results}
-          keyExtractor={(item, index) => item.playerId?.toString() || index.toString()}
-          ListHeaderComponent={<View  style={{height: height * 0.09}}/>}
-          ListFooterComponent={<View  style={{height: 100}}/>}
-          renderItem={renderItem}
+          data={searching ? results : getWhatStats()}
+          keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+          ListHeaderComponent={<View  style={{height: height * 0.06}}/>}
+          ListFooterComponent={<View  style={{height: height * 0.18}}/>}
+          renderItem={searching ? renderItem : renderTopItem}
         />
-      ) : (
-        <View style={{flex: 1, backgroundColor: 'black'}} />
       )}
+      
 
       <Modal animationType="slide" transparent={true} visible={showStats} onRequestClose={() => setShowStats(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modal}>
-            <TouchableOpacity onPress={() => setShowStats(false)} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color="white" />
-            </TouchableOpacity>
-            {loading || !playerStats ? (
+        <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.7)'}}>
+          <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
+            <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
+              <Text className="text-white text-lg font-bold">Player Stats</Text>
+              <TouchableOpacity onPress={() => setShowStats(false)} className='pl-5 h-full items-center justify-center'>
+                <Ionicons name="close" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
+            {modalLoading || !playerStats ? (
               <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                 <ActivityIndicator size='large' color='white'/>
               </View>
             ) : (
-              <View style={{ alignItems: 'center' }}>
-                <Text style={styles.head}>
-                  {playerStats?.firstName?.default + ' ' + playerStats?.lastName?.default}
-                  {playerStats?.birthDate && ` (${getAge(playerStats.birthDate)})`}
-                </Text>
-
-                {playerStats?.birthDate && playerStats?.birthCountry && playerStats?.birthCity.default && (
-                  <View style={styles.row}>
-                    <Text style={styles.text}>born:</Text>
-                    <Text style={styles.text}>
-                      {`${getFlagEmoji(playerStats?.birthCountry)} ${playerStats.birthCity.default} | ${playerStats.birthDate}`}
-                    </Text>
-                  </View>
-                )}
-
-                {playerStats?.draftDetails?.overallPick && (
-                  <View style={styles.row}>
-                    <Text style={styles.text}>draft:</Text>
-                    <Text style={styles.text}>
-                      {`${getOrdinalSuffix(playerStats.draftDetails.overallPick)} ${playerStats.draftDetails.year} by ${playerStats.draftDetails.teamAbbrev}`}
-                    </Text>
-                  </View>
-                )}
-
-                {selectedPlayer?.lastSeasonId && selectedPlayer?.lastSeasonId.length >= 5 && (
-                  <View style={styles.row}>
-                    <Text style={styles.text}>last season:</Text>
-                    <Text style={styles.text}>
-                      {`${selectedPlayer.lastSeasonId.slice(0, 4)}-${selectedPlayer.lastSeasonId.slice(6,8)}`}
-                    </Text>
-                  </View>
-                )}
-
-                {playerStats.shootsCatches && (
-                  <View style={styles.row}>
-                    <Text style={styles.text}>shoots/catches:</Text>
-                    <Text style={styles.text}>
-                      {playerStats.shootsAndCatches === 'L' ? 'left' : 'right'}
-                    </Text>
-                  </View>
-                )}
-
-                {playerStats.position && (
-                  <View style={styles.row}>
-                    <Text style={styles.text}>position:</Text>
-                    <Text style={styles.text}>
-                      {playerStats.position}
-                    </Text>
-                  </View>
-                )}
-
-                {(selectedPlayer?.heightInCentimeters || playerStats?.weightInKilograms) && (
-                  <View style={styles.row}>
-                    <Text style={styles.text}>size:</Text>
-                    <Text style={styles.text}>
-                      {`${playerStats?.heightInCentimeters || '–'} cm | ${playerStats?.weightInKilograms || '–'} kg`}
-                    </Text>
-                  </View>
-                )}
-
-                {playerStats?.featuredStats?.regularSeason?.subSeason && playerStats?.featuredStats?.season && playerStats.position === 'G' && (
-                  <View style={styles.stat}>
-                    <Text style={styles.statValue}>
-                      {`${playerStats?.featuredStats?.season.toString().slice(0,4)}-${playerStats?.featuredStats?.season.toString().slice(6,8)}`}
-                    </Text>
-                    <View style={styles.statRow}>
-                      <View style={styles.statItem}>
-                      <Text style={styles.greytext}>gp</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.gamesPlayed}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>wins</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.wins}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                      <Text style={styles.greytext}>so</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.shutouts}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>ga</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.goalsAgainstAvg.toFixed(2)}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>sv%</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.savePctg.toFixed(3) * 100}</Text>
-                      </View>
+              <View className="w-full px-3 flex-1">
+                <View className="flex-row items-center justify-between my-3 p-2 rounded-full" style={{backgroundColor: colors[selectedPlayer?.abbr]}}>
+                  <View className="gap-5 flex-row">
+                    <View style={{ height: 60, width: 60, borderRadius: 35, overflow: 'hidden' }}>
+                      <Image 
+                        contentFit="contain"
+                        style={{ height: 60, width: 60 }}
+                        source={playerStats?.headshot}
+                      />
+                    </View>
+                    <View className="justify-center">
+                      <Text className="text-white text-2xl font-bold">{playerStats?.firstName?.default}</Text>
+                      <Text className="text-white text-2xl font-bold">{playerStats?.lastName?.default}</Text>
                     </View>
                   </View>
-                )}
-
-                {playerStats?.featuredStats?.regularSeason?.career && playerStats.position === 'G' && (
-                  <View style={styles.stat}>
-                    <Text style={styles.statValue}>career</Text>
-                    <View style={styles.statRow}>
-                      <View style={styles.statItem}>
-                      <Text style={styles.greytext}>gp</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.gamesPlayed}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>wins</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.wins}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                      <Text style={styles.greytext}>so</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.shutouts}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>ga</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.goalsAgainstAvg.toFixed(2)}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>sv%</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.savePctg.toFixed(3) * 100}</Text>
-                      </View>
-                    </View>
-                  </View>
-                )}
-
-                {playerStats?.featuredStats?.regularSeason?.subSeason && playerStats?.featuredStats?.season && playerStats.position !== 'G' && (
-                  <View style={styles.stat}>
-                    <Text style={styles.statValue}>
-                      {`${playerStats?.featuredStats?.season.toString().slice(0,4)}-${playerStats?.featuredStats?.season.toString().slice(6,8)}`}
+                  {selectedPlayer &&
+                  <Image 
+                    contentFit="contain"
+                    style={{ height: 60, width: 60 }}
+                    source={teamLogos[selectedPlayer.abbr]}
+                  />}
+                </View>
+                
+                <View className="flex-row justify-between py-2 mb-2 px-3">
+                  {playerStats?.birthDate && (
+                    <Text className="text-white text-sm font-medium">
+                      Age: {getAge(playerStats.birthDate)}
                     </Text>
-                    <View style={styles.statRow}>
-                      <View style={styles.statItem}>
-                      <Text style={styles.greytext}>gp</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.gamesPlayed}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>g</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.goals}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                      <Text style={styles.greytext}>a</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.assists}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>p</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.points}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>+/-</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.subSeason.plusMinus}</Text>
+                  )}
+                  {playerStats?.birthDate && playerStats?.birthCountry && playerStats?.birthCity.default && (
+                    <Text className="text-white text-sm font-medium">
+                      born: {getFlagEmoji(playerStats?.birthCountry)} {playerStats.birthCity.default}, {playerStats.birthDate}
+                    </Text>
+                  )}
+                </View>
+                
+                <View className="flex-row justify-between py-2 mb-2 px-3">
+                  {playerStats.shootsCatches && playerStats.position && (
+                    <Text className="text-white text-sm font-medium">🏒 {playerStats.shootsAndCatches === 'L' ? 'Left' : 'Right'}</Text>
+                  )}
+                  {playerStats?.draftDetails?.overallPick && (
+                    <Text className="text-white text-sm font-medium">drafted {`${getOrdinalSuffix(playerStats.draftDetails.overallPick)} overall by ${playerStats.draftDetails.teamAbbrev} (${playerStats.draftDetails.year})`}</Text>
+                  )}
+                </View>
+
+                <View className="flex-row justify-between py-2 mb-2 px-3">
+                  {playerStats.position && (
+                    <Text className="text-white text-sm font-medium">
+                      📌 {playerStats.position === 'G' ? 'Goalie' : playerStats.position === 'D' ? 'Defenseman' : playerStats.position === 'R' ? 'Right wing'
+                      : playerStats.position === 'L' ? 'Left wing' : 'Center'}
+                    </Text>
+                  )}
+                  {(selectedPlayer?.heightInCentimeters || playerStats?.weightInKilograms) && (
+                    <Text className="text-white text-sm font-medium">📏 {`${playerStats?.heightInCentimeters || '–'} cm & ${playerStats?.weightInKilograms || '–'} kg`}</Text>
+                  )}
+                </View>
+
+                <View className="flex-1">
+                  {playerStats?.featuredStats?.regularSeason?.subSeason && playerStats.position !== 'G' && (
+                    <View className="border-neutral-400 border p-3 rounded-xl mt-2 justify-between">
+                      <Text className="text-white text-lg font-medium w-full border-b border-neutral-400 p-1">
+                        {playerStats?.featuredStats?.season.toString().slice(0,4) + '-' + playerStats?.featuredStats?.season.toString().slice(6)}
+                      </Text>
+                      <View className="flex-row justify-between py-4">
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.gamesPlayed} head={'games'}/>
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.goals} head={'goals'}/>
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.assists} head={'assists'}/>
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.points} head={'points'}/>
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.plusMinus} head={'+/-'}/>
                       </View>
                     </View>
-                  </View>
-                )}
-
-                {playerStats?.featuredStats?.regularSeason?.career && playerStats.position !== 'G' && (
-                  <View style={styles.stat}>
-                    <Text style={styles.statValue}>career</Text>
-                    <View style={styles.statRow}>
-                      <View style={styles.statItem}>
-                      <Text style={styles.greytext}>gp</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.gamesPlayed}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>g</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.goals}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                      <Text style={styles.greytext}>a</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.assists}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>p</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.points}</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Text style={styles.greytext}>+/-</Text>
-                        <Text style={styles.statValue}>{playerStats?.featuredStats?.regularSeason?.career.plusMinus}</Text>
+                  )}
+                  {playerStats?.featuredStats?.regularSeason?.career && playerStats.position !== 'G' && (
+                    <View className="border-neutral-400 border p-3 rounded-xl mt-2 justify-between">
+                      <Text className="text-white text-lg font-medium w-full border-b border-neutral-400 p-1">Career</Text>
+                      <View className="flex-row justify-between py-4">
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.gamesPlayed} head={'games'}/>
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.goals} head={'goals'}/>
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.assists} head={'assists'}/>
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.points} head={'points'}/>
+                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.plusMinus} head={'+/-'}/>
                       </View>
                     </View>
-                  </View>
-                )}
-
+                  )}
+                </View>
+                <View className="h-8"/>
               </View>
             )}
           </View> 
@@ -528,102 +421,12 @@ const players = () => {
 }
 
 const styles = StyleSheet.create({
-  skaterButton: {
-    width: '84%',
-    height: height * 0.06,
-    backgroundColor: '#242424',
-    borderRadius: height * 0.02,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  skaterOption: {
-    borderWidth: 2, 
-    width: '44%', 
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '70%',
-    borderRadius: height * 0.015,
-  },
-  searchButton: {
-    width: '14%',
-    height: height * 0.06,
-    backgroundColor: '#242424',
-    borderRadius: height * 0.02,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  modal: {
-    height: height * 0.85,
-    borderTopStartRadius: 20,
-    borderTopEndRadius: 20,
-    width: width,
-    backgroundColor: '#242424'
-  },
-  row: {
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    width: width * 0.8,
-    marginTop: 10,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderColor: '#ccc'
-  },
-  head: {
-    fontWeight: 600,
-    color: 'white',
-    fontSize: 20,
-    marginBottom: 30,
-  },
-  closeButton: {
-    alignSelf: 'flex-end',
-    padding: width * 0.05,
-  },
-  input: {
-    top: height * 0.05,
-    zIndex: 20,
-    justifyContent: 'space-between',
-    width: width * 0.9,
-    height: height * 0.06,
-    borderRadius: height * 0.02,
-    backgroundColor: '#242424',
-    color: 'white',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  textInput: {
-    marginLeft: 20,
-    color: 'white',
-    width: '50%',
-  },
   bottomGradient: {
     position: 'absolute',
     bottom: -1,
     left: 0,
     right: 0,
-    height: 120,
-  },
-  topGradient: {
-    position: 'absolute',
-    zIndex: 10,
-    left: 0,
-    right: 0,
-    top: height * 0.05,
-    height: 100,
-  },
-  activeText: {
-    fontWeight: 600,
-    color: 'white',
-    borderWidth: 2,
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    height: height * 0.12,
   },
   text: {
     fontWeight: 600,
@@ -642,17 +445,6 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     contentFit: 'contain',
-  },
-  resultItem: {
-    backgroundColor: '#242424',
-    width: width * 0.85,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    height: height * 0.05,
-    borderRadius: height * 0.015,
-    marginTop: height * 0.008,
   },
   stat: {
     width: width * 0.85,
