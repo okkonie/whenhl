@@ -4,8 +4,9 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Pressable, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
 import teamLogos from '../../assets/logos';
+import '../global.css';
 
 const { width, height } = Dimensions.get('window')
 
@@ -112,23 +113,27 @@ const Teams = () => {
     };
   
     return (
-      <Pressable style={styles.teamItem} onPress={() => goToTeamInfo(item)}>
-        <View style={styles.leftContainer}>
-          <Text style={styles.teamText}>{index + 1}.</Text>  
-            <Image
-              source={teamLogos[item.abbrev] || teamLogos.DEFAULT}
-              style={styles.image}
-            />
-            <View>
-            <Text style={styles.teamText}>{item.placeName}</Text>
-            <Text style={styles.teamText}>{item.commonName}</Text>
+      <Pressable className="w-full bg-neutral-800 rounded-lg py-2 ps-6 pe-2 mb-1.5 flex-row justify-between items-center" onPress={() => goToTeamInfo(item)}>
+        <View className="flex-1 items-center flex-row justify-start gap-4">
+          <Text className="text-white font-medium text-lg">{index + 1}.</Text>  
+          <Image
+            source={teamLogos[item.abbrev] || teamLogos.DEFAULT}
+            style={{
+              width: 40,
+              height: 40,
+              contentFit: 'contain',
+            }}
+          />
+          <View>
+            <Text className="text-white font-bold text-md">{item.placeName === 'NY Islanders' ? 'New York' : item.placeName === 'NY Rangers' ? 'New York' : item.placeName}</Text>
+            <Text className="text-white font-bold text-md">{item.commonName === 'Utah Hockey Club' ? 'Hockey Club' : item.commonName}</Text>
           </View>
         </View>
   
-        <View style={styles.rightContainer}>
-          <Text style={styles.teamText}>{item.points}p</Text>
+        <View className="items-center flex-row justify-end gap-4">
+          <Text className="text-white font-bold text-md">{item.points}p</Text>
           <TouchableOpacity
-            style={styles.favoriteButton}
+            className="p-4"
             onPress={() => toggleFavorite(item)}
           >
             {isFavorite ? 
@@ -142,26 +147,26 @@ const Teams = () => {
   };
 
   const renderSectionHeader = ({ section: { title } }) => (
-    <Text style={styles.sectionHeader}>{title}</Text>
+    <Text className="text-white text-lg font-bold mb-2 mt-3">{title}</Text>
   );
 
   return (
-    <View style={styles.container}>
-
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View className="flex-1 items-center justify-center bg-black px-4">
         {loading ? (
           <ActivityIndicator size="large" color="white" />
         ) : (
           <>
             <TouchableOpacity
-              style={styles.sortButton}
+              className="absolute h-[6%] aspect-square bottom-0 left-0 z-10"
               onPress={async () => {
                 const nextSort = sortingCriteria === 'all' ? 'conference' : sortingCriteria === 'conference' ? 'division' : 'all';
                 setSortingCriteria(nextSort);
                 await AsyncStorage.setItem(SORTING_KEY, nextSort);
               }}
-            >
-              <MaterialCommunityIcons name="sort" size={28} color='white' />
+            > 
+              <View className="items-end h-full w-full">
+                <MaterialCommunityIcons name="sort" size={28} color='white' />
+              </View>
             </TouchableOpacity>
 
             <SectionList
@@ -169,109 +174,41 @@ const Teams = () => {
               keyExtractor={(item, index) => index.toString()}
               renderItem={renderItem}
               renderSectionHeader={renderSectionHeader}
-              ListEmptyComponent={<Text style={styles.teamText}>No teams found</Text>}
-              ListHeaderComponent={<View style={{ height: 40 }} />}
-              ListFooterComponent={<View style={{ height: 80 }} />}
+              ListEmptyComponent={<Text className="text-white text-md font-bold mt-8">No teams found</Text>}
+              ListHeaderComponent={<View style={{ height: height * 0.06 }} />}
+              ListFooterComponent={<View style={{ height: height * 0.08 }} />}
               showsVerticalScrollIndicator={false}
             />
 
             <LinearGradient
-              colors={['transparent', 'black']}
-              locations={[0.2, 0.85]} 
-              style={styles.bottomGradient}
+              colors={['black', 'transparent']}
+              locations={[0.2, 1]} 
+              style={{
+                position: 'absolute',
+                top: -1,
+                left: 0,
+                right: 0,
+                height: height * 0.06,
+              }}
               pointerEvents="none" 
             />
             <LinearGradient
-              colors={['black', 'transparent']}
-              locations={[0, 0.5]}
-              style={styles.topGradient}
-              pointerEvents="none"
+              colors={['transparent', 'black']}
+              locations={[0.25, 0.85]} 
+              style={{
+                position: 'absolute',
+                bottom: -1,
+                left: 0,
+                right: 0,
+                height: height * 0.12,
+              }}
+              pointerEvents="none" 
             />
           </>
         )}
-      </View>
-  
     </View>
   );
 };
 
 export default Teams;
 
-
-const styles = StyleSheet.create({
-  teamItem: {
-    backgroundColor: '#242424',
-    marginBottom: height * 0.008,
-    borderRadius: 15,
-    width: width * 0.9,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  favoriteButton: {
-    padding: 20,
-  },
-  leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  rightContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  image: {
-    width: 40,
-    height: 40,
-    contentFit: 'contain',
-  },
-  bottomGradient: {
-    position: 'absolute',
-    bottom: -1,
-    left: 0,
-    right: 0,
-    height: 120,
-  },
-  topGradient: {
-    position: 'absolute',
-    top: -1,
-    left: 0,
-    right: 0,
-    height: 100,
-  },
-  sortButton: {
-    position: 'absolute',
-    bottom: height * 0.02,
-    left: width * 0.05,
-    padding: 5,
-    zIndex: 10,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: 'black',
-  },
-  teamText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginHorizontal: 10,
-  },
-  headerText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    margin: 5,
-  },
-  pText: {
-    color: 'white',
-    fontSize: 11,
-    fontWeight: 'bold',
-    marginHorizontal: 10,
-  },
-  sectionHeader: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 900,
-    paddingVertical: 10
-  }
-});

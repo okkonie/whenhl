@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons"
 import { Image } from 'expo-image'
 import { LinearGradient } from "expo-linear-gradient"
 import React, { useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { ActivityIndicator, Dimensions, FlatList, Modal, Text, TextInput, TouchableOpacity, View } from "react-native"
 import colors from '../assets/colors'
 import getFlagEmoji from '../assets/getflag'
 import teamLogos from "../assets/logos"
@@ -139,7 +139,11 @@ const players = () => {
             <Text className="text-white font-bold text-md">#{item.sweaterNumber}</Text>
             <Image
               source={teamLogos[abbr]}
-              style={styles.image}
+              style={{
+                width: 30,
+                height: 30,
+                contentFit: 'contain',
+              }}
             />
           </>
         }
@@ -180,7 +184,12 @@ const players = () => {
           {item.sweaterNumber && item.teamAbbrev &&
             <>
               <Text className="text-white font-bold text-md">{index + 1}.</Text>
-              <Image source={teamLogos[abbr]} style={styles.image}/>
+              <Image source={teamLogos[abbr]} 
+                style={{
+                  width: 30,
+                  height: 30,
+                  contentFit: 'contain',
+                }}/>
               <Text className="text-white font-bold text-md">{item.firstName.default + ' ' +item.lastName.default}</Text>
             </>
           }
@@ -202,10 +211,51 @@ const players = () => {
   const StatItem = ({head, stat}) => {
     return (
       <View>
-        <View className="p-2 justify-center items-center">
-          <Text className="text-white text-lg font-bold">{stat}</Text>
-          <Text className="text-white text-sm font-medium">{head}</Text>
+        <View className="p-2 justify-center items-center gap-1">
+          <Text className="text-white text-sm">{head}</Text>
+          <Text className="text-white text-xl font-extrabold">{stat}</Text>
         </View>
+      </View>
+    )
+  }
+
+  const StatContainer = ({head, category, position}) => {
+
+    const [isRegular, setIsRegular] = useState(true)
+    const subCategory = 
+    isRegular && category === 'career' ? playerStats?.careerTotals?.regularSeason 
+    : isRegular && category === 'subseason' ? playerStats?.featuredStats?.regularSeason?.subSeason
+    : !isRegular && category === 'career' ? playerStats?.careerTotals?.playoffs
+    : playerStats?.featuredStats?.playoffs?.subSeason
+
+    return (
+      <View className="bg-neutral-900 rounded-xl mt-2 justify-between">
+        <View className="w-full border-b border-neutral-700 p-3 items-center justify-between flex-row">
+          <Text className="text-white text-lg font-medium">{head}</Text>
+          <TouchableOpacity 
+            onPress={() => setIsRegular(prev => !prev)}
+            className="bg-neutral-700 px-3 py-1 w-1/3 justify-center items-center rounded-md"
+          >
+            <Text className="text-white text-sm font-medium">{isRegular ? 'regular season' : 'playoffs'}</Text>
+          </TouchableOpacity>
+        </View>
+        {position !== 'G' && subCategory ? (
+          <View className="flex-row justify-between py-5 px-2">
+            <StatItem stat={subCategory.gamesPlayed} head={'games'}/>
+            <StatItem stat={subCategory.goals} head={'goals'}/>
+            <StatItem stat={subCategory.assists} head={'assists'}/>
+            <StatItem stat={subCategory.points} head={'points'}/>
+            <StatItem stat={subCategory.plusMinus} head={'+/-'}/>
+          </View>
+        ) : subCategory && (
+          <View className="flex-row justify-between py-5 px-2">
+            <StatItem stat={subCategory.gamesPlayed} head={'games'}/>
+            <StatItem stat={subCategory.wins} head={'wins'}/>
+            <StatItem stat={subCategory.goalsAgainstAvg.toFixed(2)} head={'gaa'}/>
+            <StatItem stat={(subCategory.savePctg * 100).toFixed(1)} head={'save%'}/>
+            <StatItem stat={subCategory.shutouts} head={'shutouts'}/>
+          </View>
+        )}
       </View>
     )
   }
@@ -221,7 +271,7 @@ const players = () => {
       />
 
       
-      <View className="bg-neutral-800 w-full p-2 flex-row justify-between items-center rounded-xl z-50" style={{top: height * 0.07, height: height * 0.07}}>
+      <View className="bg-neutral-800 w-full p-2 flex-row justify-between items-center rounded-2xl z-50" style={{top: height * 0.07, height: height * 0.07}}>
         {searching ? (
           <>
             <TextInput 
@@ -290,7 +340,7 @@ const players = () => {
       ) : (
         <FlatList 
           style={{
-            maxHeight: height,
+            maxHeight: height * 0.9,
             position: 'absolute',
             top: height * 0.10,
           }}
@@ -298,7 +348,7 @@ const players = () => {
           data={searching ? results : getWhatStats()}
           keyExtractor={(item, index) => item.id?.toString() || index.toString()}
           ListHeaderComponent={<View  style={{height: height * 0.06}}/>}
-          ListFooterComponent={<View  style={{height: height * 0.18}}/>}
+          ListFooterComponent={<View  style={{height: height * 0.08}}/>}
           renderItem={searching ? renderItem : renderTopItem}
         />
       )}
@@ -358,8 +408,10 @@ const players = () => {
                   {playerStats.shootsCatches && playerStats.position && (
                     <Text className="text-white text-sm font-medium">🏒 {playerStats.shootsAndCatches === 'L' ? 'Left' : 'Right'}</Text>
                   )}
-                  {playerStats?.draftDetails?.overallPick && (
+                  {playerStats?.draftDetails?.overallPick ? (
                     <Text className="text-white text-sm font-medium">drafted {`${getOrdinalSuffix(playerStats.draftDetails.overallPick)} overall by ${playerStats.draftDetails.teamAbbrev} (${playerStats.draftDetails.year})`}</Text>
+                  ) : (
+                    <Text className="text-white text-sm font-medium">undrafted</Text>
                   )}
                 </View>
 
@@ -376,32 +428,16 @@ const players = () => {
                 </View>
 
                 <View className="flex-1">
-                  {playerStats?.featuredStats?.regularSeason?.subSeason && playerStats.position !== 'G' && (
-                    <View className="border-neutral-400 border p-3 rounded-xl mt-2 justify-between">
-                      <Text className="text-white text-lg font-medium w-full border-b border-neutral-400 p-1">
-                        {playerStats?.featuredStats?.season.toString().slice(0,4) + '-' + playerStats?.featuredStats?.season.toString().slice(6)}
-                      </Text>
-                      <View className="flex-row justify-between py-4">
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.gamesPlayed} head={'games'}/>
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.goals} head={'goals'}/>
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.assists} head={'assists'}/>
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.points} head={'points'}/>
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.subSeason.plusMinus} head={'+/-'}/>
-                      </View>
-                    </View>
-                  )}
-                  {playerStats?.featuredStats?.regularSeason?.career && playerStats.position !== 'G' && (
-                    <View className="border-neutral-400 border p-3 rounded-xl mt-2 justify-between">
-                      <Text className="text-white text-lg font-medium w-full border-b border-neutral-400 p-1">Career</Text>
-                      <View className="flex-row justify-between py-4">
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.gamesPlayed} head={'games'}/>
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.goals} head={'goals'}/>
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.assists} head={'assists'}/>
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.points} head={'points'}/>
-                        <StatItem stat={playerStats?.featuredStats?.regularSeason?.career.plusMinus} head={'+/-'}/>
-                      </View>
-                    </View>
-                  )}
+                  <StatContainer 
+                    head={playerStats?.featuredStats?.season.toString().slice(0,4) + '-' + playerStats?.featuredStats?.season.toString().slice(6)} 
+                    category={'subseason'} 
+                    position={playerStats.position} 
+                  />
+                  <StatContainer 
+                    head={'career'} 
+                    category={'career'} 
+                    position={playerStats.position} 
+                  />
                 </View>
                 <View className="h-8"/>
               </View>
@@ -413,62 +449,17 @@ const players = () => {
       <LinearGradient
         colors={['transparent', 'black']}
         locations={[0.25, 0.85]} 
-        style={styles.bottomGradient}
+        style={{
+          position: 'absolute',
+          bottom: -1,
+          left: 0,
+          right: 0,
+          height: height * 0.12,
+        }}
         pointerEvents="none" 
       />
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  bottomGradient: {
-    position: 'absolute',
-    bottom: -1,
-    left: 0,
-    right: 0,
-    height: height * 0.12,
-  },
-  text: {
-    fontWeight: 600,
-    color: 'white',
-  },
-  text2: {
-    fontWeight: 600,
-    color: 'white',
-    fontSize: 12,
-  },
-  greytext: {
-    fontWeight: 600,
-    color: '#242424',
-  },
-  image: {
-    width: 30,
-    height: 30,
-    contentFit: 'contain',
-  },
-  stat: {
-    width: width * 0.85,
-    backgroundColor: '#ccc',
-    padding: 20,
-    marginTop: 15,
-    borderRadius: 15,
-  },
-  statRow: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: 10,
-    flexDirection: 'row',
-  },
-  statItem: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 5,
-  },
-  statValue: {
-    fontSize: 15,
-    fontWeight: 800,
-    color: '#242424',
-  },
-})
 
 export default players

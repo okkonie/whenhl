@@ -1,11 +1,12 @@
-import { AntDesign } from '@expo/vector-icons';
+import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useGlobalSearchParams } from 'expo-router';
+import { router, useGlobalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import getFlagEmoji from '../../assets/getflag';
 import teamLogos from '../../assets/logos';
+import '../global.css';
 const {width, height } = Dimensions.get('window')
 
 const TeamInfoScreen = () => {
@@ -18,9 +19,9 @@ const TeamInfoScreen = () => {
   const [showSchedule, setShowSchedule] = useState(false);
   const [teamStats, setTeamStats] = useState([]);
 
-  const pastDate = new Intl.DateTimeFormat('default', {  day: 'numeric', month: 'numeric' });
-  const futDateFormat = new Intl.DateTimeFormat('default', { weekday: 'short', day: 'numeric', month: 'numeric', hour: 'numeric', minute: 'numeric' });
-  const futDateFormat2 = new Intl.DateTimeFormat('default', { weekday: 'short', hour: 'numeric', minute: 'numeric' });
+  const pastDate = new Intl.DateTimeFormat('en-BG', {  day: 'numeric', month: 'numeric' });
+  const futDateFormat = new Intl.DateTimeFormat('en-BG', { weekday: 'short', day: 'numeric', month: 'numeric', hour: 'numeric', minute: 'numeric' });
+  const futDateFormat2 = new Intl.DateTimeFormat('en-BG', { weekday: 'short', hour: 'numeric', minute: 'numeric' });
 
   const fetchRoster = async () => {
     const controller = new AbortController();
@@ -109,8 +110,10 @@ const TeamInfoScreen = () => {
       futGames = data.games
       .filter((game) => game.gameState === 'FUT')
       .map((game) => ({
+        scheduleState: game.gameScheduleState,
         startTime: game.startTimeUTC,
         opponent: game.homeTeam.abbrev === params.abbr ? game.awayTeam.abbrev : game.homeTeam.abbrev,
+        opponentName: game.homeTeam.abbrev === params.abbr ? game.awayTeam.commonName.default : game.homeTeam.commonName.default,
         homeTeam: game.homeTeam.abbrev,
       }));
   
@@ -151,6 +154,8 @@ const TeamInfoScreen = () => {
             roadLosses: team.roadLosses + team.roadOtLosses,
             roadWins: team.roadWins,
             division: team.divisionName,
+            conference: team.conferenceName,
+            conferenceRank: team.conferenceSequence,
             rank: team.divisionSequence,
             gapg: parseFloat((team.goalAgainst / team.gamesPlayed).toFixed(2)),
             gfpg: parseFloat((team.goalFor / team.gamesPlayed).toFixed(2)),
@@ -185,200 +190,270 @@ const TeamInfoScreen = () => {
   }, [params.abbr]);
 
   return (
-    <View style={styles.container}>
+    <View className='flex-1 bg-black items-center px-4'>
       {loading ? (
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <View className='flex-1 justify-center items-center'>
           <ActivityIndicator size='large' color='white' />
         </View>
       ) : (
         <>
-        <ScrollView showsVerticalScrollIndicator={false} style={{top: height * 0.05, width: width, maxHeight: height * 0.86}} contentContainerStyle={{alignItems: 'center'}}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>{params.name}</Text>
-            <Image
-              source={teamLogos[params.abbr] || teamLogos.DEFAULT}
-              style={styles.image}
-            />
-          </View>
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={() => setShowSchedule(true)} 
-          >
-            <View style={styles.buttonContent}>
-              <Text style={styles.gamesText}>Recent games</Text>
-              <View style={styles.resultsContainer}>
-                {(pastGames ?? []).slice(-7).map((game, index) => (
-                  <View 
-                    key={index}
-                    style={[
-                      styles.resultBox, 
-                      { backgroundColor: game.result === 'W' ? '#26ad5f' : '#b35b5b' }
-                    ]}
-                  >
-                    <Text style={styles.resultText}>{game.result}</Text>
-                  </View>
-                ))}
-              </View>
-
-              <Text style={styles.gamesText}>Upcoming games</Text>
-              <View style={styles.upcomingGamesContainer}>
-                {(futGames ?? []).slice(0, 3).map((game, index) => (
-                  <View key={index} style={styles.upcomingGame}>
-                    <Image
-                      source={teamLogos[game.opponent] || teamLogos.DEFAULT}
-                      style={styles.image}
-                    />
-                    <Text style={styles.gameText}>
-                      {futDateFormat2.format(new Date(game.startTime))}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-              <Text style={styles.modalHint}>click for more</Text>
-            </View>
-          </TouchableOpacity>
-
-          <Modal
-            visible={showSchedule}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={() => setShowSchedule(false)}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setShowSchedule(false)}>
-                  <AntDesign name='close' size={24} color='white' />
+          <ScrollView style={{flex: 1}} contentContainerStyle={{alignItems: 'center'}} bounces={false} showsVerticalScrollIndicator={false}>
+            <View style={{height: height * 0.07}}/>
+              <View className="flex-row gap-2 mb-2">
+                <TouchableOpacity 
+                  className='items-center justify-center rounded-lg bg-neutral-800 px-3'
+                  onPress={() => router.navigate('/teams')}
+                >
+                  <Entypo name="chevron-left" size={24} color="white"/>
                 </TouchableOpacity>
-                <View style={{height: 20}}/>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  {(() => {
-                    const past = (pastGames ?? []).filter(game => game.result); 
-                    const future = (futGames ?? []).filter(game => !game.result); 
+                <View className='flex-row items-center justify-between flex-1 bg-neutral-800 rounded-lg px-5 py-2'>
+                  <Text className='text-white text-lg font-bold'>{params.name}</Text>
+                  <Image
+                    source={teamLogos[params.abbr] || teamLogos.DEFAULT}
+                    style={{
+                      height: 50,
+                      width: 50,
+                      contentFit: 'contain'
+                    }}
+                  />
+                </View>
+              </View>
+              <TouchableOpacity 
+                className='w-full bg-neutral-800 p-4 rounded-lg mb-2' 
+                onPress={() => setShowSchedule(true)} 
+              >
+                  <Text className='text-white font-semibold'>Recent games</Text>
+                  <View className='w-full flex-row justify-between py-4 border-b border-neutral-400'>
+                    {(pastGames ?? []).slice(-7).map((game, index) => (
+                      <View 
+                        key={index}
+                        className={`items-center justify-center w-[13%] aspect-square rounded-md ${game.result === 'W' ? 'bg-green-700' : 'bg-red-800'}`}
+                      >
+                        <Text className='text-white font-extrabold text-xs'>{game.opponent}</Text>
+                      </View>
+                    ))}
+                  </View>
 
-                    const chunkedPast = [];
-                    for (let i = 0; i < past.length; i += 5) {
-                      chunkedPast.push(past.slice(i, i + 5));
-                    }
+                  <Text className='text-white font-semibold pt-4'>Upcoming games</Text>
+                  <View className='w-full flex-row justify-between pt-4 pb-2'>
+                    {(futGames ?? []).slice(0, 3).map((game, index) => (
+                      <View key={index} className='bg-neutral-900 px-6 py-2 rounded-xl items-center justify-center'>
+                        <Image
+                          source={teamLogos[game.opponent] || teamLogos.DEFAULT}
+                          style={{
+                            height: 50,
+                            width: 50,
+                            contentFit: 'contain',
+                          }}
+                        />
+                        <Text className='text-white text-sm font-semibold pt-1'>
+                          {game.scheduleState === 'OK' ? futDateFormat2.format(new Date(game.startTime)) : 'TBD'}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                  <Text className='text-neutral-400 font-light text-xs text-center pt-2'>click for more</Text>
+                
+              </TouchableOpacity>
 
-                    return (
-                      <>
-                        {chunkedPast.map((group, groupIdx) => (
-                          <View key={`past-${groupIdx}`} style={styles.gameRow}>
-                            {group.map((item, idx) => {
+              <Modal animationType="slide" transparent={true} visible={showSchedule} onRequestClose={() => setShowSchedule(false)}>
+                <View className="flex-1 justify-end items-center bg-transparent">
+                  <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
+                    <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
+                      <Text className="text-white text-lg font-bold">Schedule</Text>
+                      <TouchableOpacity onPress={() => setShowSchedule(false)} className='pl-5 h-full items-center justify-center'>
+                        <Ionicons name="close" size={24} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                    <ScrollView showsVerticalScrollIndicator={false} className='flex-1 px-4 py-4'>
+                      {(() => {
+                        const past = (pastGames ?? []).filter(game => game.result); 
+                        const future = (futGames ?? []).filter(game => !game.result); 
+                        
+                        return (
+                          <>
+                            <View className='flex-wrap flex-row'>
+                              {past.map((item, idx) => {
+                                const date = new Date(item.startTime);
+                                const formattedDate = pastDate.format(date);
+                                return (
+                                  <View key={idx} className='p-2 w-1/5'>
+                                  <View className={`rounded-lg px-1 py-0.5 ${item.result === 'W' ? 'bg-green-700' : 'bg-red-800'}`}>
+                                    <Text className='text-white text-xs font-bold p-1 text-center'>
+                                      {item.opponent}
+                                    </Text>
+                                    <Text className='text-white text-xs text-center font-semibold py-1'>
+                                      {formattedDate}
+                                    </Text>
+                                  </View>
+                                  </View>
+                                );
+                              })}
+                            </View>
+                            {future.map((item, idx) => {
                               const date = new Date(item.startTime);
-                              const formattedDate = pastDate.format(date);
-                              const bgColor = item.result === 'W' ? '#26ad5f' : '#b35b5b';
+                              const formattedDate = futDateFormat.format(date);
                               return (
-                                <View key={idx} style={{alignItems: 'center', width: 52, margin: 4, backgroundColor: bgColor, borderRadius: 5}}>
-                                  <Text style={[styles.gameOppText, { backgroundColor: bgColor, fontSize: 11, fontWeight: 800 }]}>
-                                    {item.opponent}
-                                  </Text>
-                                  <Text style={styles.gameOppDate}>
-                                    {formattedDate}
-                                  </Text>
+                                <View key={`fut-${idx}`} className='px-2 py-1'>
+                                  <View className='w-full flex-row justify-between items-center bg-neutral-900 rounded-lg p-3'>
+                                    <View className='flex-row gap-4 items-center'>
+                                      <Image 
+                                        style={{
+                                          width: 30,
+                                          height: 30,
+                                          contentFit: 'contain',
+                                        }}
+                                        source={teamLogos[item.opponent]}
+                                      />
+                                      <Text className='text-white text-md text-center font-semibold'>{item.opponentName}</Text>
+                                    </View>
+                                    <Text className='text-white text-md text-center font-semibold'>{formattedDate}</Text>
+                                  </View>
                                 </View>
                               );
                             })}
+                          </>
+                        );
+                      })()}
+                      <View  className='h-8'/>
+                    </ScrollView>
+                  </View>
+                </View>
+              </Modal>
+              
+              <View className='w-full bg-neutral-800 p-4 rounded-lg mb-2'>
+                <Text className='text-white font-bold w-full border-b border-neutral-400 pb-2'>Team stats</Text>
+                <View className='flex-row'>
+                  <View className='pr-1 w-1/2 pt-4'>
+                    <View className='bg-neutral-900 px-3 py-2 rounded-lg flex-row gap-2'>
+                      <Text className="text-white font-black text-3xl">{teamStats?.rank}.</Text>
+                      <View className='items-start justify-center'>
+                        <Text className='text-white text-sm font-medium'>in {teamStats?.division}</Text>
+                        <Text className='text-white text-sm font-medium'>division</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View className='pl-1 w-1/2 pt-4'>
+                    <View className='bg-neutral-900 px-3 py-2 rounded-lg flex-row gap-2'>
+                      <Text className="text-white font-black text-3xl">{teamStats?.conferenceRank}.</Text>
+                      <View className='items-start justify-center'>
+                        <Text className='text-white text-sm font-medium'>in {teamStats?.conference}</Text>
+                        <Text className='text-white text-sm font-medium'>conference</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+                <Text className='text-white font-bold text-base mt-2 pb-2 pl-1'>Home</Text>
+                <View className='w-full flex-row gap-1'>
+                  <View 
+                    style={{width: `${teamStats?.homeWins / (teamStats?.homeWins + teamStats?.homeLosses) * 100}%`}} 
+                    className='bg-green-700 rounded-l-lg h-8 self-start justify-center'
+                  >
+                      <Text className='text-white text-sm font-bold pl-3'>{teamStats?.homeWins} wins</Text>
+                  </View>
+                  <View className='bg-red-800 rounded-r-lg flex-1 h-8 self-start justify-center'>
+                      <Text className='text-white text-sm font-bold self-end pr-3'>{teamStats?.homeLosses} losses</Text>
+                  </View>
+                </View>
+                <Text className='text-white font-bold text-base mt-2 pb-2 pl-1'>Road</Text>
+                <View className='w-full flex-row gap-1'>
+                  <View 
+                    style={{width: `${teamStats?.roadWins / (teamStats?.roadWins + teamStats?.roadLosses) * 100}%`}} 
+                    className='bg-green-700 rounded-l-lg h-8 self-start justify-center'
+                  >
+                      <Text className='text-white text-sm font-bold pl-3'>{teamStats?.roadWins} wins</Text>
+                  </View>
+                  <View className='bg-red-800 rounded-r-lg flex-1 h-8 self-start justify-center'>
+                      <Text className='text-white text-sm font-bold self-end pr-3'>{teamStats?.roadLosses} losses</Text>
+                  </View>
+                </View>
+                <Text className='text-white font-bold text-base mt-2 pb-2 pl-1'>Goals per game</Text>
+                <View className='w-full flex-row gap-1'>
+                  <View 
+                    style={{width: `${teamStats?.goals / (teamStats?.goals + teamStats?.goalAgainst) * 100}%`}} 
+                    className='bg-green-700 rounded-l-lg h-8 self-start justify-center'
+                  >
+                      <Text className='text-white text-sm font-bold pl-3'>{teamStats?.gfpg} for</Text>
+                  </View>
+                  <View className='bg-red-800 rounded-r-lg flex-1 h-8 self-start justify-center'>
+                      <Text className='text-white text-sm font-bold self-end pr-3'>{teamStats?.gapg} against</Text>
+                  </View>
+                </View>
+              </View>
+
+              <TouchableOpacity className='w-full bg-neutral-800 p-4 rounded-lg mb-2 flex-row justify-between' onPress={() => setShowRoster(true)}>
+                <Text className='text-white text-xl font-bold'>Roster</Text>
+                <Entypo name="plus" size={28} color="white" />
+              </TouchableOpacity>
+
+              <Modal
+                visible={showRoster}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setShowRoster(false)}
+              >
+                <View className="flex-1 justify-end items-center bg-transparent">
+                  <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
+                    <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
+                      <Text className="text-white text-lg font-bold">Roster</Text>
+                      <TouchableOpacity onPress={() => setShowRoster(false)} className='pl-5 h-full items-center justify-center'>
+                        <Ionicons name="close" size={24} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                    <ScrollView showsVerticalScrollIndicator={false} className='flex-1 w-full'>
+                      <View className='flex-1 w-full px-7'>
+                        <Text className='text-white text-lg font-bold pb-2 pt-4 ml-2'>Forwards</Text>
+                        {(roster?.forwards ?? []).map((player, index) => (
+                          <View key={index} className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'>
+                            <Text className='text-white text-md font-medium'>{player.country} {player.name}</Text>
+                            <Text className='text-white text-md font-medium'>#{player.number}</Text>
                           </View>
                         ))}
-
-                        {future.map((item, idx) => {
-                          const date = new Date(item.startTime);
-                          const formattedDate = futDateFormat.format(date);
-                          return (
-                            <View key={`fut-${idx}`} style={{marginVertical: 10, flexDirection: 'row', width: 250, alignSelf: 'center'}}>
-                              <Text style={styles.gameOppText}>{item.opponent}</Text>
-                              <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                                <Text style={styles.gameDateText}>{formattedDate}</Text>
-                              </View>
-                            </View>
-                          );
-                        })}
-                      </>
-                    );
-                  })()}
-                </ScrollView>
-              </View>
-            </View>
-          </Modal>
-          
-          <View style={styles.button}>
-            <Text style={styles.buttonText}>Team stats</Text>
-            <View style={styles.row}>
-              <Text style={styles.gameText}>{teamStats?.rank}. in {teamStats?.division} division</Text>
-              <Text style={styles.gameText}>{teamStats?.points}p / {teamStats?.gamesPlayed}g</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.gameText}>Total wins / losses</Text>
-              <Text style={styles.gameText}>{teamStats?.roadWins + teamStats?.homeWins} / {teamStats?.roadLosses + teamStats?.homeLosses}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.gameText}>Home</Text>
-              <Text style={styles.gameText}>{teamStats?.homeWins} / {teamStats?.homeLosses}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.gameText}>Road</Text>
-              <Text style={styles.gameText}>{teamStats?.roadWins} / {teamStats?.roadLosses}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.gameText}>Goals for</Text>
-              <Text style={styles.gameText}>{teamStats?.goals} ({teamStats?.gfpg})</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.gameText}>Goals against</Text>
-              <Text style={styles.gameText}>{teamStats?.goalAgainst} ({teamStats?.gapg})</Text>
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.button} onPress={() => setShowRoster(true)}>
-            <Text style={styles.buttonText}>Roster</Text>
-          </TouchableOpacity>
-
-          <Modal
-            visible={showRoster}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={() => setShowRoster(false)}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setShowRoster(false)}>
-                  <AntDesign name='close' size={24} color='white' />
-                </TouchableOpacity>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  <View style={styles.rosterContainer}>
-                    <Text style={styles.columnHeader}>Forwards</Text>
-                    {(roster?.forwards ?? []).map((player, index) => (
-                      <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%', alignSelf: 'center'}}>
-                        <Text style={styles.playerText}>{player.country} {player.name}</Text>
-                        <Text style={styles.playerText}>#{player.number}</Text>
+                        <Text className='text-white text-lg font-bold pb-2 pt-4 ml-2'>Defensemen</Text>
+                        {(roster?.defensemen ?? []).map((player, index) => (
+                          <View key={index} className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'>
+                            <Text className='text-white text-md font-medium'>{player.country} {player.name}</Text>
+                            <Text className='text-white text-md font-medium'>#{player.number}</Text>
+                          </View>
+                        ))}
+                        <Text className='text-white text-lg font-bold pb-2 pt-4 ml-2'>Goalies</Text>
+                        {(roster?.goalies ?? []).map((player, index) => (
+                          <View key={index} className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'>
+                            <Text className='text-white text-md font-medium'>{player.country} {player.name}</Text>
+                            <Text className='text-white text-md font-medium'>#{player.number}</Text>
+                          </View>
+                        ))}
                       </View>
-                    ))}
-                    <Text style={styles.columnHeader}>Defensemen</Text>
-                    {(roster?.defensemen ?? []).map((player, index) => (
-                      <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%', alignSelf: 'center'}}>
-                        <Text style={styles.playerText}>{player.country} {player.name}</Text>
-                        <Text style={styles.playerText}>#{player.number}</Text>
-                      </View>
-                    ))}
-                    <Text style={styles.columnHeader}>Goalies</Text>
-                    {(roster?.goalies ?? []).map((player, index) => (
-                      <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%', alignSelf: 'center'}}>
-                        <Text style={styles.playerText}>{player.country} {player.name}</Text>
-                        <Text style={styles.playerText}>#{player.number}</Text>
-                      </View>
-                    ))}
+                      <View className='h-8' />
+                    </ScrollView>
                   </View>
-                </ScrollView>
-              </View>
-            </View>
-          </Modal>
+                </View>
+              </Modal>
+            <View style={{height: height * 0.08}}/>
           </ScrollView>
 
           <LinearGradient
+            colors={['black', 'transparent']}
+            locations={[0.2, 1]} 
+            style={{
+              position: 'absolute',
+              top: -1,
+              left: 0,
+              right: 0,
+              height: height * 0.06,
+            }}
+            pointerEvents="none" 
+          />
+          <LinearGradient
             colors={['transparent', 'black']}
-            locations={[0.2, 0.85]} 
-            style={styles.bottomGradient}
+            locations={[0.25, 0.85]} 
+            style={{
+              position: 'absolute',
+              bottom: -1,
+              left: 0,
+              right: 0,
+              height: height * 0.12,
+            }}
             pointerEvents="none" 
           />
         </>
@@ -386,194 +461,5 @@ const TeamInfoScreen = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  image: {
-    height: 50,
-    width: 50,
-    contentFit: 'contain',
-  },
-  bottomGradient: {
-    position: 'absolute',
-    bottom: -1,
-    left: 0,
-    right: 0,
-    height: 100,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: width * 0.75,
-    marginTop: 15,
-  },
-  container: {
-    alignItems: 'center',
-    backgroundColor: 'black',
-    flex: 1,
-    borderWidth: 1,
-  },
-  header: {
-    justifyContent: 'space-evenly',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 15,
-    backgroundColor: '#242424',
-    marginTop: 20,
-    marginBottom: height * 0.01,
-    width: width * 0.9,
-  },
-  headerText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  button: {
-    backgroundColor: '#242424',
-    paddingVertical: 20,
-    paddingHorizontal: 25,
-    borderRadius: 15,
-    width: width * 0.9,
-    alignItems: 'center',
-    marginBottom: height * 0.01,
-  },
-  buttonText: {
-    fontWeight: 500,
-    color: 'white',
-    fontSize: 16,
-  },
-  rosterContainer: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  columnHeader: {
-    borderBottomWidth: 1,
-    paddingBottom: 10,
-    borderColor: 'white',
-    alignSelf: 'center',
-    width: '80%',
-    fontWeight: '700',
-    color: 'white',
-    fontSize: 14,
-    marginVertical: 7,
-  },
-  playerText: {
-    color: 'white',
-    fontSize: 12,
-    marginVertical: 5,
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  resultsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 15,
-  },
-  resultBox: {
-    width: 30,
-    height: 30,
-    margin: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
-  },
-  resultText: {
-    color: 'white',
-    fontWeight: 900,
-  },
-  upcomingGamesContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  gameText: {
-    color: 'white',
-    fontSize: 12,
-    textAlign: 'center',
-    fontWeight: 500,
-  },
-  scoreContainer: {
-    position: 'absolute',
-    left: '53%',
-  },
-  gameOppText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 14,
-    marginTop: 5,
-    paddingHorizontal: 4,
-    borderRadius: 2,
-  },
-  gameOppDate: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 10,
-    margin: 5,
-    paddingHorizontal: 4,
-    borderRadius: 2,
-  },
-  gameScoreText: {
-    textAlign: 'center',
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 14,
-    marginTop: 5,
-    paddingHorizontal: 4,
-    borderRadius: 2,
-  },
-  gameDateText: {
-    textAlign: 'right',
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 14,
-    marginTop: 2,
-  },
-  gameRow: {
-    alignSelf: 'center',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    width: 300,
-  },
-  gamesText: {
-    fontWeight: '500',
-    color: 'white',
-    fontSize: 14,
-    marginBottom: 15,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'transparent',
-  },
-  modalContent: {
-    backgroundColor: '#242424',
-    maxHeight: height * 0.92,
-    padding: 20,
-    borderTopStartRadius: 15,
-    borderTopEndRadius: 15,
-    flex: 1,
-    elevation: 10,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  closeButton: {
-    alignSelf: 'flex-end',
-    padding: width * 0.05,
-  },
-  modalHint: {
-    fontWeight: '300',
-    color: 'grey', 
-    textAlign: 'center', 
-    width: '100%', 
-    marginTop: 5, 
-    fontSize: 12,
-  },
-});
 
 export default TeamInfoScreen;

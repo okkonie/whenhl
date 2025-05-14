@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import '../app/global.css';
+import '.././app/global.css';
 
 const generateSeasons = () => {
   const now = new Date();

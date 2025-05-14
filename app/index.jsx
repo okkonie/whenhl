@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import colors from '../assets/colors';
 import teamLogos from '../assets/logos';
 import GameInfo from './gameinfo';
@@ -229,11 +229,19 @@ const Home = () => {
                               <View className={`flex-row justify-evenly items-center py-2 item-center w-full rounded-t-xl`} style={{ backgroundColor: colors[item.homeAbbrev] || colors.DEFAULT }}>
                                 <Image
                                   source={teamLogos[item.homeAbbrev] || teamLogos.DEFAULT}
-                                  style={styles.image}
+                                  style={{
+                                    width: width * 0.13,
+                                    height: width * 0.13,
+                                    contentFit: 'contain',
+                                  }}
                                 />
                                 <Image
                                   source={teamLogos[item.awayAbbrev] || teamLogos.DEFAULT}
-                                  style={styles.image}
+                                  style={{
+                                    width: width * 0.13,
+                                    height: width * 0.13,
+                                    contentFit: 'contain',
+                                  }}
                                 />
                               </View>
                               {item.gameState === "OFF" || item.gameState === "FINAL" ? (
@@ -290,13 +298,25 @@ const Home = () => {
           <LinearGradient
             colors={['black', 'transparent']}
             locations={[0.2, 1]} 
-            style={styles.topGradient}
+            style={{
+              position: 'absolute',
+              top: -1,
+              left: 0,
+              right: 0,
+              height: height * 0.06,
+            }}
             pointerEvents="none" 
           />
           <LinearGradient
             colors={['transparent', 'black']}
             locations={[0.25, 0.85]} 
-            style={styles.bottomGradient}
+            style={{
+              position: 'absolute',
+              bottom: -1,
+              left: 0,
+              right: 0,
+              height: height * 0.12,
+            }}
             pointerEvents="none" 
           />
         </>
@@ -306,25 +326,3 @@ const Home = () => {
 };
 
 export default Home;
-
-const styles = StyleSheet.create({
-  image: {
-    width: width * 0.13,
-    height: width * 0.13,
-    contentFit: 'contain',
-  },
-  bottomGradient: {
-    position: 'absolute',
-    bottom: -1,
-    left: 0,
-    right: 0,
-    height: height * 0.12,
-  },
-  topGradient: {
-    position: 'absolute',
-    top: -1,
-    left: 0,
-    right: 0,
-    height: height * 0.06,
-  },
-});

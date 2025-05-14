@@ -1,4 +1,5 @@
 import { FlatList, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import '.././app/global.css';
 
 const Category = ({skaterOn, skaterSort, goalieSort, setSkaterSort, setGoalieSort, modalVisible, setModalVisible}) => {
 
