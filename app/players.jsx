@@ -1,10 +1,10 @@
 import Category from "@/assets/category"
 import SeasonDropdown from "@/assets/seasondropdown"
-import { Ionicons } from "@expo/vector-icons"
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Image } from 'expo-image'
 import { LinearGradient } from "expo-linear-gradient"
-import React, { useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Dimensions, FlatList, Modal, Text, TextInput, TouchableOpacity, View } from "react-native"
+import React, { useEffect, useState } from 'react'
+import { ActivityIndicator, Dimensions, FlatList, Modal, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
 import colors from '../assets/colors'
 import getFlagEmoji from '../assets/getflag'
 import teamLogos from "../assets/logos"
@@ -29,7 +29,6 @@ const players = () => {
   const [season, setSeason] = useState({"key": "current", "label": "season"});
   const [skaterStats, setSkaterStats] = useState([]);
   const [goalieStats, setGoalieStats] = useState([]);
-  const scrollRef = useRef(null);
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const [seasonModalVisible, setSeasonModalVisible] = useState(false);
 
@@ -114,12 +113,6 @@ const players = () => {
     return age;
   };
   
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ x: 0, animated: false });
-    }
-  }, [skaterOn]);
-
   const renderItem = ({ item }) => {
     const flag = item.birthCountry ? getFlagEmoji(item.birthCountry) : '🏳️';
     const abbr = item.lastTeamAbbrev
@@ -232,12 +225,17 @@ const players = () => {
       <View className="bg-neutral-900 rounded-xl mt-2 justify-between">
         <View className="w-full border-b border-neutral-700 p-3 items-center justify-between flex-row">
           <Text className="text-white text-lg font-medium">{head}</Text>
-          <TouchableOpacity 
+          <Pressable 
             onPress={() => setIsRegular(prev => !prev)}
-            className="bg-neutral-700 px-3 py-1 w-1/3 justify-center items-center rounded-md"
-          >
-            <Text className="text-white text-sm font-medium">{isRegular ? 'regular season' : 'playoffs'}</Text>
-          </TouchableOpacity>
+            className="bg-neutral-700 p-1 w-1/2 justify-center items-center rounded-full"
+          > 
+            <Text 
+              className="text-neutral-900 text-sm font-medium py-1 px-3 bg-green-400 rounded-full" 
+              style={{alignSelf: isRegular ? 'flex-end' : 'flex-start'}}
+            >
+              {isRegular ? 'regular season' : 'playoffs'}
+            </Text>
+          </Pressable>
         </View>
         {position !== 'G' && subCategory ? (
           <View className="flex-row justify-between py-5 px-2">
@@ -271,7 +269,7 @@ const players = () => {
       />
 
       
-      <View className="bg-neutral-800 w-full p-2 flex-row justify-between items-center rounded-2xl z-50" style={{top: height * 0.07, height: height * 0.07}}>
+      <View className="bg-neutral-800 w-full p-2 flex-row justify-between items-center rounded-xl z-50" style={{top: height * 0.07, height: height * 0.07}}>
         {searching ? (
           <>
             <TextInput 
@@ -299,10 +297,13 @@ const players = () => {
         ) : (
           <>  
             <View className="flex-row items-center justify-between flex-1">
-              <TouchableOpacity className="h-full border-r border-neutral-400 px-3 w-3/12 gap-0.5" onPress={() => setSkaterOn(!skaterOn)}>
-                <Text className={`${skaterOn ? 'bg-green-400 text-neutral-900' : 'text-white'} font-bold text-xs rounded-md px-1 text-center`}>skater</Text>
-                <Text className={`${!skaterOn ? 'bg-green-400 text-neutral-900' : 'text-white'} font-bold text-xs rounded-md px-1 text-center`}>goalie</Text>
-              </TouchableOpacity>
+              <View className="h-full w-3/12 border-r border-neutral-400 pr-2 items-center justify-center">
+                <Pressable className="h-full w-full bg-neutral-700 rounded-xl p-1" onPress={() => setSkaterOn(!skaterOn)} style={{justifyContent: skaterOn ? 'flex-start' : 'flex-end'}}>
+                  <View className="items-center justify-center bg-green-400 min-h-3/4 rounded-lg p-1">
+                    <Text className={'text-neutral-900 font-bold text-xs w-full text-center'}>{skaterOn ? 'skater' : 'goalie'}</Text>
+                  </View>
+                </Pressable>
+              </View>
               <TouchableOpacity
                 className='h-full px-3 border-r border-neutral-400 w-5/12'
                 onPress={() => setCategoryModalVisible(true)}
@@ -368,79 +369,93 @@ const players = () => {
                 <ActivityIndicator size='large' color='white'/>
               </View>
             ) : (
-              <View className="w-full px-3 flex-1">
-                <View className="flex-row items-center justify-between my-3 p-2 rounded-full" style={{backgroundColor: colors[selectedPlayer?.abbr]}}>
-                  <View className="gap-5 flex-row">
-                    <View style={{ height: 60, width: 60, borderRadius: 35, overflow: 'hidden' }}>
-                      <Image 
-                        contentFit="contain"
-                        style={{ height: 60, width: 60 }}
-                        source={playerStats?.headshot}
-                      />
+              <ScrollView className="w-full px-3 flex-1" showsVerticalScrollIndicator={false}>
+                <View className="rounded-xl mt-4 bg-neutral-900">
+                  <View className="gap-5 flex-row items-center rounded-t-xl justify-between mb-3 py-3 px-5" style={{backgroundColor: colors[selectedPlayer?.abbr]}}>
+                    <View className="flex-row gap-5">
+                      <View className="h-20 w-20 rounded-xl overflow-hidden">
+                        <Image 
+                          contentFit="contain"
+                          style={{ height: '100%', width: '100%' }}
+                          source={playerStats?.headshot}
+                        />
+                      </View>
+                      <View className="justify-end">
+                        <Text className="text-white text-2xl font-bold">{playerStats?.firstName?.default}</Text>
+                        <Text className="text-white text-2xl font-bold">{playerStats?.lastName?.default}</Text>
+                      </View>
                     </View>
-                    <View className="justify-center">
-                      <Text className="text-white text-2xl font-bold">{playerStats?.firstName?.default}</Text>
-                      <Text className="text-white text-2xl font-bold">{playerStats?.lastName?.default}</Text>
-                    </View>
+                    {selectedPlayer &&
+                    <Image 
+                      contentFit="contain"
+                      style={{ height: 60, width: 60 }}
+                      source={teamLogos[selectedPlayer.abbr]}
+                    />}
                   </View>
-                  {selectedPlayer &&
-                  <Image 
-                    contentFit="contain"
-                    style={{ height: 60, width: 60 }}
-                    source={teamLogos[selectedPlayer.abbr]}
-                  />}
-                </View>
-                
-                <View className="flex-row justify-between py-2 mb-2 px-3">
-                  {playerStats?.birthDate && (
-                    <Text className="text-white text-sm font-medium">
-                      Age: {getAge(playerStats.birthDate)}
-                    </Text>
-                  )}
-                  {playerStats?.birthDate && playerStats?.birthCountry && playerStats?.birthCity.default && (
-                    <Text className="text-white text-sm font-medium">
-                      born: {getFlagEmoji(playerStats?.birthCountry)} {playerStats.birthCity.default}, {playerStats.birthDate}
-                    </Text>
-                  )}
-                </View>
-                
-                <View className="flex-row justify-between py-2 mb-2 px-3">
-                  {playerStats.shootsCatches && playerStats.position && (
-                    <Text className="text-white text-sm font-medium">🏒 {playerStats.shootsAndCatches === 'L' ? 'Left' : 'Right'}</Text>
-                  )}
-                  {playerStats?.draftDetails?.overallPick ? (
-                    <Text className="text-white text-sm font-medium">drafted {`${getOrdinalSuffix(playerStats.draftDetails.overallPick)} overall by ${playerStats.draftDetails.teamAbbrev} (${playerStats.draftDetails.year})`}</Text>
-                  ) : (
-                    <Text className="text-white text-sm font-medium">undrafted</Text>
-                  )}
+                  
+                  <View className="flex-row justify-between py-2 mb-2 px-3">
+                    {playerStats?.birthDate && (
+                      <View className="flex-row items-center gap-3">
+                        <MaterialCommunityIcons name="cake-variant" color="white" size={18}/>
+                        <Text className="text-white text-sm font-medium">
+                          {getAge(playerStats.birthDate)} y/o
+                        </Text>
+                      </View>
+                    )}
+                    {playerStats?.birthDate && playerStats?.birthCountry && playerStats?.birthCity.default && (
+                      <Text className="text-white text-sm font-medium">
+                        born: {getFlagEmoji(playerStats?.birthCountry)} {playerStats.birthCity.default}, {playerStats.birthDate}
+                      </Text>
+                    )}
+                  </View>
+                  
+                  <View className="flex-row justify-between py-2 mb-2 px-3">
+                    {playerStats.shootsCatches && playerStats.position && (
+                      <View className="flex-row items-center gap-3">
+                        <MaterialCommunityIcons name="hockey-sticks" color="white" size={18}/>
+                        <Text className="text-white text-sm font-medium">{playerStats.shootsAndCatches === 'L' ? 'Left' : 'Right'}</Text>
+                      </View>
+                    )}
+                    {playerStats?.draftDetails?.overallPick ? (
+                      <Text className="text-white text-sm font-medium">drafted {`${getOrdinalSuffix(playerStats.draftDetails.overallPick)} overall by ${playerStats.draftDetails.teamAbbrev} (${playerStats.draftDetails.year})`}</Text>
+                    ) : (
+                      <Text className="text-white text-sm font-medium">undrafted</Text>
+                    )}
+                  </View>
+
+                  <View className="flex-row justify-between py-2 mb-2 px-3">
+                    {playerStats.position && (
+                      <View className="flex-row items-center gap-3">
+                        <MaterialCommunityIcons name="pin" color="white" size={18}/>
+                        <Text className="text-white text-sm font-medium">
+                          {playerStats.position === 'G' ? 'Goalie' : playerStats.position === 'D' ? 'Defenseman' : playerStats.position === 'R' ? 'Right wing'
+                          : playerStats.position === 'L' ? 'Left wing' : 'Center'}
+                        </Text>
+                      </View>
+                    )}
+                    {(selectedPlayer?.heightInCentimeters || playerStats?.weightInKilograms) && (
+                      <View className="flex-row items-center gap-3">
+                        <MaterialCommunityIcons name="human-male-height" color="white" size={18}/>
+                        <Text className="text-white text-sm font-medium">{`${playerStats?.heightInCentimeters || '–'} cm & ${playerStats?.weightInKilograms || '–'} kg`}</Text>
+                      </View>
+                    )}
+                  </View>
                 </View>
 
-                <View className="flex-row justify-between py-2 mb-2 px-3">
-                  {playerStats.position && (
-                    <Text className="text-white text-sm font-medium">
-                      📌 {playerStats.position === 'G' ? 'Goalie' : playerStats.position === 'D' ? 'Defenseman' : playerStats.position === 'R' ? 'Right wing'
-                      : playerStats.position === 'L' ? 'Left wing' : 'Center'}
-                    </Text>
-                  )}
-                  {(selectedPlayer?.heightInCentimeters || playerStats?.weightInKilograms) && (
-                    <Text className="text-white text-sm font-medium">📏 {`${playerStats?.heightInCentimeters || '–'} cm & ${playerStats?.weightInKilograms || '–'} kg`}</Text>
-                  )}
-                </View>
+                <StatContainer 
+                  head={playerStats?.featuredStats?.season.toString().slice(0,4) + '-' + playerStats?.featuredStats?.season.toString().slice(6)} 
+                  category={'subseason'} 
+                  position={playerStats.position} 
+                />
+                <StatContainer 
+                  head={'career'} 
+                  category={'career'} 
+                  position={playerStats.position} 
+                />
 
-                <View className="flex-1">
-                  <StatContainer 
-                    head={playerStats?.featuredStats?.season.toString().slice(0,4) + '-' + playerStats?.featuredStats?.season.toString().slice(6)} 
-                    category={'subseason'} 
-                    position={playerStats.position} 
-                  />
-                  <StatContainer 
-                    head={'career'} 
-                    category={'career'} 
-                    position={playerStats.position} 
-                  />
-                </View>
                 <View className="h-8"/>
-              </View>
+
+              </ScrollView>
             )}
           </View> 
         </View>

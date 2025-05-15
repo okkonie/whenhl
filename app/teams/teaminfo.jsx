@@ -19,9 +19,9 @@ const TeamInfoScreen = () => {
   const [showSchedule, setShowSchedule] = useState(false);
   const [teamStats, setTeamStats] = useState([]);
 
-  const pastDate = new Intl.DateTimeFormat('en-BG', {  day: 'numeric', month: 'numeric' });
-  const futDateFormat = new Intl.DateTimeFormat('en-BG', { weekday: 'short', day: 'numeric', month: 'numeric', hour: 'numeric', minute: 'numeric' });
-  const futDateFormat2 = new Intl.DateTimeFormat('en-BG', { weekday: 'short', hour: 'numeric', minute: 'numeric' });
+  const pastDate = new Intl.DateTimeFormat('default', {  day: 'numeric', month: 'numeric' });
+  const futDateFormat = new Intl.DateTimeFormat('default', { weekday: 'short', day: 'numeric', month: 'numeric', hour: 'numeric', minute: 'numeric' });
+  const futDateFormat2 = new Intl.DateTimeFormat('default', { weekday: 'short', hour: 'numeric', minute: 'numeric' });
 
   const fetchRoster = async () => {
     const controller = new AbortController();
@@ -202,7 +202,7 @@ const TeamInfoScreen = () => {
               <View className="flex-row gap-2 mb-2">
                 <TouchableOpacity 
                   className='items-center justify-center rounded-lg bg-neutral-800 px-3'
-                  onPress={() => router.navigate('/teams')}
+                  onPress={() => router.navigate('./')}
                 >
                   <Entypo name="chevron-left" size={24} color="white"/>
                 </TouchableOpacity>
@@ -278,14 +278,14 @@ const TeamInfoScreen = () => {
                                 const formattedDate = pastDate.format(date);
                                 return (
                                   <View key={idx} className='p-2 w-1/5'>
-                                  <View className={`rounded-lg px-1 py-0.5 ${item.result === 'W' ? 'bg-green-700' : 'bg-red-800'}`}>
-                                    <Text className='text-white text-xs font-bold p-1 text-center'>
-                                      {item.opponent}
-                                    </Text>
-                                    <Text className='text-white text-xs text-center font-semibold py-1'>
-                                      {formattedDate}
-                                    </Text>
-                                  </View>
+                                    <View className={`rounded-lg px-1 py-0.5 ${item.result === 'W' ? 'bg-green-700' : 'bg-red-800'}`}>
+                                      <Text className='text-white text-xs font-bold p-1 text-center'>
+                                        {item.opponent}
+                                      </Text>
+                                      <Text className='text-white text-xs text-center font-semibold py-1'>
+                                        {formattedDate}
+                                      </Text>
+                                    </View>
                                   </View>
                                 );
                               })}
@@ -307,7 +307,7 @@ const TeamInfoScreen = () => {
                                       />
                                       <Text className='text-white text-md text-center font-semibold'>{item.opponentName}</Text>
                                     </View>
-                                    <Text className='text-white text-md text-center font-semibold'>{formattedDate}</Text>
+                                    <Text className='text-white text-md text-center font-semibold'>{item.scheduleState === 'OK' ? formattedDate : 'TBD'}</Text>
                                   </View>
                                 </View>
                               );

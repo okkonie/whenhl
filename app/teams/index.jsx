@@ -113,14 +113,14 @@ const Teams = () => {
     };
   
     return (
-      <Pressable className="w-full bg-neutral-800 rounded-lg py-2 ps-6 pe-2 mb-1.5 flex-row justify-between items-center" onPress={() => goToTeamInfo(item)}>
-        <View className="flex-1 items-center flex-row justify-start gap-4">
+      <Pressable className="w-full bg-neutral-800 rounded-lg py-1.5 ps-6 pe-2 mb-1.5 flex-row justify-between items-center" onPress={() => goToTeamInfo(item)}>
+        <View className="flex-1 items-center flex-row justify-start gap-2">
           <Text className="text-white font-medium text-lg">{index + 1}.</Text>  
           <Image
             source={teamLogos[item.abbrev] || teamLogos.DEFAULT}
             style={{
-              width: 40,
-              height: 40,
+              width: 45,
+              height: 45,
               contentFit: 'contain',
             }}
           />
@@ -130,7 +130,7 @@ const Teams = () => {
           </View>
         </View>
   
-        <View className="items-center flex-row justify-end gap-4">
+        <View className="items-center flex-row justify-end">
           <Text className="text-white font-bold text-md">{item.points}p</Text>
           <TouchableOpacity
             className="p-4"

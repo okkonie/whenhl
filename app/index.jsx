@@ -70,14 +70,12 @@ const Home = () => {
     if (diffDays === -1) return 'Yesterday';
     if (diffDays === 1) return 'Tomorrow';
 
-    // Fallback: weekday + date
-    const dayLabel = new Intl.DateTimeFormat('en', { weekday: 'short' }).format(localDate);
-    const formattedDate = new Intl.DateTimeFormat('en', {
+    const formattedDate = new Intl.DateTimeFormat('default', {
       month: 'numeric',
       day: 'numeric',
     }).format(localDate);
 
-    return `${dayLabel}, ${formattedDate}`;
+    return formattedDate;
   };
 
   const getDay = () => {
@@ -267,7 +265,7 @@ const Home = () => {
                                     {item.homeOdds}
                                   </Text>
                                   )}
-                                  <Text className="text-white font-black text-xl">{item.localTime}</Text>
+                                  <Text className="text-white font-extrabold text-xl">{item.localTime}</Text>
                                   {item.homeOdds && item.awayOdds && (
                                     <Text 
                                       className={`px-1 rounded-sm font-extrabold text-xs 

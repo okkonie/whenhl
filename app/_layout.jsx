@@ -2,8 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { Tabs } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Dimensions, StatusBar } from 'react-native';
+import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,7 +29,6 @@ export default function RootLayout() {
     <>
       <StatusBar
         barStyle="light-content"
-        backgroundColor="black"
         translucent={true}
         hidden={false}
       />
