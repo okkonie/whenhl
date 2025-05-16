@@ -153,7 +153,10 @@ const Teams = () => {
   return (
     <View className="flex-1 items-center justify-center bg-black px-4">
         {loading ? (
-          <ActivityIndicator size="large" color="white" />
+          <>
+            <ActivityIndicator size='small' color='white'/>
+            <Text className="text-xs pt-4 text-white font-medium text-center">Getting teams</Text>
+          </>
         ) : (
           <>
             <TouchableOpacity

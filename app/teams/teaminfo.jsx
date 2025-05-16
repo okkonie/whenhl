@@ -1,3 +1,4 @@
+import PlayerStats from '@/assets/playerstats';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +19,8 @@ const TeamInfoScreen = () => {
   const [showRoster, setShowRoster] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [teamStats, setTeamStats] = useState([]);
+  const [showStats, setShowStats] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   const pastDate = new Intl.DateTimeFormat('default', {  day: 'numeric', month: 'numeric' });
   const futDateFormat = new Intl.DateTimeFormat('default', { weekday: 'short', day: 'numeric', month: 'numeric', hour: 'numeric', minute: 'numeric' });
@@ -46,6 +49,7 @@ const TeamInfoScreen = () => {
           name: forward.firstName.default + ` ` + forward.lastName.default,
           number: forward.sweaterNumber,
           pos: forward.positionCode,
+          id: forward.id,
           country: getFlagEmoji(forward.birthCountry)
         });
       });
@@ -55,6 +59,7 @@ const TeamInfoScreen = () => {
           name: defenseman.firstName.default + ` ` + defenseman.lastName.default,
           number: defenseman.sweaterNumber,
           pos: defenseman.positionCode,
+          id: defenseman.id,
           country: getFlagEmoji(defenseman.birthCountry)
         });
       });
@@ -64,6 +69,7 @@ const TeamInfoScreen = () => {
           name: goalie.firstName.default + ` ` + goalie.lastName.default,
           number: goalie.sweaterNumber,
           pos: goalie.positionCode,
+          id: goalie.id,
           country: getFlagEmoji(goalie.birthCountry)
         });
       });
@@ -192,16 +198,17 @@ const TeamInfoScreen = () => {
   return (
     <View className='flex-1 bg-black items-center px-4'>
       {loading ? (
-        <View className='flex-1 justify-center items-center'>
-          <ActivityIndicator size='large' color='white' />
+        <View className="flex-1 justify-center align-center gap-5">
+          <ActivityIndicator size='small' color='white'/>
+          <Text className="text-xs text-white font-medium text-center">Looking for team</Text>
         </View>
       ) : (
         <>
           <ScrollView style={{flex: 1}} contentContainerStyle={{alignItems: 'center'}} bounces={false} showsVerticalScrollIndicator={false}>
             <View style={{height: height * 0.07}}/>
-              <View className="flex-row gap-2 mb-2">
+              <View className="flex-row mb-2 bg-neutral-800 rounded-lg">
                 <TouchableOpacity 
-                  className='items-center justify-center rounded-lg bg-neutral-800 px-3'
+                  className='items-center justify-center border-r border-neutral-400 my-4 px-4'
                   onPress={() => router.navigate('./')}
                 >
                   <Entypo name="chevron-left" size={24} color="white"/>
@@ -381,9 +388,9 @@ const TeamInfoScreen = () => {
                 </View>
               </View>
 
-              <TouchableOpacity className='w-full bg-neutral-800 p-4 rounded-lg mb-2 flex-row justify-between' onPress={() => setShowRoster(true)}>
+              <TouchableOpacity className='w-full bg-neutral-800 p-4 rounded-lg mb-2 flex-row justify-between items-center' onPress={() => setShowRoster(true)}>
                 <Text className='text-white text-xl font-bold'>Roster</Text>
-                <Entypo name="plus" size={28} color="white" />
+                <Entypo name="triangle-up" size={28} color="white" />
               </TouchableOpacity>
 
               <Modal
@@ -404,24 +411,45 @@ const TeamInfoScreen = () => {
                       <View className='flex-1 w-full px-7'>
                         <Text className='text-white text-lg font-bold pb-2 pt-4 ml-2'>Forwards</Text>
                         {(roster?.forwards ?? []).map((player, index) => (
-                          <View key={index} className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'>
+                          <TouchableOpacity 
+                          key={index} 
+                          className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'
+                          onPress={() => {
+                            const selected = {id: player.id, abbr: params.abbr};
+                            setShowStats(true);
+                            setSelectedPlayer(selected)
+                          }}>
                             <Text className='text-white text-md font-medium'>{player.country} {player.name}</Text>
                             <Text className='text-white text-md font-medium'>#{player.number}</Text>
-                          </View>
+                          </TouchableOpacity>
                         ))}
                         <Text className='text-white text-lg font-bold pb-2 pt-4 ml-2'>Defensemen</Text>
                         {(roster?.defensemen ?? []).map((player, index) => (
-                          <View key={index} className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'>
+                          <TouchableOpacity 
+                          key={index} 
+                          className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'
+                          onPress={() => {
+                            const selected = {id: player.id, abbr: params.abbr};
+                            setShowStats(true);
+                            setSelectedPlayer(selected)
+                          }}>
                             <Text className='text-white text-md font-medium'>{player.country} {player.name}</Text>
                             <Text className='text-white text-md font-medium'>#{player.number}</Text>
-                          </View>
+                          </TouchableOpacity>
                         ))}
                         <Text className='text-white text-lg font-bold pb-2 pt-4 ml-2'>Goalies</Text>
                         {(roster?.goalies ?? []).map((player, index) => (
-                          <View key={index} className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'>
+                          <TouchableOpacity 
+                          key={index} 
+                          className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'
+                          onPress={() => {
+                            const selected = {id: player.id, abbr: params.abbr};
+                            setShowStats(true);
+                            setSelectedPlayer(selected)
+                          }}>
                             <Text className='text-white text-md font-medium'>{player.country} {player.name}</Text>
                             <Text className='text-white text-md font-medium'>#{player.number}</Text>
-                          </View>
+                          </TouchableOpacity>
                         ))}
                       </View>
                       <View className='h-8' />
@@ -431,6 +459,8 @@ const TeamInfoScreen = () => {
               </Modal>
             <View style={{height: height * 0.08}}/>
           </ScrollView>
+
+          {showStats && <PlayerStats showStats={showStats} setShowStats={setShowStats} playerId={selectedPlayer.id} abbr={selectedPlayer.abbr}/>}
 
           <LinearGradient
             colors={['black', 'transparent']}

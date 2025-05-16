@@ -1,5 +1,5 @@
 import { FlatList, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
-import '.././app/global.css';
+import '../app/global.css';
 
 const Category = ({skaterOn, skaterSort, goalieSort, setSkaterSort, setGoalieSort, modalVisible, setModalVisible}) => {
 
@@ -14,7 +14,7 @@ const Category = ({skaterOn, skaterSort, goalieSort, setSkaterSort, setGoalieSor
   return (
     <Modal visible={modalVisible} transparent={true} animationType="fade">
       <Pressable className='flex-1 justify-center items-center' style={{backgroundColor: 'rgba(0,0,0,0.7)'}} onPress={() => setModalVisible(false)}>
-        <View className='bg-neutral-800 rounded-xl p-3 max-h-2/3' style={{maxHeight: '70%', width: '70%'}}>
+        <View className='bg-neutral-800 rounded-xl p-3 max-h-2/3 w-2/3'>
           <FlatList
             showsVerticalScrollIndicator={false}
             data={skaterOn ? skaterSorts : goalieSorts}

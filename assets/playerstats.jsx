@@ -2,7 +2,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import '.././app/global.css';
+import '../app/global.css';
 import colors from './colors';
 import getFlagEmoji from './getflag';
 import teamLogos from './logos';
@@ -86,10 +86,10 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
           <Text className="text-white text-lg font-medium">{head}</Text>
           <Pressable 
             onPress={() => setIsRegular(prev => !prev)}
-            className="bg-neutral-700 p-1 justify-center rounded-full w-1/3"
+            className="bg-neutral-700 p-1 justify-center rounded-full w-28"
           > 
             <Text 
-              className={`text-neutral-900 text-xs font-bold py-1 px-3 bg-green-400 rounded-full ${isRegular ? 'self-end' : 'self-start'}`}
+              className={`text-neutral-900 text-xs font-bold py-1 w-2/3 text-center bg-green-400 rounded-full ${isRegular ? 'self-end' : 'self-start'}`}
             >
               {isRegular ? 'regular' : 'playoffs'}
             </Text>
@@ -129,8 +129,9 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
             </TouchableOpacity>
           </View>
           {modalLoading || !playerStats ? (
-            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-              <ActivityIndicator size='large' color='white'/>
+            <View className="flex-1 justify-center align-center gap-5">
+              <ActivityIndicator size='small' color='white'/>
+              <Text className="text-xs text-white font-medium text-center">Getting player stats</Text>
             </View>
           ) : (
             <ScrollView className="w-full px-3 flex-1" showsVerticalScrollIndicator={false}>
@@ -140,7 +141,7 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
                     <View className="h-20 w-20 rounded-full overflow-hidden">
                       <Image 
                         contentFit="contain"
-                        style={{ height: 60, width: 60 }}
+                        style={{ height: '100%', width: '100%' }}
                         source={playerStats?.headshot}
                       />
                     </View>
@@ -224,7 +225,6 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
               )}
 
               <View className="h-8"/>
-              
             </ScrollView>
           )}
         </View> 

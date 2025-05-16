@@ -5,7 +5,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Dimensions } from 'react-native';
-import './global.css';
 
 const { width, height } = Dimensions.get('window');
 

@@ -1,3 +1,4 @@
+import Playoffs from '@/assets/playoffs';
 import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
@@ -8,7 +9,7 @@ import { ActivityIndicator, Dimensions, FlatList, Text, TouchableOpacity, View }
 import colors from '../assets/colors';
 import teamLogos from '../assets/logos';
 import GameInfo from './gameinfo';
-import "./global.css";
+import './global.css';
 
 const {width, height} = Dimensions.get('window')
 
@@ -292,6 +293,7 @@ const Home = () => {
             bounces={false}
           />
           )}
+          <Playoffs />
           <LinearGradient
             colors={['black', 'transparent']}
             locations={[0.2, 1]} 

@@ -1,15 +1,19 @@
+import PlayerStats from '@/assets/playerstats';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import colors from '../assets/colors';
 import teamLogos from '../assets/logos';
+import './global.css';
 
 const { width, height } = Dimensions.get('window');
 
 const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
   const [gameInfo, setGameInfo] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showStats, setShowStats] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -123,16 +127,20 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
             skaterLeaders: data.matchup.skaterComparison.leaders.map((category) => ({
               category: category.category,
               homeLeader: category.homeLeader.name.default,
+              homeLeaderId: category.homeLeader.playerId,
               homeValue: category.homeLeader.value,
               awayLeader: category.awayLeader.name.default,
+              awayLeaderId: category.awayLeader.playerId,
               awayValue: category.awayLeader.value,
               homeHeadShot: category.homeLeader.headshot,
               awayHeadShot: category.awayLeader.headshot,
             })),
             homeGoalie: topHomeGoalie.name.default,
+            homeGoalieId: topHomeGoalie.playerId,
             homeGoalieHeadShot: topHomeGoalie.headshot,
             homeGoalieSv: topHomeGoalie.savePctg,
             awayGoalie: topAwayGoalie.name.default,
+            awayGoalieId: topAwayGoalie.playerId,
             awayGoalieHeadShot: topAwayGoalie.headshot,
             awayGoalieSv: topAwayGoalie.savePctg,
           };
@@ -154,9 +162,16 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
     return () => controller.abort();
   }, [showGame, selectedGame]);
 
-  const LeaderIteam = ({team, headshot, name, value}) => {
+  const LeaderIteam = ({team, headshot, name, value, id}) => {
     return (
-      <View className="w-1/2 px-1 pb-2">
+      <TouchableOpacity 
+        className="w-1/2 px-1 pb-2" 
+        onPress={() => {
+          const selected = {id: id, abbr: team};
+          setShowStats(true);
+          setSelectedPlayer(selected);
+        }}
+      >
         <View className='p-1 rounded-xl justify-between flex-row items-center bg-neutral-900 gap-3'>
           <View className='rounded-lg overflow-hidden h-14 w-14' style={{backgroundColor: colors[team]}}>
             <Image 
@@ -169,11 +184,12 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
             <Text className="text-white text-xs font-medium pt-1">{name}</Text>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   }
 
   return (
+    <>
     <Modal animationType="slide" transparent={true} visible={showGame} onRequestClose={() => setShowGame(false)}>
       <View className="flex-1 justify-end items-center bg-transparent">
         <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
@@ -189,9 +205,10 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
           </View>
 
           {loading ? (
-            <View className='flex-1 justify-center items-center'>
-              <ActivityIndicator size="large" color="white" />
-            </View>
+            <View className="flex-1 justify-center align-center gap-5">
+                <ActivityIndicator size='small' color='white'/>
+                <Text className="text-xs text-white font-medium text-center">Loading game</Text>
+              </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
               <View className="flex-row justify-between w-full border-b border-neutral-500 py-4">
@@ -236,7 +253,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                             </View>
                             <View className='w-full py-2 px-4'>
                               {event.periodEvents.map((periodEvent, index) => (
-                                <View key={index + 'event'} className={`${periodEvent.team === selectedGame.homeAbbrev ? 'flex-row' : 'flex-row-reverse'} py-2 items-center gap-3`}>
+                                <View key={index} className={`${periodEvent.team === selectedGame.homeAbbrev ? 'flex-row' : 'flex-row-reverse'} py-2 items-center gap-3`}>
                                   <View 
                                     style={{backgroundColor: periodEvent.team === selectedGame.homeAbbrev ? colors[selectedGame.homeAbbrev] : colors[selectedGame.awayAbbrev]}}
                                     className='px-2 py-1 rounded flex-row gap-2 items-center'
@@ -284,13 +301,13 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                         <View className="flex-col w-full justify-between">
                           {gameInfo.skaterLeaders.map((category, index) =>
                             <View key={index} className="flex-row justify-between w-full">
-                              <LeaderIteam team={selectedGame.homeAbbrev} headshot={category.homeHeadShot} name={category.homeLeader} value={category.homeValue + ' ' + category.category}/>
-                              <LeaderIteam team={selectedGame.awayAbbrev} headshot={category.awayHeadShot} name={category.awayLeader} value={category.awayValue + ' ' + category.category}/>
+                              <LeaderIteam team={selectedGame.homeAbbrev} id={category.homeLeaderId} headshot={category.homeHeadShot} name={category.homeLeader} value={category.homeValue + ' ' + category.category}/>
+                              <LeaderIteam team={selectedGame.awayAbbrev} id={category.awayLeaderId} headshot={category.awayHeadShot} name={category.awayLeader} value={category.awayValue + ' ' + category.category}/>
                             </View>
                           )}
                           <View className="flex-row justify-between w-full">
-                            <LeaderIteam team={selectedGame.homeAbbrev} headshot={gameInfo.homeGoalieHeadShot} name={gameInfo.homeGoalie} value={(gameInfo.homeGoalieSv * 100).toFixed(1) + ' sv%'}/>
-                            <LeaderIteam team={selectedGame.awayAbbrev} headshot={gameInfo.awayGoalieHeadShot} name={gameInfo.awayGoalie} value={(gameInfo.awayGoalieSv * 100).toFixed(1) + ' sv%'}/>
+                            <LeaderIteam team={selectedGame.homeAbbrev} id={gameInfo.homeGoalieId} headshot={gameInfo.homeGoalieHeadShot} name={gameInfo.homeGoalie} value={(gameInfo.homeGoalieSv * 100).toFixed(1) + ' sv%'}/>
+                            <LeaderIteam team={selectedGame.awayAbbrev} id={gameInfo.awayGoalieId} headshot={gameInfo.awayGoalieHeadShot} name={gameInfo.awayGoalie} value={(gameInfo.awayGoalieSv * 100).toFixed(1) + ' sv%'}/>
                           </View>
                           
                         </View>
@@ -318,6 +335,8 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
         </View>
       </View>
     </Modal>
+    {showStats && <PlayerStats showStats={showStats} setShowStats={setShowStats} playerId={selectedPlayer.id} abbr={selectedPlayer.abbr}/>}
+    </>
   );
 };
 

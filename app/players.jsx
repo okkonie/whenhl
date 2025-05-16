@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, Dimensions, FlatList, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native"
 import getFlagEmoji from '../assets/getflag'
 import teamLogos from "../assets/logos"
-import "./global.css"
+import './global.css'
 
 const {width, height} = Dimensions.get('window')
 
@@ -231,8 +231,9 @@ const players = () => {
       </View>
       
       {loading ? (
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="white" />
+        <View className="flex-1 justify-center align-center gap-5">
+          <ActivityIndicator size='small' color='white'/>
+          <Text className="text-xs text-white font-medium text-center">Finding players</Text>
         </View>
       ) : (
         <FlatList 

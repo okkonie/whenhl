@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import '.././app/global.css';
+import '../app/global.css';
 
 const generateSeasons = () => {
   const now = new Date();
@@ -45,7 +45,7 @@ const SeasonDropdown = ({ season, setSeason, setModalVisible, modalVisible }) =>
   return (
       <Modal visible={modalVisible} transparent={true} animationType="fade">
         <Pressable className='flex-1 justify-center items-center' style={{backgroundColor: 'rgba(0,0,0,0.7)'}} onPress={() => setModalVisible(false)}>
-          <View className='bg-neutral-800 rounded-xl p-3' style={{maxHeight: '70%', width: '70%'}}>
+          <View className='bg-neutral-800 rounded-xl p-3 w-2/3 h-2/3'>
             <FlatList
               showsVerticalScrollIndicator={false}
               data={seasons}
