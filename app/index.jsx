@@ -1,4 +1,3 @@
-import Playoffs from '@/assets/playoffs';
 import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
@@ -178,7 +177,6 @@ const Home = () => {
         </View>
       ) : (
         <>
-          <Playoffs />
           <GameInfo
             showGame={showGame}
             setShowGame={setShowGame}
