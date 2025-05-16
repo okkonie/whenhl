@@ -1,4 +1,5 @@
-import { AntDesign } from "@expo/vector-icons";
+import Playoffs from '@/assets/playoffs';
+import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -171,23 +172,23 @@ const Home = () => {
   return (
     <View className="bg-black flex-1">
       {loading ? (
-        <View className="flex-1 justify-center align-center">
-          <ActivityIndicator size="large" color="white" />
+        <View className="flex-1 justify-center align-center gap-5">
+          <ActivityIndicator size='small' color='white'/>
+          <Text className="text-xs text-white font-medium text-center">Loading games</Text>
         </View>
       ) : (
         <>
+          <Playoffs />
           <GameInfo
             showGame={showGame}
             setShowGame={setShowGame}
             selectedGame={selectedGame} 
           />
           <TouchableOpacity
-            className="absolute h-[6%] aspect-square bottom-0 left-0 z-10"
+            style={{height: height * 0.065, width: width * 0.2, zIndex: 20, position: 'absolute', bottom: 0, left: 0, justifyContent: 'flex-start', alignItems: 'center'}}
             onPress={async () => {const newValue = !showFavorites; setShowFavorites(newValue); await AsyncStorage.setItem('showFavorites', JSON.stringify(newValue)); }}
           > 
-            <View className="items-end h-full w-full">
-              <AntDesign name={showFavorites ? 'star' : 'staro'} color={showFavorites ? 'gold' : 'white'} size={28} />
-            </View>
+            <AntDesign name={showFavorites ? 'star' : 'staro'} color={showFavorites ? 'gold' : 'white'} size={height * 0.033} />
           </TouchableOpacity>
 
           {showFavorites && favorites.length === 0 ? (

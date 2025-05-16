@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Dimensions } from 'react-native';
+import './global.css';
 
 const { width, height } = Dimensions.get('window');
 
@@ -41,8 +42,8 @@ export default function RootLayout() {
             height: height * 0.07,
             position: 'absolute',
             backgroundColor: 'transparent',
-            width:  width * 0.5,
-            marginLeft: width * 0.25,
+            width:  width * 0.6,
+            marginLeft: width * 0.2,
             alignItems: 'center'
           },
         })}
@@ -53,8 +54,8 @@ export default function RootLayout() {
             title: 'home',
             tabBarIcon: ({ focused }) => (
               <Ionicons
-                name={focused ? 'calendar' : 'calendar-outline'}
-                size={height * 0.03}
+                name={focused ? 'calendar-clear' : 'calendar-clear-outline'}
+                size={height * 0.033}
                 color={'white'}
               />
             ),
@@ -66,22 +67,21 @@ export default function RootLayout() {
             title: 'players',
             tabBarIcon: ({ focused }) => (
               <Ionicons
-                name={focused ? 'people' : 'people-outline'}
-                size={height * 0.03}
+                name={focused ? 'shirt' : 'shirt-outline'}
+                size={height * 0.033}
                 color={'white'}
               />
             ),
           }}
         />
         <Tabs.Screen
-        
           name="teams"
           options={{
             title: 'teams',
             tabBarIcon: ({ focused }) => (
               <Ionicons
-                name={focused ? 'albums' : 'albums-outline'}
-                size={height * 0.03}
+                name={focused ? 'podium' : 'podium-outline'}
+                size={height * 0.033}
                 color={'white'}
               />
             ),

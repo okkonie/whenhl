@@ -1,11 +1,11 @@
 import Category from "@/assets/category"
+import PlayerStats from "@/assets/playerstats"
 import SeasonDropdown from "@/assets/seasondropdown"
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
+import { Ionicons } from "@expo/vector-icons"
 import { Image } from 'expo-image'
 import { LinearGradient } from "expo-linear-gradient"
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Dimensions, FlatList, Modal, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
-import colors from '../assets/colors'
+import { ActivityIndicator, Dimensions, FlatList, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native"
 import getFlagEmoji from '../assets/getflag'
 import teamLogos from "../assets/logos"
 import "./global.css"
@@ -18,11 +18,9 @@ const players = () => {
   const [search, setSearch] = useState('');
   const [results, setResults] = useState([]);
   const [active, setActive] = useState(true);
-  const [playerStats, setPlayerStats] = useState({});
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showStats, setShowStats] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [modalLoading, setModalLoading] = useState(false);
   const [skaterOn, setSkaterOn] = useState(true);
   const [skaterSort, setSkaterSort] = useState('points');
   const [goalieSort, setGoalieSort] = useState('save%');
@@ -69,61 +67,35 @@ const players = () => {
     };
     search !== '' && fetchResults(search);
   }, [search, active])
-
-  const fetchPlayerStats = async (id) => {
-    try {
-      setModalLoading(true)
-      const response = await fetch(`https://api-web.nhle.com/v1/player/${id}/landing`)
-      const data = await response.json();
-      setPlayerStats(data)
-    } catch (error) {
-      console.error('Failed fetching player stats:', error)
-    } finally {
-      setModalLoading(false)
+  
+  const getWhatStats = () => {
+    if (skaterOn) {
+      if (skaterSort === 'points') {return skaterStats?.points}
+      if (skaterSort === 'goals') {return skaterStats?.goals}
+      if (skaterSort === 'assists') {return skaterStats?.assists}
+      if (skaterSort === '+/-') {return skaterStats?.plusMinus}
+      if (skaterSort === 'time on ice') {return skaterStats?.toi}
+      if (skaterSort === 'pp goals') {return skaterStats?.goalsPp}
+      if (skaterSort === 'faceoff%') {return skaterStats?.faceoffLeaders}
+      if (skaterSort === 'penalty mins') {return skaterStats?.penaltyMins}
+    } else {
+      if (goalieSort === 'save%') {return goalieStats?.savePctg}
+      if (goalieSort === 'goals against') {return goalieStats?.goalsAgainstAverage}
+      if (goalieSort === 'wins') {return goalieStats?.wins}
+      if (goalieSort === 'shutouts') { return goalieStats?.shutouts}
     };
   };
 
-  const getOrdinalSuffix = (num) => {
-    const lastDigit = num % 10;
-    const lastTwoDigits = num % 100;
-  
-    if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
-      return `${num}th`;
-    }
-  
-    switch (lastDigit) {
-      case 1: return `${num}st`;
-      case 2: return `${num}nd`;
-      case 3: return `${num}rd`;
-      default: return `${num}th`;
-    }
-  };
-
-  const getAge = (birthDateStr) => {
-    const today = new Date();
-    const birthDate = new Date(birthDateStr);
-    let age = today.getFullYear() - birthDate.getFullYear();
-  
-    const hasHadBirthdayThisYear =
-      today.getMonth() > birthDate.getMonth() ||
-      (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
-  
-    if (!hasHadBirthdayThisYear) age--;
-  
-    return age;
-  };
-  
   const renderItem = ({ item }) => {
     const flag = item.birthCountry ? getFlagEmoji(item.birthCountry) : '🏳️';
     const abbr = item.lastTeamAbbrev
-  
+
     return (
       <TouchableOpacity className="justify-between items-center flex-row bg-neutral-800 w-full px-5 py-1 mb-1 rounded-md h-10"
         onPress={() => {
-          const selected = { ...item, flag, abbr };
-          setSelectedPlayer(selected);
-          fetchPlayerStats(item.playerId);
+          const selected = {id: item.playerId, abbr: item.lastTeamAbbrev};
           setShowStats(true);
+          setSelectedPlayer(selected)
         }}>
         <Text className="text-white font-bold text-md">{flag} {item.name}</Text>
         <View className="flex-row items-center gap-4">
@@ -144,34 +116,15 @@ const players = () => {
       </TouchableOpacity>
     );
   };
-
-  const getWhatStats = () => {
-    if (skaterOn) {
-      if (skaterSort === 'points') {return skaterStats?.points}
-      if (skaterSort === 'goals') {return skaterStats?.goals}
-      if (skaterSort === 'assists') {return skaterStats?.assists}
-      if (skaterSort === '+/-') {return skaterStats?.plusMinus}
-      if (skaterSort === 'time on ice') {return skaterStats?.toi}
-      if (skaterSort === 'pp goals') {return skaterStats?.goalsPp}
-      if (skaterSort === 'faceoff%') {return skaterStats?.faceoffLeaders}
-      if (skaterSort === 'penalty mins') {return skaterStats?.penaltyMins}
-    } else {
-      if (goalieSort === 'save%') {return goalieStats?.savePctg}
-      if (goalieSort === 'goals against') {return goalieStats?.goalsAgainstAverage}
-      if (goalieSort === 'wins') {return goalieStats?.wins}
-      if (goalieSort === 'shutouts') { return goalieStats?.shutouts}
-      };
-    };
   
   const renderTopItem = ({ item, index }) => {
     const abbr = item.teamAbbrev
     return (
       <TouchableOpacity className="justify-between items-center flex-row bg-neutral-800 w-full px-5 py-1 mb-1 rounded-md h-10"
         onPress={() => {
-          const selected = { ...item, abbr };
-          setSelectedPlayer(selected);
-          fetchPlayerStats(item.id);
+          const selected = {id: item.id, abbr: item.teamAbbrev};
           setShowStats(true);
+          setSelectedPlayer(selected)
         }}>
         <View className="flex-row items-center gap-3">
           {item.sweaterNumber && item.teamAbbrev &&
@@ -200,63 +153,6 @@ const players = () => {
       </TouchableOpacity>
     );
   };
-
-  const StatItem = ({head, stat}) => {
-    return (
-      <View>
-        <View className="p-2 justify-center items-center gap-1">
-          <Text className="text-white text-sm">{head}</Text>
-          <Text className="text-white text-xl font-extrabold">{stat}</Text>
-        </View>
-      </View>
-    )
-  }
-
-  const StatContainer = ({head, category, position}) => {
-
-    const [isRegular, setIsRegular] = useState(true)
-    const subCategory = 
-    isRegular && category === 'career' ? playerStats?.careerTotals?.regularSeason 
-    : isRegular && category === 'subseason' ? playerStats?.featuredStats?.regularSeason?.subSeason
-    : !isRegular && category === 'career' ? playerStats?.careerTotals?.playoffs
-    : playerStats?.featuredStats?.playoffs?.subSeason
-
-    return (
-      <View className="bg-neutral-900 rounded-xl mt-2 justify-between">
-        <View className="w-full border-b border-neutral-700 p-3 items-center justify-between flex-row">
-          <Text className="text-white text-lg font-medium">{head}</Text>
-          <Pressable 
-            onPress={() => setIsRegular(prev => !prev)}
-            className="bg-neutral-700 p-1 w-1/2 justify-center items-center rounded-full"
-          > 
-            <Text 
-              className="text-neutral-900 text-sm font-medium py-1 px-3 bg-green-400 rounded-full" 
-              style={{alignSelf: isRegular ? 'flex-end' : 'flex-start'}}
-            >
-              {isRegular ? 'regular season' : 'playoffs'}
-            </Text>
-          </Pressable>
-        </View>
-        {position !== 'G' && subCategory ? (
-          <View className="flex-row justify-between py-5 px-2">
-            <StatItem stat={subCategory.gamesPlayed} head={'games'}/>
-            <StatItem stat={subCategory.goals} head={'goals'}/>
-            <StatItem stat={subCategory.assists} head={'assists'}/>
-            <StatItem stat={subCategory.points} head={'points'}/>
-            <StatItem stat={subCategory.plusMinus} head={'+/-'}/>
-          </View>
-        ) : subCategory && (
-          <View className="flex-row justify-between py-5 px-2">
-            <StatItem stat={subCategory.gamesPlayed} head={'games'}/>
-            <StatItem stat={subCategory.wins} head={'wins'}/>
-            <StatItem stat={subCategory.goalsAgainstAvg.toFixed(2)} head={'gaa'}/>
-            <StatItem stat={(subCategory.savePctg * 100).toFixed(1)} head={'save%'}/>
-            <StatItem stat={subCategory.shutouts} head={'shutouts'}/>
-          </View>
-        )}
-      </View>
-    )
-  }
 
   return (
     <View className="flex-1 items-center bg-black px-5">
@@ -353,113 +249,8 @@ const players = () => {
           renderItem={searching ? renderItem : renderTopItem}
         />
       )}
-      
 
-      <Modal animationType="slide" transparent={true} visible={showStats} onRequestClose={() => setShowStats(false)}>
-        <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.7)'}}>
-          <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
-            <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
-              <Text className="text-white text-lg font-bold">Player Stats</Text>
-              <TouchableOpacity onPress={() => setShowStats(false)} className='pl-5 h-full items-center justify-center'>
-                <Ionicons name="close" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-            {modalLoading || !playerStats ? (
-              <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                <ActivityIndicator size='large' color='white'/>
-              </View>
-            ) : (
-              <ScrollView className="w-full px-3 flex-1" showsVerticalScrollIndicator={false}>
-                <View className="rounded-xl mt-4 bg-neutral-900">
-                  <View className="gap-5 flex-row items-center rounded-t-xl justify-between mb-3 py-3 px-5" style={{backgroundColor: colors[selectedPlayer?.abbr]}}>
-                    <View className="flex-row gap-5">
-                      <View className="h-20 w-20 rounded-xl overflow-hidden">
-                        <Image 
-                          contentFit="contain"
-                          style={{ height: '100%', width: '100%' }}
-                          source={playerStats?.headshot}
-                        />
-                      </View>
-                      <View className="justify-end">
-                        <Text className="text-white text-2xl font-bold">{playerStats?.firstName?.default}</Text>
-                        <Text className="text-white text-2xl font-bold">{playerStats?.lastName?.default}</Text>
-                      </View>
-                    </View>
-                    {selectedPlayer &&
-                    <Image 
-                      contentFit="contain"
-                      style={{ height: 60, width: 60 }}
-                      source={teamLogos[selectedPlayer.abbr]}
-                    />}
-                  </View>
-                  
-                  <View className="flex-row justify-between py-2 mb-2 px-3">
-                    {playerStats?.birthDate && (
-                      <View className="flex-row items-center gap-3">
-                        <MaterialCommunityIcons name="cake-variant" color="white" size={18}/>
-                        <Text className="text-white text-sm font-medium">
-                          {getAge(playerStats.birthDate)} y/o
-                        </Text>
-                      </View>
-                    )}
-                    {playerStats?.birthDate && playerStats?.birthCountry && playerStats?.birthCity.default && (
-                      <Text className="text-white text-sm font-medium">
-                        born: {getFlagEmoji(playerStats?.birthCountry)} {playerStats.birthCity.default}, {playerStats.birthDate}
-                      </Text>
-                    )}
-                  </View>
-                  
-                  <View className="flex-row justify-between py-2 mb-2 px-3">
-                    {playerStats.shootsCatches && playerStats.position && (
-                      <View className="flex-row items-center gap-3">
-                        <MaterialCommunityIcons name="hockey-sticks" color="white" size={18}/>
-                        <Text className="text-white text-sm font-medium">{playerStats.shootsAndCatches === 'L' ? 'Left' : 'Right'}</Text>
-                      </View>
-                    )}
-                    {playerStats?.draftDetails?.overallPick ? (
-                      <Text className="text-white text-sm font-medium">drafted {`${getOrdinalSuffix(playerStats.draftDetails.overallPick)} overall by ${playerStats.draftDetails.teamAbbrev} (${playerStats.draftDetails.year})`}</Text>
-                    ) : (
-                      <Text className="text-white text-sm font-medium">undrafted</Text>
-                    )}
-                  </View>
-
-                  <View className="flex-row justify-between py-2 mb-2 px-3">
-                    {playerStats.position && (
-                      <View className="flex-row items-center gap-3">
-                        <MaterialCommunityIcons name="pin" color="white" size={18}/>
-                        <Text className="text-white text-sm font-medium">
-                          {playerStats.position === 'G' ? 'Goalie' : playerStats.position === 'D' ? 'Defenseman' : playerStats.position === 'R' ? 'Right wing'
-                          : playerStats.position === 'L' ? 'Left wing' : 'Center'}
-                        </Text>
-                      </View>
-                    )}
-                    {(selectedPlayer?.heightInCentimeters || playerStats?.weightInKilograms) && (
-                      <View className="flex-row items-center gap-3">
-                        <MaterialCommunityIcons name="human-male-height" color="white" size={18}/>
-                        <Text className="text-white text-sm font-medium">{`${playerStats?.heightInCentimeters || '–'} cm & ${playerStats?.weightInKilograms || '–'} kg`}</Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
-
-                <StatContainer 
-                  head={playerStats?.featuredStats?.season.toString().slice(0,4) + '-' + playerStats?.featuredStats?.season.toString().slice(6)} 
-                  category={'subseason'} 
-                  position={playerStats.position} 
-                />
-                <StatContainer 
-                  head={'career'} 
-                  category={'career'} 
-                  position={playerStats.position} 
-                />
-
-                <View className="h-8"/>
-
-              </ScrollView>
-            )}
-          </View> 
-        </View>
-      </Modal>
+      {showStats && <PlayerStats showStats={showStats} setShowStats={setShowStats} playerId={selectedPlayer.id} abbr={selectedPlayer.abbr}/>}
       
       <LinearGradient
         colors={['transparent', 'black']}

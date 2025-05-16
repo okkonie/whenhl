@@ -1,4 +1,4 @@
-import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import { AntDesign, FontAwesome6 } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -157,16 +157,14 @@ const Teams = () => {
         ) : (
           <>
             <TouchableOpacity
-              className="absolute h-[6%] aspect-square bottom-0 left-0 z-10"
+              style={{height: height * 0.065, width: width * 0.2, zIndex: 20, position: 'absolute', bottom: 0, left: 0, justifyContent: 'flex-start', alignItems: 'center'}}
               onPress={async () => {
                 const nextSort = sortingCriteria === 'all' ? 'conference' : sortingCriteria === 'conference' ? 'division' : 'all';
                 setSortingCriteria(nextSort);
                 await AsyncStorage.setItem(SORTING_KEY, nextSort);
               }}
             > 
-              <View className="items-end h-full w-full">
-                <MaterialCommunityIcons name="sort" size={28} color='white' />
-              </View>
+              <FontAwesome6 name='sort' color='white' size={height * 0.033} />
             </TouchableOpacity>
 
             <SectionList
