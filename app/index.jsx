@@ -20,6 +20,9 @@ const Home = () => {
   const [showFavorites, setShowFavorites] = useState(false);
   const [showGame, setShowGame] = useState(false);
   const [selectedGame, setSelectedGame] = useState(null); 
+  const [playoffsOn, setPlayoffsOn] = useState(false);
+  const [startDates, setStartDates] = useState({});
+  const [playOffsVisible, setPlayoffsVisible] = useState(false);
   
   useFocusEffect(
     React.useCallback(() => {
@@ -72,6 +75,7 @@ const Home = () => {
     if (diffDays === 1) return 'Tomorrow';
 
     const formattedDate = new Intl.DateTimeFormat('default', {
+      weekday: 'short',
       month: 'numeric',
       day: 'numeric',
     }).format(localDate);
@@ -79,23 +83,24 @@ const Home = () => {
     return formattedDate;
   };
 
-  const getDay = () => {
-    const date = new Date();
-    date.setDate(date.getDate() - 2);
-    return date.toISOString().split('T')[0];
-  };
-
-  useEffect(() => {
-  let isMounted = true;
-
-  const fetchGames = async () => {
+  const fetchGames = async (dateString) => {
     try {
       setLoading(true);
-      const response = await fetch(`https://api-web.nhle.com/v1/schedule/${getDay()}`);
+      const response = await fetch(`https://api-web.nhle.com/v1/schedule/${dateString}`);
       const data = await response.json();
-  
+
+      const current = dateString ? dateString : null
+      const nextStart = data.nextStartDate ? data.nextStartDate : null;
+      const previousStart = data.previousStartDate ? data.previousStartDate : null; 
+
+      const today = new Date();
+      const formattedToday = today.toISOString().split('T')[0];
+      const playoffsOn =
+        data.regularSeasonEndDate < formattedToday &&
+        formattedToday < data.playoffEndDate;
+
       const fetchedGames = [];
-  
+
       if (data.gameWeek) {
         Object.values(data.gameWeek).forEach(day => {
           day.games.forEach(game => {
@@ -117,18 +122,26 @@ const Home = () => {
               awayName: game.awayTeam?.commonName?.default ?? null,
               awayAbbrev: game.awayTeam?.abbrev ?? null,
               gameNumber: game.seriesStatus?.gameNumberOfSeries,
-              seriesLeader: game.seriesStatus?.topSeedWins > game.seriesStatus?.bottomSeedWins
-                ? `${game.seriesStatus?.topSeedTeamAbbrev}` : game.seriesStatus?.topSeedWins < game.seriesStatus?.bottomSeedWins
-                ? `${game.seriesStatus?.bottomSeedTeamAbbrev}` : 'Tied',
-              seriesScore: game.seriesStatus?.topSeedWins > game.seriesStatus?.bottomSeedWins
-                ? `${game.seriesStatus?.topSeedWins}-${game.seriesStatus?.bottomSeedWins}` : `${game.seriesStatus?.bottomSeedWins}-${game.seriesStatus?.topSeedWins}`,
+              seriesLeader:
+                game.seriesStatus?.topSeedWins > game.seriesStatus?.bottomSeedWins
+                  ? `${game.seriesStatus?.topSeedTeamAbbrev}`
+                  : game.seriesStatus?.topSeedWins < game.seriesStatus?.bottomSeedWins
+                  ? `${game.seriesStatus?.bottomSeedTeamAbbrev}`
+                  : 'Tied',
+              seriesScore:
+                game.seriesStatus?.topSeedWins > game.seriesStatus?.bottomSeedWins
+                  ? `${game.seriesStatus?.topSeedWins}-${game.seriesStatus?.bottomSeedWins}`
+                  : `${game.seriesStatus?.bottomSeedWins}-${game.seriesStatus?.topSeedWins}`,
               startTimeUTC: game.startTimeUTC,
               localDate: convertToLocalDate(game.startTimeUTC),
-              localTime: game.gameScheduleState === 'OK' ? convertUTCToLocalTime(game.startTimeUTC) : 'TBD',
+              localTime:
+                game.gameScheduleState === 'OK'
+                  ? convertUTCToLocalTime(game.startTimeUTC)
+                  : 'TBD',
             });
           });
         });
-      };
+      }
 
       const groupedGamesByTime = fetchedGames.reduce((acc, game) => {
         const time = game.localDate;
@@ -138,39 +151,81 @@ const Home = () => {
         acc[time].push(game);
         return acc;
       }, {});
-  
+
       const sections = Object.entries(groupedGamesByTime).map(([time, games]) => ({
         title: time,
         data: games,
       }));
 
-      if (isMounted) {
-        setGames(sections);
-      }
-
+      setPlayoffsOn(playoffsOn);
+      setGames(sections);
+      setStartDates({ next: nextStart, previous: previousStart, head: convertToLocalDate(current) + ' - ' + convertToLocalDate(nextStart) });
     } catch (e) {
       console.error('Error fetching games', e);
     } finally {
-      if (isMounted) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
-  fetchGames();
+  useEffect(() => {
+    const today = new Date();
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(today.getDate() - 2);
+    const formattedTwoDaysAgo = twoDaysAgo.toISOString().split('T')[0];
+    fetchGames(formattedTwoDaysAgo);
+  }, []);
 
-  return () => {
-    isMounted = false;
-  };
-}, []);
 
   const handleGamePress = (item) => {
     setSelectedGame(item);
     setShowGame(true);
   };
+
+  const visibleGames = games.map(section => {
+    const favoriteAbbrevs = favorites.map(team => team.abbrev);
+
+    const filteredData = showFavorites
+      ? section.data.filter(
+          item =>
+            favoriteAbbrevs.includes(item.homeAbbrev) ||
+            favoriteAbbrevs.includes(item.awayAbbrev)
+        )
+      : section.data;
+
+    return {
+      ...section,
+      data: filteredData,
+    };
+  }).filter(section => section.data.length > 0);
   
   return (
     <View className="bg-black flex-1">
+      <View className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 pb-3 w-full h-32 items-end top-0'>
+        <TouchableOpacity 
+          onPress={async () => {const newValue = !showFavorites; setShowFavorites(newValue); await AsyncStorage.setItem('showFavorites', JSON.stringify(newValue))}}
+          className='items-center gap-2 w-1/5'
+        > 
+          <AntDesign name={showFavorites ? 'star' : 'staro'} color={showFavorites ? 'gold' : 'white'} size={height * 0.026} />
+          <Text className='text-xs text-white font-extrabold'>favorites</Text>
+        </TouchableOpacity>
+
+        {playoffsOn && 
+          <TouchableOpacity onPress={() => setPlayoffsVisible(true)} className='items-center gap-2  w-1/5'> 
+            <AntDesign name='Trophy' color='white'  size={height * 0.026} />
+            <Text className='text-xs text-white font-extrabold'>playoffs</Text>
+          </TouchableOpacity>}
+        
+        <TouchableOpacity onPress={() => startDates.previous && fetchGames(startDates.previous)} className='items-center gap-2  w-1/5 '> 
+          <AntDesign name='arrowleft' color={startDates.previous ? 'white' : 'grey'}  size={height * 0.026} />
+          <Text className='text-xs text-white font-extrabold'>previous</Text>
+        </TouchableOpacity>
+          
+        <TouchableOpacity onPress={() => startDates.next && fetchGames(startDates.next)} className='items-center gap-2  w-1/5'> 
+          <AntDesign name='arrowright' color={startDates.next ? 'white' : 'grey'}  size={height * 0.026} />
+          <Text className='text-xs text-white font-extrabold'>next</Text>
+        </TouchableOpacity>
+      </View>
+
       {loading ? (
         <View className="flex-1 justify-center align-center gap-5">
           <ActivityIndicator size='small' color='white'/>
@@ -183,12 +238,8 @@ const Home = () => {
             setShowGame={setShowGame}
             selectedGame={selectedGame} 
           />
-          <TouchableOpacity
-            style={{height: height * 0.065, width: width * 0.2, zIndex: 20, position: 'absolute', bottom: 0, left: 0, justifyContent: 'flex-start', alignItems: 'center'}}
-            onPress={async () => {const newValue = !showFavorites; setShowFavorites(newValue); await AsyncStorage.setItem('showFavorites', JSON.stringify(newValue)); }}
-          > 
-            <AntDesign name={showFavorites ? 'star' : 'staro'} color={showFavorites ? 'gold' : 'white'} size={height * 0.033} />
-          </TouchableOpacity>
+
+          {playoffsOn && <Playoffs show={playOffsVisible} setShow={setPlayoffsVisible}/>}
 
           {showFavorites && favorites.length === 0 ? (
             <View className="flex-1 p-5 justify-center">
@@ -198,7 +249,7 @@ const Home = () => {
           ) : (
           <FlatList
             showsVerticalScrollIndicator={false}
-            data={games}
+            data={visibleGames}
             keyExtractor={(item) => item.title}
             renderItem={({ item: section }) => {
               const favoriteAbbrevs = favorites.map(team => team.abbrev);
@@ -211,101 +262,87 @@ const Home = () => {
                   )
                 : section.data;
 
-              return (
-                <View className="w-full self-center border-neutral-500">
-                  {filteredGames.length !== 0 && (
-                    <>
-                      <Text className="text-white font-bold text-xl pl-6 pt-4 border-t border-neutral-800">{section.title}</Text>
-                      <View className="flex-wrap flex-row px-4 pt-2 pb-4">
-                        {filteredGames.map((item) => {
-                          return (
-                            <TouchableOpacity
-                              key={item.id}
-                              className= "justify-between items-center w-1/2 p-1"
-                              onPress={() => handleGamePress(item)}
-                            >
-                              <View className={`flex-row justify-evenly items-center py-2 item-center w-full rounded-t-xl`} style={{ backgroundColor: colors[item.homeAbbrev] || colors.DEFAULT }}>
-                                <Image
-                                  source={teamLogos[item.homeAbbrev] || teamLogos.DEFAULT}
-                                  style={{
-                                    width: width * 0.13,
-                                    height: width * 0.13,
-                                    contentFit: 'contain',
-                                  }}
-                                />
-                                <Image
-                                  source={teamLogos[item.awayAbbrev] || teamLogos.DEFAULT}
-                                  style={{
-                                    width: width * 0.13,
-                                    height: width * 0.13,
-                                    contentFit: 'contain',
-                                  }}
-                                />
+              if (filteredGames.length === 0) {return} else {
+                return (
+                  <View className="w-full self-center border-neutral-500">
+                    <Text className="text-white font-bold text-xl pl-6 pt-4 border-t border-neutral-800">{section.title}</Text>
+                    <View className="flex-wrap flex-row px-4 pt-2 pb-4">
+                      {filteredGames.map((item) => {
+                        return (
+                          <TouchableOpacity
+                            key={item.id}
+                            className= "justify-between items-center w-1/2 p-1"
+                            onPress={() => handleGamePress(item)}
+                          >
+                            <View className={`flex-row justify-evenly items-center py-2 item-center w-full rounded-t-xl`} style={{ backgroundColor: colors[item.homeAbbrev] || colors.DEFAULT }}>
+                              <Image
+                                source={teamLogos[item.homeAbbrev] || teamLogos.DEFAULT}
+                                style={{
+                                  width: width * 0.13,
+                                  height: width * 0.13,
+                                  contentFit: 'contain',
+                                }}
+                              />
+                              <Image
+                                source={teamLogos[item.awayAbbrev] || teamLogos.DEFAULT}
+                                style={{
+                                  width: width * 0.13,
+                                  height: width * 0.13,
+                                  contentFit: 'contain',
+                                }}
+                              />
+                            </View>
+                            {item.gameState === "OFF" || item.gameState === "FINAL" ? (
+                              <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                                <Text className="text-white font-black text-xl">{item.homeScore}</Text>
+                                <Text className="text-xs text-neutral-400 font-bold mt-1">{item.period}</Text>
+                                <Text className="text-white font-black text-xl">{item.awayScore}</Text>
                               </View>
-                              {item.gameState === "OFF" || item.gameState === "FINAL" ? (
-                                <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
-                                  <Text className="text-white font-black text-xl">{item.homeScore}</Text>
-                                  <Text className="text-xs text-neutral-400 font-bold mt-1">{item.period}</Text>
-                                  <Text className="text-white font-black text-xl">{item.awayScore}</Text>
-                                </View>
-                              ) : item.gameState === "LIVE" ? (
-                                <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
-                                  <Text className="text-white font-black text-xl">{item.homeScore}</Text>
-                                  <Text className="text-white font-extrabold text-xs rounded-md text-center px-2 py-1 bg-red-800">LIVE</Text>
-                                  <Text className="text-white font-black text-xl">{item.awayScore}</Text>
-                                </View>
-                              ) : (
-                                <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
-                                  
-                                  {item.homeOdds && item.awayOdds && (
+                            ) : item.gameState === "LIVE" ? (
+                              <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                                <Text className="text-white font-black text-xl">{item.homeScore}</Text>
+                                <Text className="text-white font-extrabold text-xs rounded-md text-center px-2 py-1 bg-red-800">LIVE</Text>
+                                <Text className="text-white font-black text-xl">{item.awayScore}</Text>
+                              </View>
+                            ) : (
+                              <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                                
+                                {item.homeOdds && item.awayOdds && (
+                                <Text 
+                                  className={`px-1 rounded-sm font-extrabold text-xs 
+                                  ${item.homeOdds <= item.awayOdds ? 'text-black' : 'text-neutral-400'}
+                                  ${item.homeOdds <= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
+                                  {item.homeOdds}
+                                </Text>
+                                )}
+                                <Text className="text-white font-extrabold text-xl">{item.localTime}</Text>
+                                {item.homeOdds && item.awayOdds && (
                                   <Text 
                                     className={`px-1 rounded-sm font-extrabold text-xs 
-                                    ${item.homeOdds <= item.awayOdds ? 'text-black' : 'text-neutral-400'}
-                                    ${item.homeOdds <= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
-                                    {item.homeOdds}
+                                    ${item.homeOdds >= item.awayOdds ? 'text-black' : 'text-neutral-400'}
+                                    ${item.homeOdds >= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
+                                    {item.awayOdds}
                                   </Text>
-                                  )}
-                                  <Text className="text-white font-extrabold text-xl">{item.localTime}</Text>
-                                  {item.homeOdds && item.awayOdds && (
-                                    <Text 
-                                      className={`px-1 rounded-sm font-extrabold text-xs 
-                                      ${item.homeOdds >= item.awayOdds ? 'text-black' : 'text-neutral-400'}
-                                      ${item.homeOdds >= item.awayOdds ? 'bg-neutral-400' : 'bg-transparent'}`}>
-                                      {item.awayOdds}
-                                    </Text>
-                                  )}
-                                </View>
-                              )}
-                            </TouchableOpacity>
-                          );
-                        })}
-                      </View>
-                    </>
-                  )}
-                </View>
-              );
+                                )}
+                              </View>
+                            )}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
+                ) 
+              }
             }}
             ListEmptyComponent={
-              <Text className="text-white font-medium text-lg text-center mt-44">no games found 🙁</Text>
+              <Text className="text-white font-medium text-lg text-center pt-8">no games found 🙁</Text>
             }
-            ListHeaderComponent={<View style={{ height: height * 0.07 }} />}
-            ListFooterComponent={<View style={{ height: height * 0.11 }} />}
+            ListHeaderComponent={<View style={{ height: height * 0.01 }} />}
+            ListFooterComponent={<View style={{ height: height * 0.08 }} />}
             bounces={false}
           />
           )}
-          <Playoffs />
-          <LinearGradient
-            colors={['black', 'transparent']}
-            locations={[0.2, 1]} 
-            style={{
-              position: 'absolute',
-              top: -1,
-              left: 0,
-              right: 0,
-              height: height * 0.06,
-            }}
-            pointerEvents="none" 
-          />
+
           <LinearGradient
             colors={['transparent', 'black']}
             locations={[0.25, 0.85]} 

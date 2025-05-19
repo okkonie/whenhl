@@ -1,13 +1,14 @@
 import PlayerStats from '@/assets/playerstats';
-import { Entypo, Ionicons } from '@expo/vector-icons';
+import { Entypo, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useGlobalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import getFlagEmoji from '../../assets/getflag';
 import teamLogos from '../../assets/logos';
 import '../global.css';
+
 const {width, height } = Dimensions.get('window')
 
 const TeamInfoScreen = () => {
@@ -196,7 +197,28 @@ const TeamInfoScreen = () => {
   }, [params.abbr]);
 
   return (
-    <View className='flex-1 bg-black items-center px-4'>
+    <View className='flex-1 bg-black items-center'>
+      <View className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 pb-3 w-full h-32 items-end top-0 p-3'>
+        <View className='flex-row items-center'>
+          <TouchableOpacity 
+            className='items-center justify-center border-r border-neutral-400 my-4 px-4'
+            onPress={() => router.navigate('./')}
+          >
+            <Entypo name="chevron-left" size={30} color="white"/>
+          </TouchableOpacity>
+          <View className='flex-row items-center justify-between flex-1 rounded-lg px-5 py-2'>
+            <Text className='text-white text-xl font-bold'>{params.name}</Text>
+            <Image
+              source={teamLogos[params.abbr] || teamLogos.DEFAULT}
+              style={{
+                height: 50,
+                width: 50,
+                contentFit: 'contain'
+              }}
+            />
+          </View>
+        </View>
+      </View>
       {loading ? (
         <View className="flex-1 justify-center align-center gap-5">
           <ActivityIndicator size='small' color='white'/>
@@ -204,29 +226,9 @@ const TeamInfoScreen = () => {
         </View>
       ) : (
         <>
-          <ScrollView style={{flex: 1}} contentContainerStyle={{alignItems: 'center'}} bounces={false} showsVerticalScrollIndicator={false}>
-            <View style={{height: height * 0.07}}/>
-              <View className="flex-row mb-2 bg-neutral-800 rounded-lg">
-                <TouchableOpacity 
-                  className='items-center justify-center border-r border-neutral-400 my-4 px-4'
-                  onPress={() => router.navigate('./')}
-                >
-                  <Entypo name="chevron-left" size={24} color="white"/>
-                </TouchableOpacity>
-                <View className='flex-row items-center justify-between flex-1 bg-neutral-800 rounded-lg px-5 py-2'>
-                  <Text className='text-white text-lg font-bold'>{params.name}</Text>
-                  <Image
-                    source={teamLogos[params.abbr] || teamLogos.DEFAULT}
-                    style={{
-                      height: 50,
-                      width: 50,
-                      contentFit: 'contain'
-                    }}
-                  />
-                </View>
-              </View>
-              <TouchableOpacity 
-                className='w-full bg-neutral-800 p-4 rounded-lg mb-2' 
+          <ScrollView style={{flex: 1}} contentContainerClassName='items-center px-3 pt-4' bounces={false} showsVerticalScrollIndicator={false}>
+              <Pressable 
+                className='w-full p-4 rounded-lg mb-2 bg-neutral-800' 
                 onPress={() => setShowSchedule(true)} 
               >
                   <Text className='text-white font-semibold'>Recent games</Text>
@@ -234,7 +236,7 @@ const TeamInfoScreen = () => {
                     {(pastGames ?? []).slice(-7).map((game, index) => (
                       <View 
                         key={index}
-                        className={`items-center justify-center w-[13%] aspect-square rounded-md ${game.result === 'W' ? 'bg-green-700' : 'bg-red-800'}`}
+                        className={`items-center justify-center w-[12%] py-2 rounded-md ${game.result === 'W' ? 'bg-green-700' : 'bg-red-800'}`}
                       >
                         <Text className='text-white font-extrabold text-xs'>{game.opponent}</Text>
                       </View>
@@ -244,12 +246,12 @@ const TeamInfoScreen = () => {
                   <Text className='text-white font-semibold pt-4'>Upcoming games</Text>
                   <View className='w-full flex-row justify-between pt-4 pb-2'>
                     {(futGames ?? []).slice(0, 3).map((game, index) => (
-                      <View key={index} className='bg-neutral-900 px-6 py-2 rounded-xl items-center justify-center'>
+                      <View key={index} className='bg-neutral-900 w-[30%] py-1 rounded-xl items-center justify-center'>
                         <Image
                           source={teamLogos[game.opponent] || teamLogos.DEFAULT}
                           style={{
-                            height: 50,
-                            width: 50,
+                            height: 45,
+                            width: 45,
                             contentFit: 'contain',
                           }}
                         />
@@ -259,12 +261,12 @@ const TeamInfoScreen = () => {
                       </View>
                     ))}
                   </View>
-                  <Text className='text-neutral-400 font-light text-xs text-center pt-2'>click for more</Text>
+                  <Text className='text-neutral-400 font-light text-xs text-center pt-2'>tap for more</Text>
                 
-              </TouchableOpacity>
+              </Pressable>
 
               <Modal animationType="slide" transparent={true} visible={showSchedule} onRequestClose={() => setShowSchedule(false)}>
-                <View className="flex-1 justify-end items-center bg-transparent">
+                <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.2)'}}>
                   <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
                     <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
                       <Text className="text-white text-lg font-bold">Schedule</Text>
@@ -284,11 +286,13 @@ const TeamInfoScreen = () => {
                                 const date = new Date(item.startTime);
                                 const formattedDate = pastDate.format(date);
                                 return (
-                                  <View key={idx} className='p-2 w-1/5'>
-                                    <View className={`rounded-lg px-1 py-0.5 ${item.result === 'W' ? 'bg-green-700' : 'bg-red-800'}`}>
-                                      <Text className='text-white text-xs font-bold p-1 text-center'>
-                                        {item.opponent}
-                                      </Text>
+                                  <View key={idx} className='p-1.5 w-1/5'>
+                                    <View className={'px-1 py-0.5'}>
+                                      <View className={`${item.result === 'W' ? 'bg-green-700' : 'bg-red-800'} rounded-md`}>
+                                        <Text className='text-white text-xs font-bold p-1 text-center'>
+                                          {item.opponent}
+                                        </Text>
+                                      </View>
                                       <Text className='text-white text-xs text-center font-semibold py-1'>
                                         {formattedDate}
                                       </Text>
@@ -350,6 +354,7 @@ const TeamInfoScreen = () => {
                     </View>
                   </View>
                 </View>
+
                 <Text className='text-white font-bold text-base mt-2 pb-2 pl-1'>Home</Text>
                 <View className='w-full flex-row gap-1'>
                   <View 
@@ -362,6 +367,7 @@ const TeamInfoScreen = () => {
                       <Text className='text-white text-sm font-bold self-end pr-3'>{teamStats?.homeLosses} losses</Text>
                   </View>
                 </View>
+
                 <Text className='text-white font-bold text-base mt-2 pb-2 pl-1'>Road</Text>
                 <View className='w-full flex-row gap-1'>
                   <View 
@@ -374,6 +380,7 @@ const TeamInfoScreen = () => {
                       <Text className='text-white text-sm font-bold self-end pr-3'>{teamStats?.roadLosses} losses</Text>
                   </View>
                 </View>
+
                 <Text className='text-white font-bold text-base mt-2 pb-2 pl-1'>Goals per game</Text>
                 <View className='w-full flex-row gap-1'>
                   <View 
@@ -390,7 +397,7 @@ const TeamInfoScreen = () => {
 
               <TouchableOpacity className='w-full bg-neutral-800 p-4 rounded-lg mb-2 flex-row justify-between items-center' onPress={() => setShowRoster(true)}>
                 <Text className='text-white text-xl font-bold'>Roster</Text>
-                <Entypo name="triangle-up" size={28} color="white" />
+                <MaterialCommunityIcons name="dots-grid" size={28} color="white" />
               </TouchableOpacity>
 
               <Modal
@@ -399,7 +406,7 @@ const TeamInfoScreen = () => {
                 transparent={true}
                 onRequestClose={() => setShowRoster(false)}
               >
-                <View className="flex-1 justify-end items-center bg-transparent">
+                <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.2)'}}>
                   <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
                     <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
                       <Text className="text-white text-lg font-bold">Roster</Text>
@@ -462,18 +469,6 @@ const TeamInfoScreen = () => {
 
           {showStats && <PlayerStats showStats={showStats} setShowStats={setShowStats} playerId={selectedPlayer.id} abbr={selectedPlayer.abbr}/>}
 
-          <LinearGradient
-            colors={['black', 'transparent']}
-            locations={[0.2, 1]} 
-            style={{
-              position: 'absolute',
-              top: -1,
-              left: 0,
-              right: 0,
-              height: height * 0.06,
-            }}
-            pointerEvents="none" 
-          />
           <LinearGradient
             colors={['transparent', 'black']}
             locations={[0.25, 0.85]} 

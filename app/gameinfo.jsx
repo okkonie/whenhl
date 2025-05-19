@@ -37,67 +37,84 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
         let gameInfo = {};
 
         if (selectedGame.gameState !== 'FUT') {
-          const periods = {};
+        const periods = {};
 
-          (data.summary?.scoring || []).forEach((period) => {
-            const periodNumber = period.periodDescriptor.number;
-            (period.goals || []).forEach((goal) => {
-              const event = {
-                type: 'goal',
-                time: goal.timeInPeriod,
-                team: goal.teamAbbrev?.default,
-                goalNumber: goal.goalsToDate,
-                player: goal.name?.default,
-                homeScore: goal.homeScore,
-                awayScore: goal.awayScore,
-                assists: goal.assists.map((assist) => ({
-                  assistName: assist.name?.default,
-                  assistNumber: assist.assistsToDate,
-                })),
-              };
+        (data.summary?.scoring || []).forEach((period) => {
+          const periodNumber = period.periodDescriptor.number;
+          const periodType = period.periodDescriptor.periodType;
 
-              if (!periods[periodNumber]) periods[periodNumber] = [];
-              periods[periodNumber].push(event);
-            });
-          });
-
-          (data.summary?.penalties || []).forEach((period) => {
-            const periodNumber = period.periodDescriptor.number;
-            (period.penalties || []).forEach((penalty) => {
-              const event = {
-                type: 'penalty',
-                time: penalty.timeInPeriod,
-                duration: penalty.duration,
-                player: penalty.committedByPlayer?.default,
-                team: penalty.teamAbbrev?.default,
-                desc: penalty.descKey,
-              };
-
-              if (!periods[periodNumber]) periods[periodNumber] = [];
-              periods[periodNumber].push(event);
-            });
-          });
-
-          for (const period in periods) {
-            periods[period].sort((a, b) => {
-              const [minA, secA] = a.time.split(':').map(Number);
-              const [minB, secB] = b.time.split(':').map(Number);
-              return minA * 60 + secA - (minB * 60 + secB);
-            });
+          if (!periods[periodNumber]) {
+            periods[periodNumber] = {
+              type: periodType,
+              events: [],
+            };
           }
 
-          gameInfo = {
-            homeScore: data.homeTeam.score,
-            awayScore: data.awayTeam.score,
-            prd: data.periodDescriptor.periodType,
-            homeSOG: data.homeTeam?.sog || 0,
-            awaySOG: data.awayTeam?.sog || 0,
-            allEvents: Object.entries(periods).map(([period, periodEvents]) => ({
-              period: Number(period),
-              periodEvents,
-            })),
-          };
+          (period.goals || []).forEach((goal) => {
+            const event = {
+              type: 'goal',
+              time: goal.timeInPeriod,
+              team: goal.teamAbbrev?.default,
+              goalNumber: goal.goalsToDate,
+              player: goal.name?.default,
+              homeScore: goal.homeScore,
+              awayScore: goal.awayScore,
+              assists: goal.assists.map((assist) => ({
+                assistName: assist.name?.default,
+                assistNumber: assist.assistsToDate,
+              })),
+            };
+
+            periods[periodNumber].events.push(event);
+          });
+        });
+
+        (data.summary?.penalties || []).forEach((period) => {
+          const periodNumber = period.periodDescriptor.number;
+          const periodType = period.periodDescriptor.periodType;
+
+          if (!periods[periodNumber]) {
+            periods[periodNumber] = {
+              type: periodType,
+              events: [],
+            };
+          }
+
+          (period.penalties || []).forEach((penalty) => {
+            const event = {
+              type: 'penalty',
+              time: penalty.timeInPeriod,
+              duration: penalty.duration,
+              player: penalty.committedByPlayer?.default,
+              team: penalty.teamAbbrev?.default,
+              desc: penalty.descKey,
+            };
+
+            periods[periodNumber].events.push(event);
+          });
+        });
+
+        for (const period in periods) {
+          periods[period].events.sort((a, b) => {
+            const [minA, secA] = a.time.split(':').map(Number);
+            const [minB, secB] = b.time.split(':').map(Number);
+            return minA * 60 + secA - (minB * 60 + secB);
+          });
         }
+
+        gameInfo = {
+          homeScore: data.homeTeam.score,
+          awayScore: data.awayTeam.score,
+          prd: data.periodDescriptor.periodType,
+          homeSOG: data.homeTeam?.sog || 0,
+          awaySOG: data.awayTeam?.sog || 0,
+          allEvents: Object.entries(periods).map(([period, { type, events }]) => ({
+            period: Number(period),
+            type,
+            periodEvents: events,
+          })),
+        };
+      }
 
         if (selectedGame.gameState === 'FUT') {
           const homeGoalies = data.matchup.goalieComparison.homeTeam.leaders.filter(
@@ -191,7 +208,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
   return (
     <>
     <Modal animationType="slide" transparent={true} visible={showGame} onRequestClose={() => setShowGame(false)}>
-      <View className="flex-1 justify-end items-center bg-transparent">
+      <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.2)'}}>
         <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
           <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
             <Text className="text-white text-lg font-bold">
@@ -248,7 +265,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                           <>
                             <View key={index} className='w-full flex-row py-2 px-3 bg-neutral-900 rounded-lg'>
                               <Text className='text-white font-bold text-md'>
-                                period {event.period}
+                                {event.type === 'REG' ? 'period ' + event.period : event.type}
                               </Text>
                             </View>
                             <View className='w-full py-2 px-4'>
@@ -273,7 +290,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                                           ? periodEvent.assists
                                               .map(assist => `${assist.assistName} (${assist.assistNumber})`)
                                               .join(', ')
-                                          : periodEvent.desc}
+                                          : periodEvent.desc.replace(/\s*-\s*/g, ' ')}
                                       </Text>
                                     )}
                                   </View>

@@ -155,19 +155,11 @@ const players = () => {
   };
 
   return (
-    <View className="flex-1 items-center bg-black px-5">
-      <LinearGradient
-        colors={['black', 'transparent']}
-        locations={[0,1]} 
-        className="absolute z-40 left-0 right-0"
-        style={{top: height * 0.13, height: height * 0.03}}
-        pointerEvents="none" 
-      />
+    <View className="flex-1 items-center bg-black">
 
-      
-      <View className="bg-neutral-800 w-full p-2 flex-row justify-between items-center rounded-xl z-50" style={{top: height * 0.07, height: height * 0.07}}>
+      <View className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 pb-3 w-full h-32 items-end px-3'>
         {searching ? (
-          <>
+          <View className="items-center flex-row h-14 w-full">
             <TextInput 
               className="text-white text-normal ml-4 flex-1"
               placeholder="search for players" 
@@ -189,23 +181,21 @@ const players = () => {
                 <Ionicons name='close' size={24} color='white' />
               </TouchableOpacity>
             </View>
-          </>
+          </View>
         ) : (
-          <>  
-            <View className="flex-row items-center justify-between flex-1">
-              <View className="h-full w-3/12 border-r border-neutral-400 pr-2 items-center justify-center">
-                <Pressable className="h-full w-full bg-neutral-700 rounded-xl p-1" onPress={() => setSkaterOn(!skaterOn)} style={{justifyContent: skaterOn ? 'flex-start' : 'flex-end'}}>
-                  <View className="items-center justify-center bg-green-400 min-h-3/4 rounded-lg p-1">
-                    <Text className={'text-neutral-900 font-bold text-xs w-full text-center'}>{skaterOn ? 'skater' : 'goalie'}</Text>
-                  </View>
-                </Pressable>
-              </View>
+          <View className="items-center flex-row w-full h-14 justify-between">
+            <View className="flex-row flex-1 px-2 h-full items-center justify-between">
+              <Pressable className={`bg-neutral-700 rounded-md w-[20%] h-3/4 p-1`} onPress={() => setSkaterOn(!skaterOn)} style={{justifyContent: skaterOn ? 'flex-start' : 'flex-end'}}>
+                <View className="items-center justify-center bg-green-400 h-3/4 rounded-md p-1">
+                  <Text className={'text-neutral-900 font-bold text-xs w-full text-center'}>{skaterOn ? 'skater' : 'goalie'}</Text>
+                </View>
+              </Pressable>
               <TouchableOpacity
-                className='h-full px-3 border-r border-neutral-400 w-5/12'
+                className='w-[38%] bg-neutral-700 rounded-md h-3/4 py-1 px-2'
                 onPress={() => setCategoryModalVisible(true)}
               >
                 <Text className='text-white font-medium text-xs'>category:</Text>
-                <Text className='text-white font-bold text-sm'>{skaterOn ? skaterSort : goalieSort}</Text>
+                <Text className='text-white font-extrabold text-sm'>{skaterOn ? skaterSort : goalieSort}</Text>
               </TouchableOpacity>
               <Category 
                 skaterOn={skaterOn} skaterSort={skaterSort} goalieSort={goalieSort} 
@@ -213,20 +203,21 @@ const players = () => {
                 modalVisible={categoryModalVisible} setModalVisible={setCategoryModalVisible}
               />
               <TouchableOpacity
-                className='h-full px-3 border-r border-neutral-400 w-4/12'
+                className='w-[38%] bg-neutral-700 rounded-md h-3/4 py-1 px-2'
                 onPress={() => setSeasonModalVisible(true)}
               >
-                <Text className={`text-white font-bold ${season.key === 'current' ? 'text-xs' : 'text-sm'}`}>{season.key === 'current' ? 'season:' : season.label.slice(0,7)}</Text>
-                <Text className={`text-white font-bold ${season.key === 'current' ? 'text-sm' : 'text-xs'}`}>{season.key === 'current' ? 'current' : season.label.slice(8)}</Text>
+                <Text className={`text-white  ${season.key === 'current' ? 'text-xs font medium' : 'text-sm font-bold'}`}>{season.key === 'current' ? 'season:' : season.label.slice(0,7)}</Text>
+                <Text className={`text-white font-bold ${season.key === 'current' ? 'text-sm font-extrabold' : 'text-xs font-bold'}`}>{season.key === 'current' ? 'current' : season.label.slice(8)}</Text>
               </TouchableOpacity>
-              <SeasonDropdown season={season} setSeason={setSeason} modalVisible={seasonModalVisible} setModalVisible={setSeasonModalVisible} />
-              
             </View>
+            
+            <SeasonDropdown season={season} setSeason={setSeason} modalVisible={seasonModalVisible} setModalVisible={setSeasonModalVisible} />
+              
             <TouchableOpacity className="px-3" onPress={() => setSearching(!searching)}>
               <Ionicons name='search' size={24} color='white' />
             </TouchableOpacity>
             
-          </>
+          </View>
         )}
       </View>
       
@@ -237,15 +228,11 @@ const players = () => {
         </View>
       ) : (
         <FlatList 
-          style={{
-            maxHeight: height * 0.9,
-            position: 'absolute',
-            top: height * 0.10,
-          }}
+          contentContainerClassName="px-4"
           showsVerticalScrollIndicator={false}
           data={searching ? results : getWhatStats()}
           keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-          ListHeaderComponent={<View  style={{height: height * 0.06}}/>}
+          ListHeaderComponent={<View  style={{height: height * 0.02}}/>}
           ListFooterComponent={<View  style={{height: height * 0.08}}/>}
           renderItem={searching ? renderItem : renderTopItem}
         />

@@ -120,8 +120,8 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
 
   return (
     <Modal animationType="slide" transparent={true} visible={showStats} onRequestClose={() => setShowStats(false)}>
-      <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.7)'}}>
-        <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
+      <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.2)'}}>
+        <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl">
           <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
             <Text className="text-white text-lg font-bold">Player Stats</Text>
             <TouchableOpacity onPress={() => setShowStats(false)} className='pl-5 h-full items-center justify-center'>

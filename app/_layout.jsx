@@ -28,7 +28,7 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar
-        barStyle="light-content"
+        style="light"
         translucent={true}
         hidden={false}
       />

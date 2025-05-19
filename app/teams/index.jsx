@@ -1,4 +1,4 @@
-import { AntDesign, FontAwesome6 } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -84,14 +84,14 @@ const Teams = () => {
   };
 
   const getGroupedData = () => {
-    if (sortingCriteria === 'conference') {
+    if (sortingCriteria === 'Conference') {
       const eastern = teams.filter(team => team.conference === 'Eastern').sort((a, b) => b.points - a.points);
       const western = teams.filter(team => team.conference === 'Western').sort((a, b) => b.points - a.points);
       return [
-        { title: 'Eastern conference', data: eastern },
-        { title: 'Western conference', data: western }
+        { title: 'Eastern', data: eastern },
+        { title: 'Western', data: western }
       ];
-    } else if (sortingCriteria === 'division') {
+    } else if (sortingCriteria === 'Division') {
       const divisions = ['Atlantic', 'Metropolitan', 'Central', 'Pacific'];
       return divisions.map(division => ({
         title: `${division}`,
@@ -113,100 +113,92 @@ const Teams = () => {
     };
   
     return (
-      <Pressable className="w-full bg-neutral-800 rounded-lg py-1.5 ps-6 pe-2 mb-1.5 flex-row justify-between items-center" onPress={() => goToTeamInfo(item)}>
-        <View className="flex-1 items-center flex-row justify-start gap-2">
-          <Text className="text-white font-medium text-lg">{index + 1}.</Text>  
-          <Image
-            source={teamLogos[item.abbrev] || teamLogos.DEFAULT}
-            style={{
-              width: 45,
-              height: 45,
-              contentFit: 'contain',
-            }}
-          />
-          <View>
-            <Text className="text-white font-bold text-md">{item.placeName === 'NY Islanders' ? 'New York' : item.placeName === 'NY Rangers' ? 'New York' : item.placeName}</Text>
-            <Text className="text-white font-bold text-md">{item.commonName === 'Utah Hockey Club' ? 'Hockey Club' : item.commonName}</Text>
+      <View className="px-4">
+        <Pressable className="w-full bg-neutral-800 rounded-lg py-1.5 ps-6 pe-2 mb-1.5 flex-row justify-between items-center" onPress={() => goToTeamInfo(item)}>
+          <View className="flex-1 items-center flex-row justify-start gap-2">
+            <Text className="text-white font-medium text-lg">{index + 1}.</Text>  
+            <Image
+              source={teamLogos[item.abbrev] || teamLogos.DEFAULT}
+              style={{
+                width: 45,
+                height: 45,
+                contentFit: 'contain',
+              }}
+            />
+            <View>
+              <Text className="text-white font-bold text-md">{item.placeName === 'NY Islanders' ? 'New York' : item.placeName === 'NY Rangers' ? 'New York' : item.placeName}</Text>
+              <Text className="text-white font-bold text-md">{item.commonName === 'Utah Hockey Club' ? 'Hockey Club' : item.commonName}</Text>
+            </View>
           </View>
-        </View>
-  
-        <View className="items-center flex-row justify-end">
-          <Text className="text-white font-bold text-md">{item.points}p</Text>
-          <TouchableOpacity
-            className="p-4"
-            onPress={() => toggleFavorite(item)}
-          >
-            {isFavorite ? 
-              <AntDesign name="star" size={20} color={'gold'} /> : 
-              <AntDesign name="staro" size={20} color={'white'} />
-            }
-          </TouchableOpacity>
-        </View>
-      </Pressable>
+    
+          <View className="items-center flex-row justify-end">
+            <Text className="text-white font-bold text-md">{item.points}p</Text>
+            <TouchableOpacity
+              className="p-4"
+              onPress={() => toggleFavorite(item)}
+            >
+              {isFavorite ? 
+                <AntDesign name="star" size={20} color={'gold'} /> : 
+                <AntDesign name="staro" size={20} color={'white'} />
+              }
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </View>
     );
   };
 
   const renderSectionHeader = ({ section: { title } }) => (
-    <Text className="text-white text-lg font-bold mb-2 mt-3">{title}</Text>
+    <Text className="text-white font-bold text-xl pl-6 pt-4 pb-2 border-t border-neutral-800">{title}</Text>
   );
 
   return (
-    <View className="flex-1 items-center justify-center bg-black px-4">
-        {loading ? (
-          <>
-            <ActivityIndicator size='small' color='white'/>
-            <Text className="text-xs pt-4 text-white font-medium text-center">Getting teams</Text>
-          </>
-        ) : (
-          <>
-            <TouchableOpacity
-              style={{height: height * 0.065, width: width * 0.2, zIndex: 20, position: 'absolute', bottom: 0, left: 0, justifyContent: 'flex-start', alignItems: 'center'}}
-              onPress={async () => {
-                const nextSort = sortingCriteria === 'all' ? 'conference' : sortingCriteria === 'conference' ? 'division' : 'all';
-                setSortingCriteria(nextSort);
-                await AsyncStorage.setItem(SORTING_KEY, nextSort);
-              }}
-            > 
-              <FontAwesome6 name='sort' color='white' size={height * 0.033} />
-            </TouchableOpacity>
+    <View className="flex-1 items-center bg-black">
+      <View className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 w-full h-32 items-end top-0 p-5'>
+        <TouchableOpacity
+          className="flex-row justify-between w-full items-center py-2 px-4 border-neutral-500 border rounded-xl"
+          onPress={async () => {
+            const nextSort = sortingCriteria === 'All Teams' ? 'Conference' : sortingCriteria === 'Conference' ? 'Division' : 'All Teams';
+            setSortingCriteria(nextSort);
+            await AsyncStorage.setItem(SORTING_KEY, nextSort);
+          }}
+        > 
+          <Text className="text-md text-white font-bold">sort by</Text>
+          <Text className="text-md text-white font-bold">{sortingCriteria}</Text>
+        </TouchableOpacity>
+      </View>
 
-            <SectionList
-              sections={getGroupedData()}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={renderItem}
-              renderSectionHeader={renderSectionHeader}
-              ListEmptyComponent={<Text className="text-white text-md font-bold mt-8">No teams found</Text>}
-              ListHeaderComponent={<View style={{ height: height * 0.06 }} />}
-              ListFooterComponent={<View style={{ height: height * 0.08 }} />}
-              showsVerticalScrollIndicator={false}
-            />
-
-            <LinearGradient
-              colors={['black', 'transparent']}
-              locations={[0.2, 1]} 
-              style={{
-                position: 'absolute',
-                top: -1,
-                left: 0,
-                right: 0,
-                height: height * 0.06,
-              }}
-              pointerEvents="none" 
-            />
-            <LinearGradient
-              colors={['transparent', 'black']}
-              locations={[0.25, 0.85]} 
-              style={{
-                position: 'absolute',
-                bottom: -1,
-                left: 0,
-                right: 0,
-                height: height * 0.12,
-              }}
-              pointerEvents="none" 
-            />
-          </>
-        )}
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size='small' color='white'/>
+          <Text className="text-xs pt-4 text-white font-medium text-center">Getting teams</Text>
+        </View>
+      ) : (
+        <>
+          <SectionList
+            sections={getGroupedData()}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderItem}
+            renderSectionHeader={renderSectionHeader}
+            ListEmptyComponent={<Text className="text-white text-md font-bold mt-8">No teams found</Text>}
+            ListHeaderComponent={<View style={{ height: height * 0.01 }} />}
+            ListFooterComponent={<View style={{ height: height * 0.08 }} />}
+            showsVerticalScrollIndicator={false}
+          />
+          <LinearGradient
+            colors={['transparent', 'black']}
+            locations={[0.25, 0.85]} 
+            style={{
+              position: 'absolute',
+              bottom: -1,
+              left: 0,
+              right: 0,
+              height: height * 0.12,
+            }}
+            pointerEvents="none" 
+          />
+        </>
+      )}
     </View>
   );
 };
