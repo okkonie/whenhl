@@ -181,7 +181,6 @@ const Teams = () => {
             renderItem={renderItem}
             renderSectionHeader={renderSectionHeader}
             ListEmptyComponent={<Text className="text-white text-md font-bold mt-8">No teams found</Text>}
-            ListHeaderComponent={<View style={{ height: height * 0.01 }} />}
             ListFooterComponent={<View style={{ height: height * 0.08 }} />}
             showsVerticalScrollIndicator={false}
           />
