@@ -365,7 +365,7 @@ const Home = () => {
         </>
       )}
       <View 
-        className='bg-neutral-900 rounded-t-3xl flex-row justify-evenly z-50 w-full self-center items-center absolute border-b border-neutral-500' 
+        className='bg-neutral-900 rounded-t-3xl flex-row justify-evenly z-50 w-full self-center items-center absolute' 
         style={{bottom: height * 0.07, height: height * 0.07}}
       >
         <TouchableOpacity 

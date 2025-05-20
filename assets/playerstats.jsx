@@ -81,7 +81,7 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
     : playerStats?.featuredStats?.playoffs?.subSeason
 
     return (
-      <View className="bg-neutral-800 rounded-xl mt-2 justify-between">
+      <View className="bg-black rounded-xl mt-2 justify-between">
         <View className="w-full border-b border-neutral-700 py-4 px-5 items-center justify-between flex-row">
           <Text className="text-white text-lg font-medium">{head}</Text>
           <Pressable 
@@ -135,7 +135,7 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
             </View>
           ) : (
             <ScrollView className="w-full px-3 flex-1" showsVerticalScrollIndicator={false}>
-              <View className="rounded-xl bg-neutral-800 mt-4">
+              <View className="rounded-xl mt-4 bg-black">
                 <View className="gap-5 flex-row items-center rounded-t-xl justify-between mb-3 py-3 px-5" style={{backgroundColor: colors[abbr ? abbr : '#171717']}}>
                   <View className="flex-row gap-5">
                     <View className="h-20 w-20 rounded-full overflow-hidden">

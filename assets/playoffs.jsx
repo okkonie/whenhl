@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
-import { Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import '../app/global.css';
 import teamLogos from './logos';
 
@@ -71,7 +71,12 @@ const Playoffs = ({show, setShow}) => {
             </TouchableOpacity>
           </View>
           <ScrollView showsVerticalScrollIndicator={false} className='w-full'>
-            {hasData && (
+            {(!hasData || loading) ? (
+              <View className="flex-1 justify-center align-center gap-5">
+                <ActivityIndicator size='small' color='white'/>
+                <Text className="text-xs text-white font-medium text-center">Loading matchups</Text>
+              </View>
+            ) : (
               <View className='px-4 py-8'>
 
                 <View className='flex-row justify-between'>

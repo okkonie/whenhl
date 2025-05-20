@@ -155,7 +155,7 @@ const Teams = () => {
   return (
     <View className="flex-1 items-center bg-black">
       <View
-        className='bg-neutral-900 rounded-t-3xl flex-row absolute border-b border-neutral-500 p-3 z-50 w-full px-5 justify-between items-center'
+        className='bg-neutral-900 rounded-t-3xl flex-row absolute p-3 z-50 w-full px-5 justify-between items-center'
         style={{bottom: height * 0.07 , height: height * 0.06}}
       > 
         <TouchableOpacity

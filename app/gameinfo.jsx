@@ -271,7 +271,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                   <View className="flex-1">
                     <View className="flex-row items-center justify-between w-full py-3 px-7 border-b border-neutral-500">
                       <Text className="text-white font-extrabold text-lg">{gameInfo.homeSOG}</Text>
-                      <Text className="text-white font-extrabold text-md">SOG</Text>
+                      <Text className="text-white font-extrabold text-md">shots on goal</Text>
                       <Text className="text-white font-extrabold text-lg">{gameInfo.awaySOG}</Text>
                     </View>
                     <View className="flex-1 px-3 py-4">

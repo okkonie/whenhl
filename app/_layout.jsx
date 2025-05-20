@@ -37,8 +37,8 @@ export default function RootLayout() {
           tabBarShowLabel: false,
           headerShown: false,
           tabBarStyle: {
-            borderTopWidth: 0,
-            borderColor: '#171717',
+            borderTopWidth: 1,
+            borderColor: '#737373',
             height: height * 0.07,
             position: 'absolute',
             backgroundColor: '#171717',
@@ -55,7 +55,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 name={focused ? 'calendar-clear' : 'calendar-clear-outline'}
-                size={height * 0.03}
+                size={height * 0.028}
                 color={'white'}
               />
             ),
@@ -68,7 +68,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 name={focused ? 'shirt' : 'shirt-outline'}
-                size={height * 0.03}
+                size={height * 0.028}
                 color={'white'}
               />
             ),
@@ -81,7 +81,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 name={focused ? 'podium' : 'podium-outline'}
-                size={height * 0.03}
+                size={height * 0.028}
                 color={'white'}
               />
             ),
