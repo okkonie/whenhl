@@ -2,7 +2,7 @@ import PlayerStats from '@/assets/playerstats';
 import { Entypo, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useGlobalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import getFlagEmoji from '../../assets/getflag';
@@ -12,7 +12,7 @@ import '../global.css';
 const {width, height } = Dimensions.get('window')
 
 const TeamInfoScreen = () => {
-  const params = useGlobalSearchParams();
+  const params = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [roster, setRoster] = useState([]);
   const [pastGames, setPastGames] = useState([]);
@@ -198,11 +198,14 @@ const TeamInfoScreen = () => {
 
   return (
     <View className='flex-1 bg-black items-center'>
-      <View className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 pb-3 w-full h-32 items-end top-0 p-3'>
+      <View 
+        className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 w-full items-end p-3'
+        style={{height: height * 0.14}}
+      >
         <View className='flex-row items-center'>
           <TouchableOpacity 
             className='items-center justify-center border-r border-neutral-400 my-4 px-4'
-            onPress={() => router.navigate('./')}
+            onPress={() => router.back()}
           >
             <Entypo name="chevron-left" size={30} color="white"/>
           </TouchableOpacity>
@@ -228,46 +231,45 @@ const TeamInfoScreen = () => {
         <>
           <ScrollView style={{flex: 1}} contentContainerClassName='items-center px-3 pt-4' bounces={false} showsVerticalScrollIndicator={false}>
               <Pressable 
-                className='w-full p-4 rounded-lg mb-2 bg-neutral-800' 
+                className='w-full p-4 rounded-lg mb-2 bg-neutral-900' 
                 onPress={() => setShowSchedule(true)} 
               >
-                  <Text className='text-white font-semibold'>Recent games</Text>
-                  <View className='w-full flex-row justify-between py-4 border-b border-neutral-400'>
-                    {(pastGames ?? []).slice(-7).map((game, index) => (
-                      <View 
-                        key={index}
-                        className={`items-center justify-center w-[12%] py-2 rounded-md ${game.result === 'W' ? 'bg-green-700' : 'bg-red-800'}`}
-                      >
-                        <Text className='text-white font-extrabold text-xs'>{game.opponent}</Text>
-                      </View>
-                    ))}
-                  </View>
+                <Text className='text-white font-semibold'>Recent games</Text>
+                <View className='w-full flex-row justify-between py-4 border-b border-neutral-400'>
+                  {(pastGames ?? []).slice(-7).map((game, index) => (
+                    <View 
+                      key={index}
+                      className={`items-center justify-center w-[12%] py-2 rounded-md ${game.result === 'W' ? 'bg-green-600' : 'bg-red-700'}`}
+                    >
+                      <Text className='text-white font-extrabold text-xs'>{game.opponent}</Text>
+                    </View>
+                  ))}
+                </View>
 
-                  <Text className='text-white font-semibold pt-4'>Upcoming games</Text>
-                  <View className='w-full flex-row justify-between pt-4 pb-2'>
-                    {(futGames ?? []).slice(0, 3).map((game, index) => (
-                      <View key={index} className='bg-neutral-900 w-[30%] py-1 rounded-xl items-center justify-center'>
-                        <Image
-                          source={teamLogos[game.opponent] || teamLogos.DEFAULT}
-                          style={{
-                            height: 45,
-                            width: 45,
-                            contentFit: 'contain',
-                          }}
-                        />
-                        <Text className='text-white text-sm font-semibold pt-1'>
-                          {game.scheduleState === 'OK' ? futDateFormat2.format(new Date(game.startTime)) : 'TBD'}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                  <Text className='text-neutral-400 font-light text-xs text-center pt-2'>tap for more</Text>
-                
+                <Text className='text-white font-semibold pt-4'>Upcoming games</Text>
+                <View className='w-full flex-row justify-between pt-4 pb-2'>
+                  {(futGames ?? []).slice(0, 3).map((game, index) => (
+                    <View key={index} className='bg-neutral-800 w-[30%] py-1 rounded-xl items-center justify-center'>
+                      <Image
+                        source={teamLogos[game.opponent] || teamLogos.DEFAULT}
+                        style={{
+                          height: 45,
+                          width: 45,
+                          contentFit: 'contain',
+                        }}
+                      />
+                      <Text className='text-white text-sm font-semibold pt-1'>
+                        {game.scheduleState === 'OK' ? futDateFormat2.format(new Date(game.startTime)) : 'TBD'}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+                <Text className='text-neutral-400 font-light text-xs text-center pt-2'>tap for more</Text>
               </Pressable>
 
               <Modal animationType="slide" transparent={true} visible={showSchedule} onRequestClose={() => setShowSchedule(false)}>
                 <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.2)'}}>
-                  <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
+                  <View className="items-center h-full w-full bg-neutral-900 rounded-t-2xl elevation-lg shadow-black">
                     <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
                       <Text className="text-white text-lg font-bold">Schedule</Text>
                       <TouchableOpacity onPress={() => setShowSchedule(false)} className='pl-5 h-full items-center justify-center'>
@@ -288,7 +290,7 @@ const TeamInfoScreen = () => {
                                 return (
                                   <View key={idx} className='p-1.5 w-1/5'>
                                     <View className={'px-1 py-0.5'}>
-                                      <View className={`${item.result === 'W' ? 'bg-green-700' : 'bg-red-800'} rounded-md`}>
+                                      <View className={`${item.result === 'W' ? 'bg-green-600' : 'bg-red-700'} rounded-md`}>
                                         <Text className='text-white text-xs font-bold p-1 text-center'>
                                           {item.opponent}
                                         </Text>
@@ -306,7 +308,7 @@ const TeamInfoScreen = () => {
                               const formattedDate = futDateFormat.format(date);
                               return (
                                 <View key={`fut-${idx}`} className='px-2 py-1'>
-                                  <View className='w-full flex-row justify-between items-center bg-neutral-900 rounded-lg p-3'>
+                                  <View className='w-full flex-row justify-between items-center bg-neutral-800 rounded-lg p-3'>
                                     <View className='flex-row gap-4 items-center'>
                                       <Image 
                                         style={{
@@ -332,11 +334,11 @@ const TeamInfoScreen = () => {
                 </View>
               </Modal>
               
-              <View className='w-full bg-neutral-800 p-4 rounded-lg mb-2'>
+              <View className='w-full bg-neutral-900 p-4 rounded-lg mb-2'>
                 <Text className='text-white font-bold w-full border-b border-neutral-400 pb-2'>Team stats</Text>
                 <View className='flex-row'>
                   <View className='pr-1 w-1/2 pt-4'>
-                    <View className='bg-neutral-900 px-3 py-2 rounded-lg flex-row gap-2'>
+                    <View className='bg-neutral-800 px-3 py-2 rounded-lg flex-row gap-2'>
                       <Text className="text-white font-black text-3xl">{teamStats?.rank}.</Text>
                       <View className='items-start justify-center'>
                         <Text className='text-white text-sm font-medium'>in {teamStats?.division}</Text>
@@ -345,7 +347,7 @@ const TeamInfoScreen = () => {
                     </View>
                   </View>
                   <View className='pl-1 w-1/2 pt-4'>
-                    <View className='bg-neutral-900 px-3 py-2 rounded-lg flex-row gap-2'>
+                    <View className='bg-neutral-800 px-3 py-2 rounded-lg flex-row gap-2'>
                       <Text className="text-white font-black text-3xl">{teamStats?.conferenceRank}.</Text>
                       <View className='items-start justify-center'>
                         <Text className='text-white text-sm font-medium'>in {teamStats?.conference}</Text>
@@ -355,47 +357,47 @@ const TeamInfoScreen = () => {
                   </View>
                 </View>
 
-                <Text className='text-white font-bold text-base mt-2 pb-2 pl-1'>Home</Text>
+                <Text className='text-white font-bold text-base mt-4 pb-3 pl-1'>Home</Text>
                 <View className='w-full flex-row gap-1'>
                   <View 
                     style={{width: `${teamStats?.homeWins / (teamStats?.homeWins + teamStats?.homeLosses) * 100}%`}} 
-                    className='bg-green-700 rounded-l-lg h-8 self-start justify-center'
+                    className='border border-green-400 rounded-l-lg h-8 self-start justify-center'
                   >
                       <Text className='text-white text-sm font-bold pl-3'>{teamStats?.homeWins} wins</Text>
                   </View>
-                  <View className='bg-red-800 rounded-r-lg flex-1 h-8 self-start justify-center'>
+                  <View className='border-red-500 border rounded-r-lg flex-1 h-8 self-start justify-center'>
                       <Text className='text-white text-sm font-bold self-end pr-3'>{teamStats?.homeLosses} losses</Text>
                   </View>
                 </View>
 
-                <Text className='text-white font-bold text-base mt-2 pb-2 pl-1'>Road</Text>
+                <Text className='text-white font-bold text-base mt-4 pb-3 pl-1'>Road</Text>
                 <View className='w-full flex-row gap-1'>
                   <View 
                     style={{width: `${teamStats?.roadWins / (teamStats?.roadWins + teamStats?.roadLosses) * 100}%`}} 
-                    className='bg-green-700 rounded-l-lg h-8 self-start justify-center'
+                    className='border border-green-400 rounded-l-lg h-8 self-start justify-center'
                   >
                       <Text className='text-white text-sm font-bold pl-3'>{teamStats?.roadWins} wins</Text>
                   </View>
-                  <View className='bg-red-800 rounded-r-lg flex-1 h-8 self-start justify-center'>
+                  <View className='border-red-500 border rounded-r-lg flex-1 h-8 self-start justify-center'>
                       <Text className='text-white text-sm font-bold self-end pr-3'>{teamStats?.roadLosses} losses</Text>
                   </View>
                 </View>
 
-                <Text className='text-white font-bold text-base mt-2 pb-2 pl-1'>Goals per game</Text>
+                <Text className='text-white font-bold text-base mt-4 pb-3 pl-1'>Goals per game</Text>
                 <View className='w-full flex-row gap-1'>
                   <View 
                     style={{width: `${teamStats?.goals / (teamStats?.goals + teamStats?.goalAgainst) * 100}%`}} 
-                    className='bg-green-700 rounded-l-lg h-8 self-start justify-center'
+                    className='border border-green-400 rounded-l-lg h-8 self-start justify-center'
                   >
                       <Text className='text-white text-sm font-bold pl-3'>{teamStats?.gfpg} for</Text>
                   </View>
-                  <View className='bg-red-800 rounded-r-lg flex-1 h-8 self-start justify-center'>
+                  <View className='border-red-500 border rounded-r-lg flex-1 h-8 self-start justify-center'>
                       <Text className='text-white text-sm font-bold self-end pr-3'>{teamStats?.gapg} against</Text>
                   </View>
                 </View>
               </View>
 
-              <TouchableOpacity className='w-full bg-neutral-800 p-4 rounded-lg mb-2 flex-row justify-between items-center' onPress={() => setShowRoster(true)}>
+              <TouchableOpacity className='w-full bg-neutral-900 p-4 rounded-lg mb-2 flex-row justify-between items-center' onPress={() => setShowRoster(true)}>
                 <Text className='text-white text-xl font-bold'>Roster</Text>
                 <MaterialCommunityIcons name="dots-grid" size={28} color="white" />
               </TouchableOpacity>
@@ -407,7 +409,7 @@ const TeamInfoScreen = () => {
                 onRequestClose={() => setShowRoster(false)}
               >
                 <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.2)'}}>
-                  <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
+                  <View className="items-center h-full w-full bg-neutral-900 rounded-t-2xl elevation-lg shadow-black">
                     <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
                       <Text className="text-white text-lg font-bold">Roster</Text>
                       <TouchableOpacity onPress={() => setShowRoster(false)} className='pl-5 h-full items-center justify-center'>
@@ -420,7 +422,7 @@ const TeamInfoScreen = () => {
                         {(roster?.forwards ?? []).map((player, index) => (
                           <TouchableOpacity 
                           key={index} 
-                          className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'
+                          className='my-1 px-3 py-2 flex-row justify-between bg-neutral-800 rounded-lg'
                           onPress={() => {
                             const selected = {id: player.id, abbr: params.abbr};
                             setShowStats(true);
@@ -434,7 +436,7 @@ const TeamInfoScreen = () => {
                         {(roster?.defensemen ?? []).map((player, index) => (
                           <TouchableOpacity 
                           key={index} 
-                          className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'
+                          className='my-1 px-3 py-2 flex-row justify-between bg-neutral-800 rounded-lg'
                           onPress={() => {
                             const selected = {id: player.id, abbr: params.abbr};
                             setShowStats(true);
@@ -448,7 +450,7 @@ const TeamInfoScreen = () => {
                         {(roster?.goalies ?? []).map((player, index) => (
                           <TouchableOpacity 
                           key={index} 
-                          className='my-1 px-3 py-2 flex-row justify-between bg-neutral-900 rounded-lg'
+                          className='my-1 px-3 py-2 flex-row justify-between bg-neutral-800 rounded-lg'
                           onPress={() => {
                             const selected = {id: player.id, abbr: params.abbr};
                             setShowStats(true);
@@ -471,13 +473,25 @@ const TeamInfoScreen = () => {
 
           <LinearGradient
             colors={['transparent', 'black']}
-            locations={[0.25, 0.85]} 
+            locations={[0, 1]} 
             style={{
               position: 'absolute',
-              bottom: -1,
+              bottom: height * 0.05,
               left: 0,
               right: 0,
-              height: height * 0.12,
+              height: height * 0.03,
+            }}
+            pointerEvents="none" 
+          />
+          <LinearGradient
+            colors={['black', 'transparent']}
+            locations={[0, 1]} 
+            style={{
+              position: 'absolute',
+              top: height * 0.12,
+              left: 0,
+              right: 0,
+              height: height * 0.03,
             }}
             pointerEvents="none" 
           />

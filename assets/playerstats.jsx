@@ -81,7 +81,7 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
     : playerStats?.featuredStats?.playoffs?.subSeason
 
     return (
-      <View className="bg-neutral-900 rounded-xl mt-2 justify-between">
+      <View className="bg-neutral-800 rounded-xl mt-2 justify-between">
         <View className="w-full border-b border-neutral-700 py-4 px-5 items-center justify-between flex-row">
           <Text className="text-white text-lg font-medium">{head}</Text>
           <Pressable 
@@ -121,7 +121,7 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
   return (
     <Modal animationType="slide" transparent={true} visible={showStats} onRequestClose={() => setShowStats(false)}>
       <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.2)'}}>
-        <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl">
+        <View className="items-center h-5/6 w-full bg-neutral-900 rounded-t-2xl">
           <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
             <Text className="text-white text-lg font-bold">Player Stats</Text>
             <TouchableOpacity onPress={() => setShowStats(false)} className='pl-5 h-full items-center justify-center'>
@@ -135,7 +135,7 @@ const PlayerStats = ({showStats, setShowStats, playerId, abbr }) => {
             </View>
           ) : (
             <ScrollView className="w-full px-3 flex-1" showsVerticalScrollIndicator={false}>
-              <View className="rounded-xl bg-neutral-900 mt-4">
+              <View className="rounded-xl bg-neutral-800 mt-4">
                 <View className="gap-5 flex-row items-center rounded-t-xl justify-between mb-3 py-3 px-5" style={{backgroundColor: colors[abbr ? abbr : '#171717']}}>
                   <View className="flex-row gap-5">
                     <View className="h-20 w-20 rounded-full overflow-hidden">

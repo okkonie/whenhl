@@ -3,6 +3,7 @@ import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Localization from 'expo-localization';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Text, TouchableOpacity, View } from 'react-native';
@@ -10,6 +11,7 @@ import colors from '../assets/colors';
 import teamLogos from '../assets/logos';
 import GameInfo from './gameinfo';
 import './global.css';
+
 
 const {width, height} = Dimensions.get('window')
 
@@ -23,7 +25,7 @@ const Home = () => {
   const [playoffsOn, setPlayoffsOn] = useState(false);
   const [startDates, setStartDates] = useState({});
   const [playOffsVisible, setPlayoffsVisible] = useState(false);
-  
+
   useFocusEffect(
     React.useCallback(() => {
       const loadFavorites = async () => {
@@ -58,8 +60,8 @@ const Home = () => {
 
     return formattedTime.replace(/^0/, ''); 
   };
-
   const convertToLocalDate = (utcDateString) => {
+
     const localDate = new Date(utcDateString);
     const now = new Date();
 
@@ -70,9 +72,26 @@ const Home = () => {
     const oneDay = 24 * 60 * 60 * 1000;
     const diffDays = Math.round((target - today) / oneDay);
 
-    if (diffDays === 0) return 'Today';
-    if (diffDays === -1) return 'Yesterday';
-    if (diffDays === 1) return 'Tomorrow';
+    const todaystr = 
+      Localization.getLocales()[0].languageCode === 'fi' ? 'tänään'
+      : Localization.getLocales()[0].languageCode === 'fr' ? "aujourd'hui"
+      : Localization.getLocales()[0].languageCode === 'sv' ? 'i dag' 
+      : 'today'
+
+    const tomorrow = 
+      Localization.getLocales()[0].languageCode === 'fi' ? 'huomenna'
+      : Localization.getLocales()[0].languageCode === 'fr' ? 'demain'
+      : Localization.getLocales()[0].languageCode === 'sv' ? 'i morgon' 
+      : 'tomorrow'
+    const yesterday =  
+      Localization.getLocales()[0].languageCode === 'fi' ? 'eilen'
+      : Localization.getLocales()[0].languageCode === 'fr' ? 'hier'
+      : Localization.getLocales()[0].languageCode === 'sv' ? 'i går'
+      : 'yesterday'
+
+    if (diffDays === 0) return todaystr;
+    if (diffDays === -1) return yesterday;
+    if (diffDays === 1) return tomorrow;
 
     const formattedDate = new Intl.DateTimeFormat('default', {
       weekday: 'short',
@@ -118,7 +137,9 @@ const Home = () => {
               awayScore: game.awayTeam?.score ?? null,
               period: game.periodDescriptor?.periodType ?? null,
               homeAbbrev: game.homeTeam?.abbrev ?? null,
+              homeFullName: game.homeTeam?.placeName.default + ' ' + game.homeTeam?.commonName?.default ?? null,
               homeName: game.homeTeam?.commonName?.default ?? null,
+              awayFullName: game.awayTeam?.placeName.default + ' ' + game.awayTeam?.commonName?.default ?? null,
               awayName: game.awayTeam?.commonName?.default ?? null,
               awayAbbrev: game.awayTeam?.abbrev ?? null,
               gameNumber: game.seriesStatus?.gameNumberOfSeries,
@@ -199,33 +220,7 @@ const Home = () => {
   }).filter(section => section.data.length > 0);
   
   return (
-    <View className="bg-black flex-1">
-      <View className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 pb-3 w-full h-32 items-end top-0'>
-        <TouchableOpacity 
-          onPress={async () => {const newValue = !showFavorites; setShowFavorites(newValue); await AsyncStorage.setItem('showFavorites', JSON.stringify(newValue))}}
-          className='items-center gap-2 w-1/5'
-        > 
-          <AntDesign name={showFavorites ? 'star' : 'staro'} color={showFavorites ? 'gold' : 'white'} size={height * 0.026} />
-          <Text className='text-xs text-white font-extrabold'>favorites</Text>
-        </TouchableOpacity>
-
-        {playoffsOn && 
-          <TouchableOpacity onPress={() => setPlayoffsVisible(true)} className='items-center gap-2  w-1/5'> 
-            <AntDesign name='Trophy' color='white'  size={height * 0.026} />
-            <Text className='text-xs text-white font-extrabold'>playoffs</Text>
-          </TouchableOpacity>}
-        
-        <TouchableOpacity onPress={() => startDates.previous && fetchGames(startDates.previous)} className='items-center gap-2  w-1/5 '> 
-          <AntDesign name='arrowleft' color={startDates.previous ? 'white' : 'grey'}  size={height * 0.026} />
-          <Text className='text-xs text-white font-extrabold'>previous</Text>
-        </TouchableOpacity>
-          
-        <TouchableOpacity onPress={() => startDates.next && fetchGames(startDates.next)} className='items-center gap-2  w-1/5'> 
-          <AntDesign name='arrowright' color={startDates.next ? 'white' : 'grey'}  size={height * 0.026} />
-          <Text className='text-xs text-white font-extrabold'>next</Text>
-        </TouchableOpacity>
-      </View>
-
+    <View className='bg-black flex-1'>
       {loading ? (
         <View className="flex-1 justify-center align-center gap-5">
           <ActivityIndicator size='small' color='white'/>
@@ -293,19 +288,19 @@ const Home = () => {
                               />
                             </View>
                             {item.gameState === "OFF" || item.gameState === "FINAL" ? (
-                              <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                              <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-900 rounded-b-xl">
                                 <Text className="text-white font-black text-xl">{item.homeScore}</Text>
                                 <Text className="text-xs text-neutral-400 font-bold mt-1">{item.period}</Text>
                                 <Text className="text-white font-black text-xl">{item.awayScore}</Text>
                               </View>
                             ) : item.gameState === "LIVE" ? (
-                              <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                              <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-900 rounded-b-xl">
                                 <Text className="text-white font-black text-xl">{item.homeScore}</Text>
                                 <Text className="text-white font-extrabold text-xs rounded-md text-center px-2 py-1 bg-red-800">LIVE</Text>
                                 <Text className="text-white font-black text-xl">{item.awayScore}</Text>
                               </View>
                             ) : (
-                              <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-800 rounded-b-xl">
+                              <View className="justify-evenly w-full py-3 items-center flex-row bg-neutral-900 rounded-b-xl">
                                 
                                 {item.homeOdds && item.awayOdds && (
                                 <Text 
@@ -337,26 +332,66 @@ const Home = () => {
             ListEmptyComponent={
               <Text className="text-white font-medium text-lg text-center pt-8">no games found 🙁</Text>
             }
-            ListHeaderComponent={<View style={{ height: height * 0.01 }} />}
-            ListFooterComponent={<View style={{ height: height * 0.08 }} />}
+            ListHeaderComponent={<View style={{ height: height * 0.07 }} />}
+            ListFooterComponent={<View style={{ height: height * 0.16 }} />}
             bounces={false}
           />
           )}
 
           <LinearGradient
             colors={['transparent', 'black']}
-            locations={[0.25, 0.85]} 
+            locations={[0, 1]} 
             style={{
               position: 'absolute',
-              bottom: -1,
+              bottom: height * 0.12,
               left: 0,
               right: 0,
-              height: height * 0.12,
+              height: height * 0.03,
+            }}
+            pointerEvents="none" 
+          />
+          <LinearGradient
+            colors={['black', 'transparent']}
+            locations={[0, 1]} 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: height * 0.07,
             }}
             pointerEvents="none" 
           />
         </>
       )}
+      <View 
+        className='bg-neutral-900 rounded-t-3xl flex-row justify-evenly z-50 w-full self-center items-center absolute border-b border-neutral-500' 
+        style={{bottom: height * 0.07, height: height * 0.07}}
+      >
+        <TouchableOpacity 
+          onPress={async () => {const newValue = !showFavorites; setShowFavorites(newValue); await AsyncStorage.setItem('showFavorites', JSON.stringify(newValue))}}
+          className='items-center w-1/5'
+        > 
+          <AntDesign name={showFavorites ? 'star' : 'staro'} color={showFavorites ? 'gold' : 'white'} size={height * 0.023} />
+          <Text className='text-xs text-white font-bold'>favorites</Text>
+        </TouchableOpacity>
+
+        {playoffsOn && 
+          <TouchableOpacity onPress={() => setPlayoffsVisible(true)} className='items-center  w-1/5'> 
+            <AntDesign name='Trophy' color='white'  size={height * 0.023} />
+            <Text className='text-xs text-white font-bold'>playoffs</Text>
+          </TouchableOpacity>}
+        
+        <TouchableOpacity onPress={() => startDates.previous && fetchGames(startDates.previous)} className='items-center w-1/5 '> 
+          <AntDesign name='arrowleft' color={startDates.previous ? 'white' : 'grey'}  size={height * 0.023} />
+          <Text className='text-xs text-white font-bold'>previous</Text>
+        </TouchableOpacity>
+          
+        <TouchableOpacity onPress={() => startDates.next && fetchGames(startDates.next)} className='items-center w-1/5'> 
+          <AntDesign name='arrowright' color={startDates.next ? 'white' : 'grey'}  size={height * 0.023} />
+          <Text className='text-xs text-white font-bold'>next</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

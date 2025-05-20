@@ -1,6 +1,7 @@
 import PlayerStats from '@/assets/playerstats';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import colors from '../assets/colors';
@@ -189,7 +190,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
           setSelectedPlayer(selected);
         }}
       >
-        <View className='p-1 rounded-xl justify-between flex-row items-center bg-neutral-900 gap-3'>
+        <View className='p-1 rounded-xl justify-between flex-row items-center bg-neutral-800 gap-3'>
           <View className='rounded-lg overflow-hidden h-14 w-14' style={{backgroundColor: colors[team]}}>
             <Image 
               style={{width: '100%', height: '100%', contentFit: 'contain'}}
@@ -209,7 +210,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
     <>
     <Modal animationType="slide" transparent={true} visible={showGame} onRequestClose={() => setShowGame(false)}>
       <View className="flex-1 justify-end items-center" style={{backgroundColor: 'rgba(0,0,0,0.2)'}}>
-        <View className="items-center h-5/6 w-full bg-neutral-800 rounded-t-2xl elevation-lg shadow-black">
+        <View className="items-center h-5/6 w-full bg-neutral-900 rounded-t-2xl elevation-lg shadow-black">
           <View className='items-center justify-between flex-row w-full px-5 h-16 border-b border-neutral-400'>
             <Text className="text-white text-lg font-bold">
               {selectedGame?.gameNumber && selectedGame?.seriesLeader && selectedGame?.seriesScore 
@@ -229,10 +230,17 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
               <View className="flex-row justify-between w-full border-b border-neutral-500 py-4">
-                <View className="items-center px-4 pb-1 rounded-xl w-1/3 ml-3" style={{backgroundColor: colors[selectedGame?.homeAbbrev]}}>
+                <TouchableOpacity 
+                  className="items-center px-4 pb-1 rounded-xl w-1/3 ml-3" 
+                  style={{backgroundColor: colors[selectedGame?.homeAbbrev]}}
+                  onPress={() => {
+                    router.push({ pathname: 'teams/teaminfo', 
+                    params: { abbr: selectedGame.homeAbbrev, name: selectedGame.homeFullName }
+                  })}}
+                >
                   <Image source={teamLogos[selectedGame?.homeAbbrev] || teamLogos.DEFAULT} style={{width: width * 0.16, height: width * 0.16, contentFit: 'contain'}} />
                   <Text className='text-white font-medium text-sm'>{selectedGame?.homeName}</Text>
-                </View>
+                </TouchableOpacity>
                 {selectedGame?.gameState !== 'FUT' ? (
                   <View className="flex-col items-center justify-center gap-2">
                     <Text className='text-white font-extrabold text-2xl'>{gameInfo.homeScore} - {gameInfo.awayScore}</Text>
@@ -244,10 +252,17 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                     <Text className='text-neutral-400 font-bold text-sm'>{selectedGame?.localDate}</Text>
                   </View>
                 )}
-                <View className="items-center px-4 pb-1 rounded-xl w-1/3 mr-3" style={{backgroundColor: colors[selectedGame?.awayAbbrev]}}>
+                <TouchableOpacity 
+                  className="items-center px-4 pb-1 rounded-xl w-1/3 mr-3" 
+                  style={{backgroundColor: colors[selectedGame?.awayAbbrev]}}
+                  onPress={() => {
+                    router.push({ pathname: 'teams/teaminfo', 
+                    params: { abbr: selectedGame.awayAbbrev, name: selectedGame.awayFullName }
+                  })}}
+                >
                   <Image source={teamLogos[selectedGame?.awayAbbrev] || teamLogos.DEFAULT} style={{width: width * 0.16, height: width * 0.16, contentFit: 'contain'}} />
                   <Text className='text-white font-medium text-sm'>{selectedGame?.awayName}</Text>
-                </View>
+                </TouchableOpacity>
               </View>
 
               <View className="flex-1">
@@ -259,11 +274,11 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                       <Text className="text-white font-extrabold text-md">SOG</Text>
                       <Text className="text-white font-extrabold text-lg">{gameInfo.awaySOG}</Text>
                     </View>
-                    <View className="flex-1 px-5 py-4">
+                    <View className="flex-1 px-3 py-4">
                       {gameInfo.allEvents && (
                         gameInfo.allEvents.map((event, index) => (
                           <>
-                            <View key={index} className='w-full flex-row py-2 px-3 bg-neutral-900 rounded-lg'>
+                            <View key={index + "p"} className='w-full flex-row py-2 px-3 rounded-lg border bg-neutral-950'>
                               <Text className='text-white font-bold text-md'>
                                 {event.type === 'REG' ? 'period ' + event.period : event.type}
                               </Text>

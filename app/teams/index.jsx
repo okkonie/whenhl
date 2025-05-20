@@ -16,7 +16,7 @@ const Teams = () => {
   const [teams, setTeams] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortingCriteria, setSortingCriteria] = useState('conference');
+  const [sortingCriteria, setSortingCriteria] = useState('Conference');
   const router = useRouter();
 
   useEffect(() => {
@@ -114,7 +114,7 @@ const Teams = () => {
   
     return (
       <View className="px-4">
-        <Pressable className="w-full bg-neutral-800 rounded-lg py-1.5 ps-6 pe-2 mb-1.5 flex-row justify-between items-center" onPress={() => goToTeamInfo(item)}>
+        <Pressable className="w-full bg-neutral-900 rounded-lg py-1.5 ps-6 pe-2 mb-1.5 flex-row justify-between items-center" onPress={() => goToTeamInfo(item)}>
           <View className="flex-1 items-center flex-row justify-start gap-2">
             <Text className="text-white font-medium text-lg">{index + 1}.</Text>  
             <Image
@@ -149,22 +149,41 @@ const Teams = () => {
   };
 
   const renderSectionHeader = ({ section: { title } }) => (
-    <Text className="text-white font-bold text-xl pl-6 pt-4 pb-2 border-t border-neutral-800">{title}</Text>
+    <Text className="text-white font-bold text-xl pl-6 pt-4 pb-2 mt-2 border-t border-neutral-800">{title}</Text>
   );
 
   return (
     <View className="flex-1 items-center bg-black">
-      <View className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 w-full h-32 items-end top-0 p-5'>
+      <View
+        className='bg-neutral-900 rounded-t-3xl flex-row absolute border-b border-neutral-500 p-3 z-50 w-full px-5 justify-between items-center'
+        style={{bottom: height * 0.07 , height: height * 0.06}}
+      > 
         <TouchableOpacity
-          className="flex-row justify-between w-full items-center py-2 px-4 border-neutral-500 border rounded-xl"
+          className={`w-1/3 h-full justify-center items-center rounded-full border-green-500 ${sortingCriteria === 'All Teams' && 'border-2 border-green-500}'}`}
           onPress={async () => {
-            const nextSort = sortingCriteria === 'All Teams' ? 'Conference' : sortingCriteria === 'Conference' ? 'Division' : 'All Teams';
-            setSortingCriteria(nextSort);
-            await AsyncStorage.setItem(SORTING_KEY, nextSort);
+            setSortingCriteria('All Teams');
+            await AsyncStorage.setItem(SORTING_KEY, 'All Teams');
           }}
-        > 
-          <Text className="text-md text-white font-bold">sort by</Text>
-          <Text className="text-md text-white font-bold">{sortingCriteria}</Text>
+        >
+          <Text className="text-xs text-white font-bold">All Teams</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          className={`w-1/3 h-full justify-center items-center rounded-full border-green-500 ${sortingCriteria === 'Conference' && 'border-2 border-green-500}'}`}
+          onPress={async () => {
+            setSortingCriteria('Conference');
+            await AsyncStorage.setItem(SORTING_KEY, 'Conference');
+          }}
+        >
+          <Text className="text-xs text-white font-bold">Conference</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          className={`w-1/3 h-full justify-center items-center rounded-full border-green-500 ${sortingCriteria === 'Division' && 'border-2 border-green-500}'}`}
+          onPress={async () => {
+            setSortingCriteria('Division');
+            await AsyncStorage.setItem(SORTING_KEY, 'Division');
+          }}
+        >
+          <Text className="text-xs text-white font-bold">Division</Text>
         </TouchableOpacity>
       </View>
 
@@ -181,18 +200,31 @@ const Teams = () => {
             renderItem={renderItem}
             renderSectionHeader={renderSectionHeader}
             ListEmptyComponent={<Text className="text-white text-md font-bold mt-8">No teams found</Text>}
-            ListFooterComponent={<View style={{ height: height * 0.08 }} />}
+            ListHeaderComponent={<View style={{ height: height * 0.06 }} />}
+            ListFooterComponent={<View style={{ height: height * 0.15 }} />}
             showsVerticalScrollIndicator={false}
           />
           <LinearGradient
             colors={['transparent', 'black']}
-            locations={[0.25, 0.85]} 
+            locations={[0, 1]} 
             style={{
               position: 'absolute',
-              bottom: -1,
+              bottom: height * 0.11,
               left: 0,
               right: 0,
-              height: height * 0.12,
+              height: height * 0.03,
+            }}
+            pointerEvents="none" 
+          />
+          <LinearGradient
+            colors={['black', 'transparent']}
+            locations={[0, 1]} 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: height * 0.07,
             }}
             pointerEvents="none" 
           />

@@ -91,7 +91,7 @@ const players = () => {
     const abbr = item.lastTeamAbbrev
 
     return (
-      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-800 w-full px-5 py-1 mb-1 rounded-md h-10"
+      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-900 w-full px-5 py-1 mb-1 rounded-md h-10"
         onPress={() => {
           const selected = {id: item.playerId, abbr: item.lastTeamAbbrev};
           setShowStats(true);
@@ -120,7 +120,7 @@ const players = () => {
   const renderTopItem = ({ item, index }) => {
     const abbr = item.teamAbbrev
     return (
-      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-800 w-full px-5 py-1 mb-1 rounded-md h-10"
+      <TouchableOpacity className="justify-between items-center flex-row bg-neutral-900 w-full px-5 py-1 mb-1 rounded-md h-10"
         onPress={() => {
           const selected = {id: item.id, abbr: item.teamAbbrev};
           setShowStats(true);
@@ -157,7 +157,11 @@ const players = () => {
   return (
     <View className="flex-1 items-center bg-black">
 
-      <View className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 pb-3 w-full h-32 items-end px-3'>
+      <View 
+        className='bg-neutral-900 rounded-b-3xl flex-row justify-evenly z-50 pb-3 w-full items-end px-4'
+        style={{height: height * 0.13}}
+
+      >
         {searching ? (
           <View className="items-center flex-row h-14 w-full">
             <TextInput 
@@ -185,13 +189,13 @@ const players = () => {
         ) : (
           <View className="items-center flex-row w-full h-14 justify-between">
             <View className="flex-row flex-1 px-2 h-full items-center justify-between">
-              <Pressable className={`bg-neutral-700 rounded-md w-[20%] h-3/4 p-1`} onPress={() => setSkaterOn(!skaterOn)} style={{justifyContent: skaterOn ? 'flex-start' : 'flex-end'}}>
+              <Pressable className={`bg-neutral-800 rounded-md w-[20%] h-3/4 p-1`} onPress={() => setSkaterOn(!skaterOn)} style={{justifyContent: skaterOn ? 'flex-start' : 'flex-end'}}>
                 <View className="items-center justify-center bg-green-400 h-3/4 rounded-md p-1">
                   <Text className={'text-neutral-900 font-bold text-xs w-full text-center'}>{skaterOn ? 'skater' : 'goalie'}</Text>
                 </View>
               </Pressable>
               <TouchableOpacity
-                className='w-[38%] bg-neutral-700 rounded-md h-3/4 py-1 px-2'
+                className='w-[38%] bg-neutral-800 rounded-md h-3/4 py-1 px-2'
                 onPress={() => setCategoryModalVisible(true)}
               >
                 <Text className='text-white font-medium text-xs'>category:</Text>
@@ -203,7 +207,7 @@ const players = () => {
                 modalVisible={categoryModalVisible} setModalVisible={setCategoryModalVisible}
               />
               <TouchableOpacity
-                className='w-[38%] bg-neutral-700 rounded-md h-3/4 py-1 px-2'
+                className='w-[38%] bg-neutral-800 rounded-md h-3/4 py-1 px-2'
                 onPress={() => setSeasonModalVisible(true)}
               >
                 <Text className={`text-white  ${season.key === 'current' ? 'text-xs font medium' : 'text-sm font-bold'}`}>{season.key === 'current' ? 'season:' : season.label.slice(0,7)}</Text>
@@ -216,7 +220,6 @@ const players = () => {
             <TouchableOpacity className="px-3" onPress={() => setSearching(!searching)}>
               <Ionicons name='search' size={24} color='white' />
             </TouchableOpacity>
-            
           </View>
         )}
       </View>
@@ -232,7 +235,7 @@ const players = () => {
           showsVerticalScrollIndicator={false}
           data={searching ? results : getWhatStats()}
           keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-          ListHeaderComponent={<View  style={{height: height * 0.02}}/>}
+          ListHeaderComponent={<View  style={{height: height * 0.01}}/>}
           ListFooterComponent={<View  style={{height: height * 0.08}}/>}
           renderItem={searching ? renderItem : renderTopItem}
         />
@@ -242,13 +245,25 @@ const players = () => {
       
       <LinearGradient
         colors={['transparent', 'black']}
-        locations={[0.25, 0.85]} 
+        locations={[0, 1]} 
         style={{
           position: 'absolute',
-          bottom: -1,
+          bottom: height * 0.05,
           left: 0,
           right: 0,
-          height: height * 0.12,
+          height: height * 0.03,
+        }}
+        pointerEvents="none" 
+      />
+      <LinearGradient
+        colors={['black', 'transparent']}
+        locations={[0, 1]} 
+        style={{
+          position: 'absolute',
+          top: height * 0.11,
+          left: 0,
+          right: 0,
+          height: height * 0.03,
         }}
         pointerEvents="none" 
       />
