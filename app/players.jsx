@@ -248,19 +248,19 @@ const players = () => {
         locations={[0, 1]} 
         style={{
           position: 'absolute',
-          bottom: height * 0.05,
+          bottom: height * 0.065,
           left: 0,
           right: 0,
-          height: height * 0.03,
+          height: height * 0.01,
         }}
         pointerEvents="none" 
       />
       <LinearGradient
         colors={['black', 'transparent']}
-        locations={[0, 1]} 
+        locations={[0.25, 0.7]} 
         style={{
           position: 'absolute',
-          top: height * 0.11,
+          top: height * 0.12,
           left: 0,
           right: 0,
           height: height * 0.03,

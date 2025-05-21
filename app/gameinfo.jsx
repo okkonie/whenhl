@@ -229,11 +229,12 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
               </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
-              <View className="flex-row justify-between w-full border-b border-neutral-500 py-4">
+              <View className="flex-row justify-between w-full border-b border-neutral-700 py-4">
                 <TouchableOpacity 
                   className="items-center px-4 pb-1 rounded-xl w-1/3 ml-3" 
                   style={{backgroundColor: colors[selectedGame?.homeAbbrev]}}
                   onPress={() => {
+                    setShowGame(false);
                     router.push({ pathname: 'teams/teaminfo', 
                     params: { abbr: selectedGame.homeAbbrev, name: selectedGame.homeFullName }
                   })}}
@@ -256,6 +257,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                   className="items-center px-4 pb-1 rounded-xl w-1/3 mr-3" 
                   style={{backgroundColor: colors[selectedGame?.awayAbbrev]}}
                   onPress={() => {
+                    setShowGame(false);
                     router.push({ pathname: 'teams/teaminfo', 
                     params: { abbr: selectedGame.awayAbbrev, name: selectedGame.awayFullName }
                   })}}
@@ -266,10 +268,9 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
               </View>
 
               <View className="flex-1">
-
                 {selectedGame?.gameState !== 'FUT' ? (
                   <View className="flex-1">
-                    <View className="flex-row items-center justify-between w-full py-3 px-7 border-b border-neutral-500">
+                    <View className="flex-row items-center justify-between w-full py-3 px-7 border-b border-neutral-700">
                       <Text className="text-white font-extrabold text-lg">{gameInfo.homeSOG}</Text>
                       <Text className="text-white font-extrabold text-md">shots on goal</Text>
                       <Text className="text-white font-extrabold text-lg">{gameInfo.awaySOG}</Text>
@@ -278,7 +279,7 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                       {gameInfo.allEvents && (
                         gameInfo.allEvents.map((event, index) => (
                           <>
-                            <View key={index + "p"} className='w-full flex-row py-2 px-3 rounded-lg border bg-neutral-950'>
+                            <View key={index + "p"} className='w-full flex-row py-1 px-3 rounded-md bg-neutral-800'>
                               <Text className='text-white font-bold text-md'>
                                 {event.type === 'REG' ? 'period ' + event.period : event.type}
                               </Text>
@@ -321,14 +322,15 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                 ) : (
 
                   <View>
-                    <View className="flex-row items-center justify-between w-full py-3 px-7 border-b border-neutral-500">
-                      <Text className="text-white font-extrabold text-lg">{gameInfo.homeRec}</Text>
-                      <Text className="text-white font-extrabold text-md">record</Text>
-                      <Text className="text-white font-extrabold text-lg">{gameInfo.awayRec}</Text>
+
+                    <View className="flex-row items-center justify-between w-full py-4 px-7 border-b border-neutral-700">
+                      <Text className="text-white font-bold text-md">{gameInfo.homeRec}</Text>
+                      <Text className="text-white font-bold text-md">record</Text>
+                      <Text className="text-white font-bold text-md">{gameInfo.awayRec}</Text>
                     </View>
                   
                     {gameInfo.skaterLeaders && (
-                      <View className="flex-col items-center justify-between w-full py-3 px-3 border-b border-neutral-500">
+                      <View className="flex-col items-center justify-between w-full py-3 px-3 border-b border-neutral-700">
                         <Text className="text-white w-full font-bold text-md my-2 pl-2">Team leaders</Text>
                         <View className="flex-col w-full justify-between">
                           {gameInfo.skaterLeaders.map((category, index) =>
@@ -347,15 +349,16 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                     )}
 
                     {selectedGame?.homeOdds && (
-                      <View className="flex-row items-center justify-between w-full py-3 px-7 border-b border-neutral-500">
-                        <Text className="text-white font-extrabold text-sm">{selectedGame.homeOdds}</Text>
-                        <Text className="text-white font-extrabold text-sm">odds</Text>
-                        <Text className="text-white font-extrabold text-sm">{selectedGame.awayOdds}</Text>
+                      <View className="flex-row items-center justify-between w-full py-4 px-7 border-b border-neutral-700">
+                        <Text className="text-white font-bold text-md">{selectedGame.homeOdds}</Text>
+                        <Text className="text-white font-bold text-sm">odds</Text>
+                        <Text className="text-white font-bold text-md">{selectedGame.awayOdds}</Text>
                       </View>
                     )}
-                    <View className="flex-row items-center justify-between w-full py-3 px-7 border-b border-neutral-500">
-                      <Text className="text-white font-extrabold text-sm">location:</Text>
-                      <Text className="text-white font-extrabold text-sm">{gameInfo.venue}</Text>
+
+                    <View className="flex-row items-center justify-between w-full py-4 px-7 border-b border-neutral-700">
+                      <Text className="text-white font-bold text-sm">location:</Text>
+                      <Text className="text-white font-bold text-sm">{gameInfo.venue}</Text>
                     </View>
 
                   </View>

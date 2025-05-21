@@ -60,6 +60,7 @@ const Home = () => {
 
     return formattedTime.replace(/^0/, ''); 
   };
+
   const convertToLocalDate = (utcDateString) => {
 
     const localDate = new Date(utcDateString);
@@ -333,7 +334,7 @@ const Home = () => {
               <Text className="text-white font-medium text-lg text-center pt-8">no games found 🙁</Text>
             }
             ListHeaderComponent={<View style={{ height: height * 0.07 }} />}
-            ListFooterComponent={<View style={{ height: height * 0.16 }} />}
+            ListFooterComponent={<View style={{ height: height * 0.15 }} />}
             bounces={false}
           />
           )}
@@ -343,10 +344,10 @@ const Home = () => {
             locations={[0, 1]} 
             style={{
               position: 'absolute',
-              bottom: height * 0.12,
+              bottom: height * 0.065,
               left: 0,
               right: 0,
-              height: height * 0.03,
+              height: height * 0.095,
             }}
             pointerEvents="none" 
           />
@@ -365,8 +366,8 @@ const Home = () => {
         </>
       )}
       <View 
-        className='bg-neutral-900 rounded-t-3xl flex-row justify-evenly z-50 w-full self-center items-center absolute' 
-        style={{bottom: height * 0.07, height: height * 0.07}}
+        className='bg-neutral-900 rounded-full flex-row justify-evenly z-50 w-11/12 self-center items-center absolute' 
+        style={{bottom: height * 0.075, height: height * 0.065}}
       >
         <TouchableOpacity 
           onPress={async () => {const newValue = !showFavorites; setShowFavorites(newValue); await AsyncStorage.setItem('showFavorites', JSON.stringify(newValue))}}
