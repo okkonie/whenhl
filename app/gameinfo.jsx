@@ -322,7 +322,6 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                 ) : (
 
                   <View>
-
                     <View className="flex-row items-center justify-between w-full py-4 px-7 border-b border-neutral-700">
                       <Text className="text-white font-bold text-md">{gameInfo.homeRec}</Text>
                       <Text className="text-white font-bold text-md">record</Text>
@@ -360,7 +359,6 @@ const GameInfo = ({ showGame, setShowGame, selectedGame }) => {
                       <Text className="text-white font-bold text-sm">location:</Text>
                       <Text className="text-white font-bold text-sm">{gameInfo.venue}</Text>
                     </View>
-
                   </View>
                 )}
               </View>

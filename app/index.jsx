@@ -12,7 +12,6 @@ import teamLogos from '../assets/logos';
 import GameInfo from './gameinfo';
 import './global.css';
 
-
 const {width, height} = Dimensions.get('window')
 
 const Home = () => {
