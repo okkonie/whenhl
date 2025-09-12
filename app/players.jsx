@@ -56,7 +56,7 @@ const players = () => {
     const fetchResults = async (search) => {
       try {
         setLoading(true)
-        const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=30&q=${search}&active=${active}`);
+        const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=30&q="${search}"&active=${active}`);
         const data = await response.json();
         setResults(data)
       } catch (error) {
@@ -173,7 +173,7 @@ const players = () => {
               onChangeText={setTempText}
               onEndEditing={() => {
                 const formattedText = tempText
-                  .replace(/[^a-zA-Z\s]/g, '') 
+                  .replace(/[^a-zA-Z ]/g, '') 
                 setSearch(formattedText);
               }}
             />
