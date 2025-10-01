@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import "./global.css";
 import { useFonts } from 'expo-font';
 import { Tabs } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -29,7 +30,6 @@ export default function RootLayout() {
     <>
       <StatusBar
         style="light"
-        translucent={true}
         hidden={false}
       />
       <Tabs
@@ -84,12 +84,6 @@ export default function RootLayout() {
                 color={'white'}
               />
             ),
-          }}
-        />
-        <Tabs.Screen
-          name="gameinfo"
-          options={{
-            href: null
           }}
         />
       </Tabs>
