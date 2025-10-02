@@ -2,8 +2,6 @@ import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Game } from "../components/game"
 import { useState, useEffect } from "react";
-import {StatusBar} from 'react-native';
-console.log('statusBarHeight: ', StatusBar.currentHeight);
 
 export default function Index() {
   const [loading, setLoading] = useState(false);
@@ -36,22 +34,27 @@ export default function Index() {
 
 
   return (
-    <SafeAreaView className="flex-1 bg-black p-3" edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#080808' }}>
       {loading ? (
-        <View className="flex-1 items-center justify-center">
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <ActivityIndicator color="#ffffff" />
-          <Text className="text-white mt-2">Loading…</Text>
         </View>
       ) : (
         <FlatList
-          className="flex-1 w-full"
+          style={{
+            flex: 1,
+            height: '100%',
+            width: '100%',
+            padding: 8,
+          }}
           data={games ?? []}
           keyExtractor={(item, index) => item?.id?.toString?.() || item?.gameId?.toString?.() || index.toString()}
           renderItem={({ item, index }) => <Game game={item} index={index} />}
           showsVerticalScrollIndicator={false}
+          ListFooterComponent={<View style={{height: 60}} />}
           ListEmptyComponent={
-            <View className="items-center justify-center py-10">
-              <Text className="text-white/80">No games found for this date.</Text>
+            <View style={{alignItems: 'center', justifyContent: 'center', paddingVertical: 40}}>
+              <Text style={{color: "white", opacity: 0.8}}>No games found for this date.</Text>
             </View>
           }
         />

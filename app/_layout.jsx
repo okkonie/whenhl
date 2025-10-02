@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import "./global.css";
 import { useFonts } from 'expo-font';
 import { Tabs } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -39,7 +38,7 @@ export default function RootLayout() {
           tabBarStyle: {
             borderTopWidth: 1,
             borderColor: '#171717',
-            height: height * 0.065,
+            height: 50,
             position: 'absolute',
             backgroundColor: '#171717',
             width:  width,
