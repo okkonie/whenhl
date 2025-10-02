@@ -46,6 +46,8 @@ export default function Index() {
             height: '100%',
             width: '100%',
             padding: 8,
+            borderTopWidth: 1,
+            borderTopColor: '#1c1c1e'
           }}
           data={games ?? []}
           keyExtractor={(item, index) => item?.id?.toString?.() || item?.gameId?.toString?.() || index.toString()}

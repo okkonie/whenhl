@@ -37,10 +37,10 @@ export default function RootLayout() {
           headerShown: false,
           tabBarStyle: {
             borderTopWidth: 1,
-            borderColor: '#171717',
+            borderColor: '#1c1c1e',
             height: 50,
             position: 'absolute',
-            backgroundColor: '#171717',
+            backgroundColor: '#080808',
             width:  width,
             alignItems: 'center'
           },
