@@ -4,9 +4,6 @@ import { Tabs } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Dimensions } from 'react-native';
-
-const { width, height } = Dimensions.get('window');
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,11 +34,11 @@ export default function RootLayout() {
           headerShown: false,
           tabBarStyle: {
             borderTopWidth: 1,
-            borderColor: '#1c1c1e',
+            borderColor: '#222',
             height: 50,
             position: 'absolute',
-            backgroundColor: '#080808',
-            width:  width,
+            backgroundColor: '#111',
+            width: '100%',
             alignItems: 'center'
           },
         })}
@@ -53,7 +50,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 name={focused ? 'calendar-clear' : 'calendar-clear-outline'}
-                size={height * 0.028}
+                size={25}
                 color={'white'}
               />
             ),
@@ -66,7 +63,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 name={focused ? 'shirt' : 'shirt-outline'}
-                size={height * 0.028}
+                size={25}
                 color={'white'}
               />
             ),
@@ -79,7 +76,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 name={focused ? 'podium' : 'podium-outline'}
-                size={height * 0.028}
+                size={25}
                 color={'white'}
               />
             ),

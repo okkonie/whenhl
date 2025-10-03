@@ -1,21 +1,20 @@
 import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Game } from "../components/game"
+import Game from "../components/game";
+import GameInfo from "../components/gameinfo"; // default export
 import { useState, useEffect } from "react";
 
 export default function Index() {
   const [loading, setLoading] = useState(false);
   const [games, setGames] = useState([]);
+  const [gameVisible, setGameVisible] = useState(false);
+  const [selectedGame, setSelectedGame] = useState("")
 
   const fetchGames = async () => {
 
-    const now = new Date();
-    now.setDate(now.getDate() - 2);
-    const TwodaysAgo = now.toISOString().split('T')[0];
-
     try {
       setLoading(true);
-      const response = await fetch(`https://api-web.nhle.com/v1/schedule/${TwodaysAgo}`);
+      const response = await fetch(`https://api-web.nhle.com/v1/schedule/now`);
       const data = await response.json();
       // Flatten { gameWeek: [{ date, games: [...] }, ...] } => games[]
       const flattened = (data?.gameWeek ?? []).flatMap((d) => d?.games ?? []);
@@ -32,12 +31,16 @@ export default function Index() {
     fetchGames();
   }, []);
 
+  const handleGamePress = (id) => {
+    setGameVisible(true);
+    setSelectedGame(id)
+  }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#080808' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#111' }}>
       {loading ? (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-          <ActivityIndicator color="#ffffff" />
+          <ActivityIndicator color="#fff" />
         </View>
       ) : (
         <FlatList
@@ -45,20 +48,26 @@ export default function Index() {
             flex: 1,
             height: '100%',
             width: '100%',
-            padding: 8,
             borderTopWidth: 1,
-            borderTopColor: '#1c1c1e'
+            borderColor: '#222'
           }}
           data={games ?? []}
           keyExtractor={(item, index) => item?.id?.toString?.() || item?.gameId?.toString?.() || index.toString()}
-          renderItem={({ item, index }) => <Game game={item} index={index} />}
+          renderItem={({ item, index }) => <Game game={item} index={index} onPress={() => handleGamePress(item.id)}/>}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={<View style={{height: 60}} />}
+          ListFooterComponent={<View style={{height: 50}} />}
           ListEmptyComponent={
             <View style={{alignItems: 'center', justifyContent: 'center', paddingVertical: 40}}>
               <Text style={{color: "white", opacity: 0.8}}>No games found for this date.</Text>
             </View>
           }
+        />
+      )}
+      {gameVisible && (
+        <GameInfo
+          visible={gameVisible}
+          gameId={selectedGame}
+          onClose={() => setGameVisible(false)}
         />
       )}
     </SafeAreaView>
