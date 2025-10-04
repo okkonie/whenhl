@@ -1,4 +1,4 @@
-import { Modal, Text, View, TouchableOpacity, StyleSheet } from "react-native";
+import { Modal, Text, View, TouchableOpacity, StyleSheet, FlatList } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { SvgUri } from "react-native-svg";
 import { useEffect, useState } from "react";
@@ -66,11 +66,16 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
             </View>
           </View>
           {game.gameState != 'FUT' && (
-            <View style={s.statsRow}>
-              <Text style={s.statsText}>{gameInfo?.homeTeam?.sog}</Text>
-              <Text style={s.dateLabel}>SOG</Text>
-              <Text style={s.statsText}>{gameInfo?.awayTeam?.sog}</Text>
-            </View>
+            <>
+              <View style={s.statsRow}>
+                <Text style={s.statsText}>{gameInfo?.homeTeam?.sog}</Text>
+                <Text style={s.dateLabel}>SOG</Text>
+                <Text style={s.statsText}>{gameInfo?.awayTeam?.sog}</Text>
+              </View>
+              <FlatList style={s.list}>
+
+              </FlatList>
+            </>
           )}
         </View>
       </View>
@@ -156,4 +161,10 @@ const s = StyleSheet.create({
     fontWeight: 700,
     fontSize: 18
   },
+  list: {
+    flex: 1,
+    width: '100%',
+    borderTopWidth: 1,
+    borderColor: '#222'
+  }
 });
