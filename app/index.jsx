@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Game from "../components/game";
 import GameInfo from "../components/gameinfo"; // default export
@@ -8,10 +8,10 @@ export default function Index() {
   const [loading, setLoading] = useState(false);
   const [games, setGames] = useState([]);
   const [gameVisible, setGameVisible] = useState(false);
-  const [selectedGame, setSelectedGame] = useState("")
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [selectedLabels, setSelectedLabels] = useState({});
 
   const fetchGames = async () => {
-
     try {
       setLoading(true);
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/now`);
@@ -20,56 +20,69 @@ export default function Index() {
       const flattened = (data?.gameWeek ?? []).flatMap((d) => d?.games ?? []);
       setGames(flattened);
     } catch (e) {
-      console.error("Error fetching games", e)
+      console.error("Error fetching games", e);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-
   };
 
   useEffect(() => {
     fetchGames();
   }, []);
 
-  const handleGamePress = (id) => {
+  const handleGamePress = (game, labels) => {
     setGameVisible(true);
-    setSelectedGame(id)
-  }
+    setSelectedGame(game);
+    setSelectedLabels(labels);
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#111' }}>
+    <SafeAreaView style={ s.container }>
       {loading ? (
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={s.loader}>
           <ActivityIndicator color="#fff" />
         </View>
       ) : (
         <FlatList
-          style={{
-            flex: 1,
-            height: '100%',
-            width: '100%',
-            borderTopWidth: 1,
-            borderColor: '#222'
-          }}
+          style={s.list}
           data={games ?? []}
           keyExtractor={(item, index) => item?.id?.toString?.() || item?.gameId?.toString?.() || index.toString()}
-          renderItem={({ item, index }) => <Game game={item} index={index} onPress={() => handleGamePress(item.id)}/>}
+          renderItem={({ item, index }) => (
+            <Game
+              game={item}
+              index={index}
+              onPress={handleGamePress}
+            />
+          )}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={<View style={{height: 50}} />}
-          ListEmptyComponent={
-            <View style={{alignItems: 'center', justifyContent: 'center', paddingVertical: 40}}>
-              <Text style={{color: "white", opacity: 0.8}}>No games found for this date.</Text>
-            </View>
-          }
+          ListFooterComponent={<View style={{ height: 50 }} />}
         />
       )}
       {gameVisible && (
         <GameInfo
           visible={gameVisible}
-          gameId={selectedGame}
+          game={selectedGame}
+          dateLabel={selectedLabels.dateLabel}
+          timeLabel={selectedLabels.timeLabel}
           onClose={() => setGameVisible(false)}
         />
       )}
     </SafeAreaView>
   );
 }
+
+const s = StyleSheet.create({
+  container: {
+    flex: 1, backgroundColor: "#111"
+  },
+  loader: {
+    flex: 1, alignItems: "center", justifyContent: "center"
+  },
+  list :{
+    flex: 1,
+    height: "100%",
+    width: "100%",
+    borderTopWidth: 1,
+    borderColor: "#222",
+  }
+})
