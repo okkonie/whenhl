@@ -12,6 +12,24 @@ export default function Game({ game, onPress, index }) {
     ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
 
+  // Compute styles: only change colors for finished games (not FUT or LIVE)
+  const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE';
+  const homeScoreNum = Number(game?.homeTeam?.score);
+  const awayScoreNum = Number(game?.awayTeam?.score);
+
+  let homeNameStyle = s.teamName;
+  let awayNameStyle = s.teamName;
+  let homeScoreStyle = s.score;
+  let awayScoreStyle = s.score;
+
+  if (isPlayed && !isNaN(homeScoreNum) && !isNaN(awayScoreNum) && homeScoreNum !== awayScoreNum) {
+    const homeIsWinner = homeScoreNum > awayScoreNum;
+    homeNameStyle = [s.teamName, { color: homeIsWinner ? 'white' : '#b0b0b0' }];
+    awayNameStyle = [s.teamName, { color: homeIsWinner ? '#b0b0b0' : 'white' }];
+    homeScoreStyle = [s.score, { color: homeIsWinner ? 'white' : '#b0b0b0' }];
+    awayScoreStyle = [s.score, { color: homeIsWinner ? '#b0b0b0' : 'white' }];
+  }
+
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -23,28 +41,28 @@ export default function Game({ game, onPress, index }) {
         <View>
           <View style={s.teamRow}>
             <SvgUri width={30} height={30} uri={game?.homeTeam?.darkLogo} />
-            <Text style={s.teamName}>{game?.homeTeam?.commonName?.default }</Text>
+            <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default }</Text>
           </View>
           <View style={s.teamRow}>
             <SvgUri width={30} height={30} uri={game?.awayTeam?.darkLogo} />
-            <Text style={s.teamName}>{game?.awayTeam?.commonName?.default }</Text>
+            <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
           </View>
         </View>
         {game.gameState != "FUT" && (
           <View style={s.scoreCol}>
-            <Text style={s.score}>{game?.homeTeam?.score}</Text>
-            <Text style={s.score}>{game?.awayTeam?.score}</Text>
+            <Text style={homeScoreStyle}>{game?.homeTeam?.score}</Text>
+            <Text style={awayScoreStyle}>{game?.awayTeam?.score}</Text>
           </View>
         )}
       </View>
       <View style={s.infoCol}>
-        <Text style={s.dateLabel}>{dateLabel}</Text>
         <Text style={[
           s.stateLabel,
           game.gameState === 'LIVE' && s.liveLabel
         ]}>
-          {game.gameState === 'FUT' ? timeLabel : game.gameState === 'LIVE' ? 'LIVE' : game?.periodDescriptor?.periodType}
+          {game.gameState === 'FUT' ? timeLabel : game.gameState.charAt(0).toUpperCase() + game.gameState.slice(1).toLowerCase()}
         </Text>
+        <Text style={s.dateLabel}>{dateLabel}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -52,7 +70,7 @@ export default function Game({ game, onPress, index }) {
 
 const s = StyleSheet.create({
   container: {
-    paddingVertical: 10,
+    paddingVertical: 15,
     paddingHorizontal: 25,
     borderBottomWidth: 1,
     borderColor: '#222',
@@ -64,7 +82,7 @@ const s = StyleSheet.create({
   row: {
     justifyContent: 'space-between',
     flexDirection: 'row',
-    flex: 1,
+    width: '60%'
   },
   teamRow: {
     flexDirection: 'row',
@@ -86,7 +104,7 @@ const s = StyleSheet.create({
   },
   infoCol: {
     justifyContent: 'space-evenly',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
   dateLabel: {
     color: '#b0b0b0',
@@ -95,13 +113,12 @@ const s = StyleSheet.create({
   stateLabel: {
     color: 'white',
     fontWeight: '600',
-    fontSize: 12,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 5,
-    backgroundColor: '#222',
   },
   liveLabel: {
     backgroundColor: '#e62b1e',
+    fontSize: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 3,
   },
 });

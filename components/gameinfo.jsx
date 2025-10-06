@@ -39,7 +39,7 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
               {
                 game?.gameType === 1 ? 'PRESEASON' 
                 : game?.gameType === 2 ? 'REGULAR SEASON' 
-                : `${game?.seriesStatus?.seriesAbbrev} GAME ${game?.seriesStatus?.gameNumberOfSeries} (${game?.seriesStatus?.topSeedTeamAbbrev} ${game?.seriesStatus?.topSeedWins} - ${game?.seriesStatus?.bottomSeedTeamAbbrev} ${game?.seriesStatus?.bottomSeedWins})` 
+                : `GAME ${game?.seriesStatus?.gameNumberOfSeries} (${game?.seriesStatus?.topSeedTeamAbbrev} ${game?.seriesStatus?.topSeedWins} - ${game?.seriesStatus?.bottomSeedTeamAbbrev} ${game?.seriesStatus?.bottomSeedWins})` 
               }
             </Text>
             <TouchableOpacity activeOpacity={0.7} onPress={onClose} style={s.closeBtn}>
@@ -73,7 +73,22 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
                 <Text style={s.statsText}>{gameInfo?.awayTeam?.sog}</Text>
               </View>
               <FlatList style={s.list}>
-
+                {gameInfo.summary?.scoring?.map((period, i) => (
+                  <View key={i} style={{ marginBottom: 16 }}>
+                    <Text style={{ color: 'white', fontWeight: 'bold', marginBottom: 4 }}>
+                      Period {period.periodDescriptor?.number ?? i + 1} ({period.periodDescriptor?.periodType ?? 'Unknown'})
+                    </Text>
+                    {period.goals.length === 0 ? (
+                      <Text style={{ color: '#b0b0b0' }}>No goals</Text>
+                    ) : (
+                      period.goals.map((goal, j) => (
+                        <Text key={j} style={{ color: 'white', marginBottom: 2 }}>
+                          {goal.firstName?.default} scored ({goal.strength})
+                        </Text>
+                      ))
+                    )}
+                  </View>
+                ))}
               </FlatList>
             </>
           )}
