@@ -37,42 +37,42 @@ export default function Game({ game, onPress, index }) {
       onPress={() => onPress(game, { start, dateLabel, timeLabel })}
       style={s.container}
     >
-      <View style={s.row}>
         <View>
           <View style={s.teamRow}>
-            <SvgUri width={30} height={30} uri={game?.homeTeam?.darkLogo} />
+            <View style={s.svgplace}>
+              <SvgUri width={30} height={30} uri={game?.homeTeam?.darkLogo} />
+            </View>
             <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default }</Text>
           </View>
           <View style={s.teamRow}>
-            <SvgUri width={30} height={30} uri={game?.awayTeam?.darkLogo} />
+            <View style={s.svgplace}>
+              <SvgUri width={30} height={30} uri={game?.awayTeam?.darkLogo} />
+            </View>
             <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
           </View>
         </View>
-        {game.gameState != "FUT" && (
-          <View style={s.scoreCol}>
-            <Text style={homeScoreStyle}>{game?.homeTeam?.score}</Text>
-            <Text style={awayScoreStyle}>{game?.awayTeam?.score}</Text>
-          </View>
-        )}
-      </View>
-      <View style={s.infoCol}>
-        <Text style={[
-          s.stateLabel,
-          game.gameState === 'LIVE' && s.liveLabel
-        ]}>
-          {game.gameState === 'FUT' ? timeLabel : game.gameState.charAt(0).toUpperCase() + game.gameState.slice(1).toLowerCase()}
-        </Text>
-        <Text style={s.dateLabel}>{dateLabel}</Text>
-      </View>
+        <View style={s.infoCol}>
+          {game.gameState == "FUT" ? (
+           <Text style={homeScoreStyle}>{timeLabel}</Text>
+          ) : (
+            <View style={s.scoreCol}>
+              <Text style={homeScoreStyle}>{game?.homeTeam?.score}</Text>
+              <Text style={awayScoreStyle}>{game?.awayTeam?.score}</Text>
+            </View>
+          )}
+        </View>
     </TouchableOpacity>
   );
 }
 
 const s = StyleSheet.create({
   container: {
-    paddingVertical: 15,
-    paddingHorizontal: 25,
-    borderBottomWidth: 1,
+    marginBottom: 10,
+    marginHorizontal: 20,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderColor: '#222',
     backgroundColor: '#111',
     flexDirection: 'row',
@@ -84,6 +84,10 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     width: '60%'
   },
+  svgplace: {
+    width: 30,
+    height: 30,
+  },
   teamRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -91,11 +95,6 @@ const s = StyleSheet.create({
   },
   teamName: {
     color: "white",
-  },
-  scoreCol: {
-    alignItems: 'flex-end',
-    justifyContent: 'space-evenly',
-    minWidth: 30,
   },
   score: {
     color: 'white',

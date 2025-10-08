@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, SectionList, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Game from "../components/game";
 import GameInfo from "../components/gameinfo"; // default export
@@ -21,6 +21,7 @@ export default function Index() {
   });
   const [nextStartDate, setNextStartDate] = useState(null);
   const [previousStartDate, setPreviousStartDate] = useState(null);
+  const [sections, setSections] = useState([]);
 
   const fetchGames = async (date = currentDate) => {
     try {
@@ -30,7 +31,29 @@ export default function Index() {
       // Flatten { gameWeek: [{ date, games: [...] }, ...] } => games[]
       const flattened = (data?.gameWeek ?? []).flatMap((d) => d?.games ?? []);
       setGames(flattened);
-      
+
+      // Group games by client's local date
+      const groups = {};
+      flattened.forEach((g) => {
+        const start = g?.startTimeUTC ? new Date(g.startTimeUTC) : null;
+        let key = 'TBA';
+        let title = 'TBA';
+        if (start && !isNaN(start)) {
+          // local-date key in YYYY-MM-DD
+          const y = start.getFullYear();
+          const m = String(start.getMonth() + 1).padStart(2, '0');
+          const d = String(start.getDate()).padStart(2, '0');
+          key = `${y}-${m}-${d}`;
+          title = start.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'numeric' });
+        }
+        if (!groups[key]) groups[key] = { title, data: [] };
+        groups[key].data.push(g);
+      });
+      const sectionsArray = Object.keys(groups)
+        .sort()
+        .map((k) => groups[k]);
+      setSections(sectionsArray);
+
       setNextStartDate(data?.nextStartDate ?? null);
       setPreviousStartDate(data?.previousStartDate ?? null);
       setCurrentDate(date);
@@ -80,9 +103,9 @@ export default function Index() {
           <ActivityIndicator color="#fff" />
         </View>
       ) : (
-        <FlatList
+        <SectionList
           style={s.list}
-          data={games ?? []}
+          sections={sections}
           keyExtractor={(item, index) => item?.id?.toString?.() || item?.gameId?.toString?.() || index.toString()}
           renderItem={({ item, index }) => (
             <Game
@@ -90,6 +113,11 @@ export default function Index() {
               index={index}
               onPress={handleGamePress}
             />
+          )}
+          renderSectionHeader={({ section: { title } }) => (
+            <View style={s.sectionHeader}>
+              <Text style={s.sectionHeaderText}>{title}</Text>
+            </View>
           )}
           showsVerticalScrollIndicator={false}
           ListFooterComponent={<View style={{ height: 50 }} />}
@@ -133,14 +161,23 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
+  sectionHeader: {
+    paddingHorizontal: 25,
+    paddingTop: 25,
+    paddingBottom: 10,
+    backgroundColor: '#111',
+  },
+  sectionHeaderText: {
+    color: '#b0b0b0',
+    fontSize: 14,
+    fontWeight: '600'
+  },
   loader: {
     flex: 1, alignItems: "center", justifyContent: "center"
   },
   list :{
     flex: 1,
-    height: "100%",
-    width: "100%",
     borderTopWidth: 1,
-    borderColor: "#222",
+    borderColor: "#222"
   }
 })

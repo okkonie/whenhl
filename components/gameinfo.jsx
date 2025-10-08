@@ -1,4 +1,4 @@
-import { Modal, Text, View, TouchableOpacity, StyleSheet, FlatList } from "react-native";
+import { Modal, Text, View, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { SvgUri } from "react-native-svg";
 import { useEffect, useState } from "react";
@@ -72,24 +72,30 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
                 <Text style={s.dateLabel}>SOG</Text>
                 <Text style={s.statsText}>{gameInfo?.awayTeam?.sog}</Text>
               </View>
-              <FlatList style={s.list}>
+              <ScrollView style={s.list}>
                 {gameInfo.summary?.scoring?.map((period, i) => (
-                  <View key={i} style={{ marginBottom: 16 }}>
-                    <Text style={{ color: 'white', fontWeight: 'bold', marginBottom: 4 }}>
-                      Period {period.periodDescriptor?.number ?? i + 1} ({period.periodDescriptor?.periodType ?? 'Unknown'})
+                  <View key={i} style={s.period}>
+                    <Text style={s.periodHead}>
+                      {period.periodDescriptor?.number < 4 ? `PERIOD ${period.periodDescriptor?.number}` : period.periodDescriptor?.periodType}
                     </Text>
-                    {period.goals.length === 0 ? (
-                      <Text style={{ color: '#b0b0b0' }}>No goals</Text>
-                    ) : (
+                    {period.goals?.length && (
                       period.goals.map((goal, j) => (
-                        <Text key={j} style={{ color: 'white', marginBottom: 2 }}>
-                          {goal.firstName?.default} scored ({goal.strength})
-                        </Text>
-                      ))
-                    )}
+                        <View key={j} style={s.goal}>
+                          <Text style={s.scorer}>
+                            {goal.name?.default} ({goal.goalsToDate})
+                          </Text>
+                          {(() => {
+                            const assists = (goal.assists ?? []).map(a => {
+                              return `${a.name.default} (${a.assistsToDate})`;
+                            });
+                            if (assists.length === 0) return null;
+                            return <Text style={s.assists}>{assists.join(', ')}</Text>;
+                          })()}
+                        </View>
+                      )))}
                   </View>
                 ))}
-              </FlatList>
+              </ScrollView>
             </>
           )}
         </View>
@@ -99,14 +105,34 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
 };
 
 const s = StyleSheet.create({
+  goal: {
+    marginTop: 10,
+  },
+  scorer: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 600,
+  },
+  period: {
+    padding: 25,
+  },
+  assists: {
+    color: '#b0b0b0',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  periodHead: {
+    color: 'white',
+    fontWeight: 700,
+  },
   modalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'stretch'
   },
   sheet: {
     backgroundColor: '#111',
-    minWidth: '100%',
+    width: '100%',
     height: '90%',
     borderTopWidth: 1,
     borderColor: '#222',
@@ -119,9 +145,9 @@ const s = StyleSheet.create({
   },
   headerText: {
     paddingLeft: 15,
-    fontWeight: '700',
-    fontSize: 16,
-    color: 'white',
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#b0b0b0',
   },
   closeBtn: {
     padding: 15,
@@ -154,11 +180,8 @@ const s = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontWeight: '600',
-    fontSize: 16,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 5,
-    backgroundColor: '#222',
+    fontSize: 18,
+    fontWeight: 700
   },
   liveLabel: {
     backgroundColor: '#e62b1e',
