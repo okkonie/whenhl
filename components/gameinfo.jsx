@@ -1,4 +1,4 @@
-import { Modal, Text, View, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { Modal, Text, View, TouchableOpacity, StyleSheet, ScrollView, Image } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { SvgUri } from "react-native-svg";
 import { useEffect, useState } from "react";
@@ -65,7 +65,7 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
               <Text style={s.teamName}>{game?.awayTeam?.commonName?.default}</Text>
             </View>
           </View>
-          {game.gameState != 'FUT' && (
+          {game.gameState != 'FUT' ? (
             <>
               <View style={s.statsRow}>
                 <Text style={s.statsText}>{gameInfo?.homeTeam?.sog}</Text>
@@ -78,23 +78,53 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
                     <Text style={s.periodHead}>
                       {period.periodDescriptor?.number < 4 ? `PERIOD ${period.periodDescriptor?.number}` : period.periodDescriptor?.periodType}
                     </Text>
-                    {period.goals?.length && (
-                      period.goals.map((goal, j) => (
-                        <View key={j} style={s.goal}>
-                          <Text style={s.scorer}>
-                            {goal.name?.default} ({goal.goalsToDate})
+                      {period.goals.map((goal, j) => (
+                        <View key={j} style={{flexDirection: goal.isHome ? 'row' : 'row-reverse', gap: 20, alignItems: 'center', paddingVertical: 20}}>
+                          <Text style={s.score}>
+                            {goal.homeScore} - {goal.awayScore}
                           </Text>
-                          {(() => {
-                            const assists = (goal.assists ?? []).map(a => {
-                              return `${a.name.default} (${a.assistsToDate})`;
-                            });
-                            if (assists.length === 0) return null;
-                            return <Text style={s.assists}>{assists.join(', ')}</Text>;
-                          })()}
+                          <View style={{alignItems: goal.isHome ? 'flex-start' : 'flex-end'}}>
+                            <Text style={s.scorer}>
+                              {goal.name?.default} ({goal.goalsToDate})
+                            </Text>
+                            {(() => {
+                              const assists = (goal.assists ?? []).map(a => {
+                                return `${a.name.default} (${a.assistsToDate})`;
+                              });
+                              if (assists.length === 0) return null;
+                              return <Text style={s.assists}>{assists.join(', ')}</Text>;
+                            })()}
+                          </View>
                         </View>
-                      )))}
+                      ))}
                   </View>
                 ))}
+              </ScrollView>
+            </>
+          ) : (
+            <>
+              <View style={s.statsRow}>
+                <Text style={s.statsText}>{gameInfo?.homeTeam?.record}</Text>
+                <Text style={s.dateLabel}>record</Text>
+                <Text style={s.statsText}>{gameInfo?.awayTeam?.record}</Text>
+              </View>
+              <ScrollView style={s.list}>
+              {gameInfo.matchup?.skaterComparison?.leaders?.map((category, i) => (
+                <View key={i} style={s.period}>
+                  <Text style={s.periodHead}>
+                    {category?.category}
+                  </Text>
+
+                  <View style={s.leader}>
+                    <Image source={{uri: category?.homeLeader?.headshot}} style={s.headshot}/>
+                    <View style={s.column}>
+                      <Text style={s.scorer}>{category?.homeLeader?.name?.default}</Text>
+                      <Text style={s.score}>{category?.homeLeader?.value}</Text>
+                    </View>
+                  </View>
+
+                </View>
+              ))}
               </ScrollView>
             </>
           )}
@@ -105,8 +135,30 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
 };
 
 const s = StyleSheet.create({
-  goal: {
-    marginTop: 10,
+  column: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 10
+  },
+  leader: {
+    marginTop: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
+  },
+  headshot: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  score: {
+    backgroundColor: '#222',
+    color: '#fff',
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    fontWeight: 700,
+    borderRadius: 3,
+    fontSize: 12
   },
   scorer: {
     color: 'white',
@@ -114,7 +166,8 @@ const s = StyleSheet.create({
     fontWeight: 600,
   },
   period: {
-    padding: 25,
+    paddingVertical: 20,
+    paddingHorizontal: 25,
   },
   assists: {
     color: '#b0b0b0',
@@ -122,8 +175,9 @@ const s = StyleSheet.create({
     marginTop: 4,
   },
   periodHead: {
-    color: 'white',
+    color: '#b0b0b0',
     fontWeight: 700,
+    fontSize: 12,
   },
   modalContainer: {
     flex: 1,
