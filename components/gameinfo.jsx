@@ -109,22 +109,32 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
                 <Text style={s.statsText}>{gameInfo?.awayTeam?.record}</Text>
               </View>
               <ScrollView style={s.list}>
-              {gameInfo.matchup?.skaterComparison?.leaders?.map((category, i) => (
-                <View key={i} style={s.period}>
-                  <Text style={s.periodHead}>
-                    {category?.category}
-                  </Text>
+                {gameInfo?.matchup?.skaterComparison?.leaders?.length && (
+                  <>
+                    <Text style={s.leaderHead}>Team leaders</Text>
+                    {gameInfo.matchup?.skaterComparison?.leaders?.map((category, i) => (
+                      <View style={s.leaderRow} key={i}>
 
-                  <View style={s.leader}>
-                    <Image source={{uri: category?.homeLeader?.headshot}} style={s.headshot}/>
-                    <View style={s.column}>
-                      <Text style={s.scorer}>{category?.homeLeader?.name?.default}</Text>
-                      <Text style={s.score}>{category?.homeLeader?.value}</Text>
-                    </View>
-                  </View>
+                        <View style={s.col}>
+                          <Image source={{uri: category?.homeLeader?.headshot}} style={s.headshot}/>
+                          <Text style={s.scorer}>{category?.homeLeader?.name.default}</Text>
+                        </View>
 
-                </View>
-              ))}
+                        <View style={s.col}>
+                          <Text style={s.stateLabel}>{category?.homeLeader?.value}   -   {category?.awayLeader?.value}</Text>
+                          <Text style={s.dateLabel}>{category?.category}</Text>
+                        </View>
+
+                        <View style={s.col}>
+                          <Image source={{uri: category?.awayLeader?.headshot}} style={s.headshot}/>
+                          <Text style={s.scorer}>{category?.awayLeader?.name.default}</Text>
+                        </View>
+
+
+                      </View>
+                    ))}
+                  </>
+                )}
               </ScrollView>
             </>
           )}
@@ -135,21 +145,30 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
 };
 
 const s = StyleSheet.create({
-  column: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: 10
+  leaderHead: {
+    color:'#b0b0b0',
+    textAlign: 'center',
+    fontSize: 14,
+    paddingVertical: 20,
+
   },
-  leader: {
-    marginTop: 25,
-    flexDirection: 'row',
+  col: {
+    flexDirection: 'column',
     alignItems: 'center',
     gap: 10
   },
+  leaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    justifyContent: 'space-between',
+    alignItems:'center'
+  },
   headshot: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
   },
   score: {
     backgroundColor: '#222',
@@ -158,7 +177,7 @@ const s = StyleSheet.create({
     paddingVertical: 2,
     fontWeight: 700,
     borderRadius: 3,
-    fontSize: 12
+    fontSize: 14
   },
   scorer: {
     color: 'white',
@@ -251,7 +270,7 @@ const s = StyleSheet.create({
   statsText: {
     color: 'white',
     fontWeight: 700,
-    fontSize: 18
+    fontSize: 16
   },
   list: {
     flex: 1,
