@@ -4,16 +4,46 @@ import { useState, useEffect } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
 
 export default function Players() {
+  const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false)
   const [tempText, setTempText] = useState('')
   const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [skaterOn, setSkaterOn] = useState(true)
+  const [skaterSort, setSkaterSort] = useState('points')
+  const [goalieSort, setGoalieSort] = useState('save%')
+  const [season, setSeason] = useState('current')
+  const [skaterStats, setSkaterStats] = useState([])
+  const [goalieStats, setGoalieStats] = useState([])
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        const statType = skaterOn ? 'skater-stats-leaders' : 'goalie-stats-leaders';
+        const response = await fetch(`https://api-web.nhle.com/v1/${statType}/${season}?limit=30`);
+        const data = await response.json();
+
+        if (skaterOn) {
+          setSkaterStats(data);
+        } else {
+          setGoalieStats(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, [season, skaterOn]);
 
   return (
     <SafeAreaView style={s.container}>
       <View style={s.header}>
         {!searching ? (
           <>
-            <Text style={s.headerText}>Players</Text>
+            <Text style={s.headerText}>Top players</Text>
             <TouchableOpacity
               onPress={() => { setTempText(''); setSearching(true); }}
               style={s.searchButton}
@@ -45,12 +75,50 @@ export default function Players() {
           </>
         )}
       </View>
+      
+      {!searching ? (
+        <>
+          <View style={s.settings}>
+            <TouchableOpacity activeOpacity={0.8} style={[s.skaterOn, {justifyContent: skaterOn ? 'flex-start' : 'flex-end'}]} onPress={() => setSkaterOn(!skaterOn)}>
+              <Text style={s.skaterOnText}>
+                {skaterOn ? 'skater' : 'goalie'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </>
 
+      ) : (
+        <View></View>
+      )}
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
+  skaterOnText: {
+    width: '100%',
+    backgroundColor: "#444",
+    borderRadius: 5,
+    textAlign: 'center',
+    color: 'white',
+    paddingVertical: 3,
+    fontSize: 12,
+    fontWeight: 600
+  },
+  skaterOn: {
+    width: '20%',
+    height: 40,
+    backgroundColor: "#222",
+    borderRadius: 10,
+    padding: 5,
+  },
+  settings: {
+    width: '100%',
+    paddingHorizontal: 25,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderColor: '#222'
+  },
   container: {
     backgroundColor: "#111",
     flex:1,

@@ -73,32 +73,31 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
                 <Text style={s.statsText}>{gameInfo?.awayTeam?.sog}</Text>
               </View>
               <ScrollView style={s.list}>
-                {gameInfo.summary?.scoring?.map((period, i) => (
-                  <View key={i} style={s.period}>
-                    <Text style={s.periodHead}>
-                      {period.periodDescriptor?.number < 4 ? `PERIOD ${period.periodDescriptor?.number}` : period.periodDescriptor?.periodType}
-                    </Text>
-                      {period.goals.map((goal, j) => (
-                        <View key={j} style={{flexDirection: goal.isHome ? 'row' : 'row-reverse', gap: 20, alignItems: 'center', paddingVertical: 20}}>
-                          <Text style={s.score}>
-                            {goal.homeScore} - {goal.awayScore}
+                <Text style={s.leaderHead}>SCORING</Text>
+                {gameInfo.summary?.scoring?.flatMap((period, i) => 
+                  period.goals?.map((goal, j) => (
+                    <View key={`${i}-${j}`} style={s.scorerContainer}>
+                      <View style={s.scorerLeft}>
+                        <SvgUri width={30} height={30} uri={goal.isHome ? game?.homeTeam?.darkLogo : game?.awayTeam?.darkLogo} />
+                        <View>
+                          <Text style={s.scorer}>
+                            {goal.name?.default} ({goal.goalsToDate})
                           </Text>
-                          <View style={{alignItems: goal.isHome ? 'flex-start' : 'flex-end'}}>
-                            <Text style={s.scorer}>
-                              {goal.name?.default} ({goal.goalsToDate})
-                            </Text>
-                            {(() => {
-                              const assists = (goal.assists ?? []).map(a => {
-                                return `${a.name.default} (${a.assistsToDate})`;
-                              });
-                              if (assists.length === 0) return null;
-                              return <Text style={s.assists}>{assists.join(', ')}</Text>;
-                            })()}
-                          </View>
+                          {(() => {
+                            const assists = (goal.assists ?? []).map(a => {
+                              return `${a.name.default} (${a.assistsToDate})`;
+                            });
+                            if (assists.length === 0) return null;
+                            return <Text style={s.assists}>{assists.join(', ')}</Text>;
+                          })()}
                         </View>
-                      ))}
-                  </View>
-                ))}
+                      </View>
+                      <Text style={s.score}>
+                        {goal.homeScore} - {goal.awayScore}
+                      </Text>
+                    </View>
+                  )) ?? []
+                )}
               </ScrollView>
             </>
           ) : (
@@ -111,26 +110,33 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
               <ScrollView style={s.list}>
                 {gameInfo?.matchup?.skaterComparison?.leaders?.length && (
                   <>
-                    <Text style={s.leaderHead}>Team leaders</Text>
+                    <Text style={s.leaderHead}>TEAM LEADERS</Text>
                     {gameInfo.matchup?.skaterComparison?.leaders?.map((category, i) => (
-                      <View style={s.leaderRow} key={i}>
-
-                        <View style={s.col}>
-                          <Image source={{uri: category?.homeLeader?.headshot}} style={s.headshot}/>
-                          <Text style={s.scorer}>{category?.homeLeader?.name.default}</Text>
+                      <View key={i}>
+                        <View style={s.scorerContainer}>
+                          <View style={s.scorerLeft}>
+                            <Image source={{uri: category?.homeLeader?.headshot}} style={s.headshot}/>
+                            <View>
+                              <Text style={s.scorer}>{category?.homeLeader?.name.default}</Text>
+                              <Text style={s.assists}>{category?.category}</Text>
+                            </View>
+                          </View>
+                          <Text style={s.bigText}>
+                            {category?.homeLeader?.value}
+                          </Text>
                         </View>
-
-                        <View style={s.col}>
-                          <Text style={s.stateLabel}>{category?.homeLeader?.value}   -   {category?.awayLeader?.value}</Text>
-                          <Text style={s.dateLabel}>{category?.category}</Text>
+                        <View style={s.scorerContainer}>
+                          <View style={s.scorerLeft}>
+                            <Image source={{uri: category?.awayLeader?.headshot}} style={s.headshot}/>
+                            <View>
+                              <Text style={s.scorer}>{category?.awayLeader?.name.default}</Text>
+                              <Text style={s.assists}>{category?.category}</Text>
+                            </View>
+                          </View>
+                          <Text style={s.bigText}>
+                            {category?.awayLeader?.value}
+                          </Text>
                         </View>
-
-                        <View style={s.col}>
-                          <Image source={{uri: category?.awayLeader?.headshot}} style={s.headshot}/>
-                          <Text style={s.scorer}>{category?.awayLeader?.name.default}</Text>
-                        </View>
-
-
                       </View>
                     ))}
                   </>
@@ -145,25 +151,33 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
 };
 
 const s = StyleSheet.create({
+  bigText: {
+    fontSize: 21,
+    fontWeight: 700,
+    color: 'white',
+    paddingRight: 10
+  },
+  scorerLeft: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center'
+  },
+  scorerContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: "#222",
+    borderRadius: 10,
+    alignItems: 'center'
+  }, 
   leaderHead: {
     color:'#b0b0b0',
-    textAlign: 'center',
     fontSize: 14,
     paddingVertical: 20,
 
-  },
-  col: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 10
-  },
-  leaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    justifyContent: 'space-between',
-    alignItems:'center'
   },
   headshot: {
     width: 64,
@@ -171,32 +185,19 @@ const s = StyleSheet.create({
     borderRadius: 32,
   },
   score: {
-    backgroundColor: '#222',
     color: '#fff',
-    paddingHorizontal: 5,
-    paddingVertical: 2,
     fontWeight: 700,
-    borderRadius: 3,
-    fontSize: 14
+    fontSize: 16
   },
   scorer: {
     color: 'white',
     fontSize: 12,
     fontWeight: 600,
   },
-  period: {
-    paddingVertical: 20,
-    paddingHorizontal: 25,
-  },
   assists: {
     color: '#b0b0b0',
     fontSize: 12,
     marginTop: 4,
-  },
-  periodHead: {
-    color: '#b0b0b0',
-    fontWeight: 700,
-    fontSize: 12,
   },
   modalContainer: {
     flex: 1,
@@ -230,6 +231,9 @@ const s = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-between',
     paddingBottom: 30,
+    paddingTop: 20,
+    borderBottomWidth: 1,
+    borderColor: "#222"
   },
   teamCol: {
     alignItems: 'center',
@@ -264,7 +268,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 20,
+    paddingVertical: 15,
     paddingHorizontal: 30,
   },
   statsText: {
@@ -276,6 +280,7 @@ const s = StyleSheet.create({
     flex: 1,
     width: '100%',
     borderTopWidth: 1,
-    borderColor: '#222'
+    borderColor: '#222',
+    paddingHorizontal: 25,
   }
 });
