@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
-import Entypo from "@expo/vector-icons/Entypo";
+import PlayerOptions from "../components/playerOptions";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Players() {
   const [loading, setLoading] = useState(false);
@@ -10,11 +11,9 @@ export default function Players() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [skaterOn, setSkaterOn] = useState(true)
-  const [skaterSort, setSkaterSort] = useState('points')
-  const [goalieSort, setGoalieSort] = useState('save%')
   const [season, setSeason] = useState('current')
-  const [skaterStats, setSkaterStats] = useState([])
-  const [goalieStats, setGoalieStats] = useState([])
+  const [stats, setStats] = useState([])
+  const [optionsVisible, setOptionsVisible] = useState(false)
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -23,12 +22,8 @@ export default function Players() {
         const statType = skaterOn ? 'skater-stats-leaders' : 'goalie-stats-leaders';
         const response = await fetch(`https://api-web.nhle.com/v1/${statType}/${season}?limit=30`);
         const data = await response.json();
+        setStats(data);
 
-        if (skaterOn) {
-          setSkaterStats(data);
-        } else {
-          setGoalieStats(data);
-        }
       } catch (error) {
         console.error('Failed to fetch stats:', error);
       } finally {
@@ -44,12 +39,22 @@ export default function Players() {
         {!searching ? (
           <>
             <Text style={s.headerText}>Top players</Text>
-            <TouchableOpacity
-              onPress={() => { setTempText(''); setSearching(true); }}
-              style={s.searchButton}
-            >
-              <Entypo name="magnifying-glass" size={24} color="white" />
-            </TouchableOpacity>
+            <View style={s.buttons}> 
+              <TouchableOpacity
+                onPress={() => setOptionsVisible(true)}
+                style={s.button}
+                activeOpacity={0.5}
+              >
+                <Ionicons name="options" size={24} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => { setTempText(''); setSearching(true); }}
+                style={s.button}
+                activeOpacity={0.5}
+              >
+                <Ionicons name="search-sharp" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
           </>
         ) : (
           <>
@@ -61,16 +66,16 @@ export default function Players() {
               onChangeText={setTempText}
               returnKeyType="search"
               onSubmitEditing={() => {
-                // commit the search query but keep the search input open
                 setQuery(tempText.trim());
               }}
               autoFocus
             />
             <TouchableOpacity
               onPress={() => { setSearching(false); setTempText(''); }}
-              style={s.searchButton}
+              style={s.button}
+              activeOpacity={0.5}
             >
-              <Entypo name="cross" size={24} color="white" />
+              <Ionicons name="close" size={24} color="white" />
             </TouchableOpacity>
           </>
         )}
@@ -78,13 +83,7 @@ export default function Players() {
       
       {!searching ? (
         <>
-          <View style={s.settings}>
-            <TouchableOpacity activeOpacity={0.8} style={[s.skaterOn, {justifyContent: skaterOn ? 'flex-start' : 'flex-end'}]} onPress={() => setSkaterOn(!skaterOn)}>
-              <Text style={s.skaterOnText}>
-                {skaterOn ? 'skater' : 'goalie'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <PlayerOptions visible={optionsVisible} onClose={() => setOptionsVisible(false)}/>
         </>
 
       ) : (
@@ -95,29 +94,10 @@ export default function Players() {
 }
 
 const s = StyleSheet.create({
-  skaterOnText: {
-    width: '100%',
-    backgroundColor: "#444",
-    borderRadius: 5,
-    textAlign: 'center',
-    color: 'white',
-    paddingVertical: 3,
-    fontSize: 12,
-    fontWeight: 600
-  },
-  skaterOn: {
-    width: '20%',
-    height: 40,
-    backgroundColor: "#222",
-    borderRadius: 10,
-    padding: 5,
-  },
-  settings: {
-    width: '100%',
-    paddingHorizontal: 25,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: '#222'
+  buttons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 24
   },
   container: {
     backgroundColor: "#111",
@@ -137,7 +117,7 @@ const s = StyleSheet.create({
     color: 'white',
     fontWeight: 700,
   },
-  searchButton: {
+  button: {
     width: 30,
     height: 30,
     alignItems: 'center',

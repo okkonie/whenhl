@@ -1,5 +1,5 @@
 import { Modal, Text, View, TouchableOpacity, StyleSheet, ScrollView, Image } from "react-native";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { SvgUri } from "react-native-svg";
 import { useEffect, useState } from "react";
 
@@ -43,7 +43,7 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
               }
             </Text>
             <TouchableOpacity activeOpacity={0.7} onPress={onClose} style={s.closeBtn}>
-              <AntDesign name="close" size={24} color="white" />
+              <Ionicons name="close" size={24} color="white" />
             </TouchableOpacity>
           </View>
           <View style={s.teamsRow}>
@@ -113,7 +113,7 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
                     <Text style={s.leaderHead}>TEAM LEADERS</Text>
                     {gameInfo.matchup?.skaterComparison?.leaders?.map((category, i) => (
                       <View key={i}>
-                        <View style={s.scorerContainer}>
+                        <View style={s.leaderContainer}>
                           <View style={s.scorerLeft}>
                             <Image source={{uri: category?.homeLeader?.headshot}} style={s.headshot}/>
                             <View>
@@ -125,7 +125,7 @@ export default function GameInfo({ game, visible = true, onClose, dateLabel, tim
                             {category?.homeLeader?.value}
                           </Text>
                         </View>
-                        <View style={s.scorerContainer}>
+                        <View style={s.leaderContainer}>
                           <View style={s.scorerLeft}>
                             <Image source={{uri: category?.awayLeader?.headshot}} style={s.headshot}/>
                             <View>
@@ -159,9 +159,20 @@ const s = StyleSheet.create({
   },
   scorerLeft: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 20,
     alignItems: 'center'
   },
+  leaderContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#222",
+    borderRadius: 20,
+    alignItems: 'center'
+  }, 
   scorerContainer: {
     flexDirection: 'row',
     width: '100%',
@@ -182,7 +193,7 @@ const s = StyleSheet.create({
   headshot: {
     width: 64,
     height: 64,
-    borderRadius: 32,
+    borderRadius: 15,
   },
   score: {
     color: '#fff',
