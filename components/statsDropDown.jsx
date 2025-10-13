@@ -29,7 +29,7 @@ export default function StatsDropdown({ skaterOn, selected, onSelect, modalVisib
   return (
     <View style={s.container}>
       <TouchableOpacity 
-        style={s.button} 
+        style={s.btn} 
         onPress={() => setModalVisible(true)}
         activeOpacity={0.7}
       >
@@ -72,7 +72,7 @@ const s = StyleSheet.create({
   container: {
     position: 'relative',
   },
-  button: {
+  btn: {
     backgroundColor: '#1a1a1a',
     borderRadius: 8,
     borderWidth: 1,
