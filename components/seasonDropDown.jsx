@@ -37,7 +37,7 @@ export default function SeasonDropdown({ season, setSeason, setModalVisible, mod
   return (
     <View style={s.container}>
       <TouchableOpacity 
-        style={s.button} 
+        style={s.btn} 
         onPress={() => setModalVisible(!modalVisible)}
         activeOpacity={0.7}
       >
@@ -86,7 +86,7 @@ export default function SeasonDropdown({ season, setSeason, setModalVisible, mod
 };
 
 const s = StyleSheet.create({
-  button: {
+  btn: {
     backgroundColor: '#1a1a1a',
     borderRadius: 8,
     borderWidth: 1,

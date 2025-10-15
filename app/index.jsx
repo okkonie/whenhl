@@ -22,6 +22,7 @@ export default function Index() {
   const [nextStartDate, setNextStartDate] = useState(null);
   const [previousStartDate, setPreviousStartDate] = useState(null);
   const [sections, setSections] = useState([]);
+  const [dateRangeText, setDateRangeText] = useState('');
 
   const fetchGames = async (date = currentDate) => {
     try {
@@ -31,6 +32,36 @@ export default function Index() {
       // Flatten { gameWeek: [{ date, games: [...] }, ...] } => games[]
       const flattened = (data?.gameWeek ?? []).flatMap((d) => d?.games ?? []);
       setGames(flattened);
+
+      // Calculate date range from first to last game
+      if (flattened.length > 0) {
+        const dates = flattened
+          .map(g => g?.startTimeUTC ? new Date(g.startTimeUTC) : null)
+          .filter(d => d && !isNaN(d))
+          .sort((a, b) => a - b);
+        
+        if (dates.length > 0) {
+          const firstDate = dates[0];
+          const lastDate = dates[dates.length - 1];
+          
+          const formatDate = (d) => {
+            const date = d.toLocaleDateString([], { month: 'numeric', day: 'numeric' });
+            return `${date}`;
+          };
+          
+          if (firstDate.toDateString() === lastDate.toDateString()) {
+            // Same day
+            setDateRangeText(formatDate(firstDate));
+          } else {
+            // Date range
+            setDateRangeText(`${formatDate(firstDate)} - ${formatDate(lastDate)}`);
+          }
+        } else {
+          setDateRangeText('');
+        }
+      } else {
+        setDateRangeText('No games');
+      }
 
       // Group games by client's local date
       const groups = {};
@@ -89,6 +120,9 @@ export default function Index() {
           >
             <Entypo name="chevron-left" size={24} color="white" />
           </TouchableOpacity>
+          <View style={s.dateRangeContainer}>
+            <Text style={s.dateRangeText}>{dateRangeText}</Text>
+          </View>
           <TouchableOpacity
             onPress={() => nextStartDate && fetchGames(nextStartDate)}
             disabled={!nextStartDate}
@@ -153,13 +187,27 @@ const s = StyleSheet.create({
     fontWeight: 700,
   },
   buttons: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   navButton: {
     width: 30,
     height: 30,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  navButtonDisabled: {
+    opacity: 0.3,
+  },
+  dateRangeContainer: {
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  dateRangeText: {
+    color: '#b0b0b0',
+    fontSize: 12,
+    fontWeight: '600',
   },
   sectionHeader: {
     paddingHorizontal: 25,

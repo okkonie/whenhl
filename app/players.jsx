@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -140,62 +140,68 @@ export default function Players() {
         </View>
       )}
 
-      <FlatList 
-        style={s.list}
-        showsVerticalScrollIndicator={false}
-        data={searching ? results : getWhatStats()}
-        keyExtractor={(item, index) => item.playerId?.toString() || item.id?.toString() || index.toString()}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity 
-            style={s.playerItem} 
-            activeOpacity={0.8}
-            onPress={() => {
-              const id = searching ? item.playerId : item.id;
-              setSelectedPlayerId(id);
-              setPlayerModalVisible(true);
-            }}
-          >
+      {loading ? (
+        <View style={s.loadingContainer}>
+          <ActivityIndicator color="#fff" />
+        </View>
+      ) : (
+        <FlatList 
+          style={s.list}
+          showsVerticalScrollIndicator={false}
+          data={searching ? results : getWhatStats()}
+          keyExtractor={(item, index) => item.playerId?.toString() || item.id?.toString() || index.toString()}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity 
+              style={s.playerItem} 
+              activeOpacity={0.8}
+              onPress={() => {
+                const id = searching ? item.playerId : item.id;
+                setSelectedPlayerId(id);
+                setPlayerModalVisible(true);
+              }}
+            >
 
-            {!searching && <Text style={s.playerRank}>{index + 1}</Text>}
-            {item.teamAbbrev && (
-              <View style={{width: 25, height: 25}}>
-                <SvgUri width={25} height={25} uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev}_dark.svg`} />
-              </View>
-            )}
-            <Text style={s.playerName}>
-              {item.name || `${item.firstName?.default || ''} ${item.lastName?.default || ''}`.trim()}
-            </Text>
-            {searching && item.teamAbbrev && (
-              <Text style={s.playerTeam}>{item.teamAbbrev}</Text>
-            )}
-            {!searching && (
-              <Text style={s.playerStat}>
-                {(() => {
-                  let displayValue = item.value;
-                  
-                  if (skaterSort === 'time on ice' && typeof displayValue === 'number') {
-                    displayValue = displayValue / 60;
-                  }
-                  
-                  if (typeof displayValue === 'number' && !Number.isInteger(displayValue)) {
-                    return displayValue.toFixed(2);
-                  }
-                  
-                  return displayValue;
-                })()}
+              {!searching && <Text style={s.playerRank}>{index + 1}</Text>}
+              {item.teamAbbrev && (
+                <View style={{width: 25, height: 25}}>
+                  <SvgUri width={25} height={25} uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev}_dark.svg`} />
+                </View>
+              )}
+              <Text style={s.playerName}>
+                {item.name || `${item.firstName?.default || ''} ${item.lastName?.default || ''}`.trim()}
               </Text>
-            )}
-          </TouchableOpacity>
-        )}
-        ListFooterComponent={<View style={{height: 50}}/>}
-        ListEmptyComponent={
-          searching && query ? (
-            <View style={s.emptyContainer}>
-              <Text style={s.emptyText}>No players found</Text>
-            </View>
-          ) : null
-        }
-      />
+              {searching && item.teamAbbrev && (
+                <Text style={s.playerTeam}>{item.teamAbbrev}</Text>
+              )}
+              {!searching && (
+                <Text style={s.playerStat}>
+                  {(() => {
+                    let displayValue = item.value;
+                    
+                    if (skaterSort === 'time on ice' && typeof displayValue === 'number') {
+                      displayValue = displayValue / 60;
+                    }
+                    
+                    if (typeof displayValue === 'number' && !Number.isInteger(displayValue)) {
+                      return displayValue.toFixed(2);
+                    }
+                    
+                    return displayValue;
+                  })()}
+                </Text>
+              )}
+            </TouchableOpacity>
+          )}
+          ListFooterComponent={<View style={{height: 50}}/>}
+          ListEmptyComponent={
+            searching && query ? (
+              <View style={s.emptyContainer}>
+                <Text style={s.emptyText}>No players found</Text>
+              </View>
+            ) : null
+          }
+        />
+      )}
 
       <PlayerModal 
         visible={playerModalVisible}
@@ -209,6 +215,11 @@ export default function Players() {
 const s = StyleSheet.create({
   list: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center"
   },
   dropdownContainer: {
     paddingHorizontal: 25,
@@ -301,7 +312,7 @@ const s = StyleSheet.create({
   },
   playerStat: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
   },
   emptyContainer: {
