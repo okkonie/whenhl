@@ -35,11 +35,11 @@ export default function RootLayout() {
           tabBarStyle: {
             borderTopWidth: 1,
             borderColor: '#222',
-            height: 50,
+            height: 55,
             position: 'absolute',
             backgroundColor: '#111',
             width: '100%',
-            alignItems: 'center'
+            paddingTop: 5,
           },
         })}
       >
@@ -62,7 +62,7 @@ export default function RootLayout() {
             title: 'players',
             tabBarIcon: ({ focused }) => (
               <Ionicons
-                name={focused ? 'shirt' : 'shirt-outline'}
+                name={focused ? 'people' : 'people-outline'}
                 size={25}
                 color={'white'}
               />
@@ -75,7 +75,7 @@ export default function RootLayout() {
             title: 'teams',
             tabBarIcon: ({ focused }) => (
               <Ionicons
-                name={focused ? 'podium' : 'podium-outline'}
+                name={focused ? 'stats-chart' : 'stats-chart-outline'}
                 size={25}
                 color={'white'}
               />

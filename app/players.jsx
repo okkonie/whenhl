@@ -192,7 +192,7 @@ export default function Players() {
               )}
             </TouchableOpacity>
           )}
-          ListFooterComponent={<View style={{height: 50}}/>}
+          ListFooterComponent={<View style={{height: 55}}/>}
           ListEmptyComponent={
             searching && query ? (
               <View style={s.emptyContainer}>

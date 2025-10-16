@@ -154,7 +154,7 @@ export default function Index() {
             </View>
           )}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={<View style={{ height: 50 }} />}
+          ListFooterComponent={<View style={{ height: 55 }} />}
         />
       )}
       {gameVisible && (

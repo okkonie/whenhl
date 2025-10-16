@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Image, Pressable } from "react-native";
+import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Pressable } from "react-native";
+import { Image } from 'expo-image';
 import { useState, useEffect } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SvgUri } from "react-native-svg";
