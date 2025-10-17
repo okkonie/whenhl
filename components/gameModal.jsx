@@ -3,7 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { SvgUri } from "react-native-svg";
 import { useEffect, useState } from "react";
 
-export default function GameInfo({ game, visible = true, onClose, dateLabel, timeLabel }) {
+export default function GameModal({ game, visible = true, onClose, dateLabel, timeLabel }) {
   const [loading, setLoading] = useState(true);
   const [gameInfo, setGameInfo] = useState({});
 

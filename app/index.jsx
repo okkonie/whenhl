@@ -1,7 +1,7 @@
 import { View, Text, SectionList, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Game from "../components/game";
-import GameInfo from "../components/gameinfo"; // default export
+import GameModal from "../components/gameModal"; // default export
 import { useState, useEffect } from "react";
 import Entypo from '@expo/vector-icons/Entypo';
 
@@ -158,7 +158,7 @@ export default function Index() {
         />
       )}
       {gameVisible && (
-        <GameInfo
+        <GameModal
           visible={gameVisible}
           game={selectedGame}
           dateLabel={selectedLabels.dateLabel}

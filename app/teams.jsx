@@ -52,7 +52,7 @@ export default function Teams() {
   
   const renderItem = ({ item, index }) => {  
     return (
-      <TouchableOpacity style={s.itemContainer} activeOpacity={0.8} onPress={() => {setTeamVisible(true); setSelectedTeam(item.teamAbbrev?.default)}}>
+      <TouchableOpacity style={s.itemContainer} activeOpacity={0.8} onPress={() => {setTeamVisible(true); setSelectedTeam(item)}}>
         <View style={s.teamLeft}>
           <Text style={s.teamRank}>{index + 1}.</Text>
           <View style={{height: 35, width: 35}}>
@@ -173,6 +173,8 @@ const s = StyleSheet.create({
     color: '#b0b0b0',
     fontWeight: '500',
     fontSize: 14,
+    width: 20,
+    textAlign: 'right'
   },
   teamPlace: {
     color: 'white',
