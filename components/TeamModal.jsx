@@ -53,9 +53,15 @@ export default function PlayerModal({ visible, onClose, team }) {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const formatted = date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'numeric' })
-    return `${formatted}`;
+    const formattedDate = date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'numeric' })
+    return `${formattedDate}`;
   };
+
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    return `${formattedTime}`;
+  }
 
   return (
     <Modal
@@ -145,7 +151,10 @@ export default function PlayerModal({ visible, onClose, team }) {
                           />
                           <Text style={s.futureGameTeam}>{opponent.abbrev}</Text>
                         </View>
-                        <Text style={s.futureGameDate}>{formatDate(game.gameDate)}</Text>
+                        <View style={s.dateContainer}>
+                          <Text style={s.futureGameTime}>{formatTime(game.gameDate)}</Text>
+                          <Text style={s.futureGameDate}>{formatDate(game.gameDate)}</Text>
+                        </View>
                       </View>
                     );
                   })}
@@ -167,11 +176,21 @@ const s = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  dateContainer: {
+    minWidth: 60,
+    gap: 3
+  },
+  futureGameTime: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 700,
+    textAlign: 'center'
+  },
   futureGameDate: {
     color: '#b0b0b0',
+    textAlign: 'center',
     fontSize: 12,
-    fontWeight: '600',
-    minWidth: 60,
+    fontWeight: 500
   },
   futLeft: {
     flexDirection: 'row',

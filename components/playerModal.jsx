@@ -390,16 +390,15 @@ const s = StyleSheet.create({
   },
   toggleContainer: {
     backgroundColor: '#1a1a1a',
-    borderRadius: 8,
     flexDirection: 'row',
     padding: 3,
-    gap: 3,
+    gap: 3
   },
   toggleButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     borderRadius: 6,
-    minWidth: 70,
+    minWidth: 60,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -408,7 +407,7 @@ const s = StyleSheet.create({
   },
   toggleButtonText: {
     color: '#888',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
   },
   toggleButtonTextActive: {
