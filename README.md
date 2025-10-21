@@ -1,61 +1,47 @@
-# WheNHL
+## WheNHL
 
 A mobile app to follow NHL games, teams, and players in real-time.
 
-## Features
+### Features
 
 - **Schedule** - View past results and upcoming games for all teams
 - **Player Profiles** - Access player stats, career totals, and more
 - **Team Statistics** - View detailed team stats, standings, and recent performance
 - **Game Details** - See scoring summaries, team leaders, and matchup information
 
+<br>
 <img src="preview.jpg" width="100%" >
+<br>
 
-## Tech Stack
+### Tech Stack
+
 - **React Native** with Expo
 - **Expo Router** for navigation
 - **NHL API** for live data
 
-## Installation
+<br>
+
+### Installation
 
 ```bash
 # Clone the repository
 git clone https://github.com/okkonie/whenhl.git
-
-# Navigate to project directory
-cd whenhl
 
 # Install dependencies
 npm install
 
 # Start the development server
 npx expo start
-```
 
-## Development
-
-```bash
-# Start with tunnel for testing on physical devices
-npx expo start
-
-# Run on Android
+# or android
 npx expo run:android
 
-# Run on iOS
+# or iOS
 npx expo run:ios
 ```
+<br>
 
-## Build
-
-```bash
-# Build for Android
-eas build --platform android
-
-# Build for iOS
-eas build --platform ios
-```
-
-## Project Structure
+### Project Structure
 
 ```
 whenhl/
@@ -71,8 +57,9 @@ whenhl/
 │   └── modal.jsx     # Base modal component
 └── assets/          # Images and fonts
 ```
+<br>
 
-## TODO
+### TODO
 
 - [ ] A feature to let user predict game outcomes
 - [ ] Implement favorites/bookmarks for teams and players
