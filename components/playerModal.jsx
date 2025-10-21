@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Image } from 'expo-image';
 import { useState, useEffect } from "react";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { SvgUri } from "react-native-svg";
+import Modal from "./modal";
 
 export default function PlayerModal({ visible, onClose, playerId }) {
   const [loading, setLoading] = useState(false);
@@ -28,8 +28,6 @@ export default function PlayerModal({ visible, onClose, playerId }) {
       fetchPlayerData();
     }
   }, [playerId, visible]);
-
-  if (!visible) return null;
 
   const StatItem = ({head, stat}) => {
     return (
@@ -102,25 +100,11 @@ export default function PlayerModal({ visible, onClose, playerId }) {
   return (
     <Modal
       visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
+      onClose={onClose}
+      title="STATS"
+      loading={loading || !player}
     >
-      <View style={s.modalContainer}>
-        <View style={s.sheet}>
-          <View style={s.headerRow}>
-            <Text style={s.headerText}>
-              STATS
-            </Text>
-            <TouchableOpacity activeOpacity={0.7} onPress={onClose} style={s.closeBtn}>
-              <Ionicons name="close" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
-          {loading || !player ?  (
-            <View></View>
-          ) : (
-            <ScrollView style={s.body} showsVerticalScrollIndicator={false}>
-              <View style={s.top}>
+      <View style={s.top}>
                 {player?.headshot && <Image source={{uri: player.headshot}} style={s.headshot}/>}
                 <View style={s.topTexts}>
                   <Text style={s.bigText}>
@@ -237,11 +221,7 @@ export default function PlayerModal({ visible, onClose, playerId }) {
                 />
               )}
 
-              <View style={{height: 50}} />
-            </ScrollView>
-          )}
-        </View>
-      </View>
+      <View style={{height: 50}} />
     </Modal>
   );
 }
@@ -251,10 +231,11 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
-    marginVertical: 20,
+    marginTop: 20,
   },
   infoBox: {
-    backgroundColor: '#1a1a1a',
+    borderWidth: 1,
+    borderColor: '#222',
     borderRadius: 8,
     padding: 12,
     flex: 1,
@@ -319,37 +300,6 @@ const s = StyleSheet.create({
     height: 100,
     borderRadius: 50
   },
-  body: {
-    flex: 1,
-    padding: 15
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'stretch'
-  },
-  sheet: {
-    backgroundColor: '#111',
-    width: '100%',
-    height: '90%',
-    borderTopWidth: 1,
-    borderColor: '#222',
-  },
-  headerRow: {
-    width: '100%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  headerText: {
-    paddingLeft: 15,
-    fontSize: 14,
-    fontWeight: 700,
-    color: '#b0b0b0',
-  },
-  closeBtn: {
-    padding: 15,
-  },
   statItem: {
     padding: 8,
     justifyContent: 'center',
@@ -367,15 +317,16 @@ const s = StyleSheet.create({
     fontWeight: '800',
   },
   statContainer: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 12,
+    borderColor: '#222',
+    borderWidth: 1,
+    borderRadius: 10,
     marginTop: 15,
     overflow: 'hidden',
   },
   statHeader: {
     width: '100%',
     borderBottomWidth: 1,
-    borderColor: '#333',
+    borderColor: '#222',
     paddingVertical: 16,
     paddingHorizontal: 20,
     alignItems: 'center',
@@ -385,11 +336,9 @@ const s = StyleSheet.create({
   statHeaderText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
-    textTransform: 'capitalize',
+    fontWeight: '600'
   },
   toggleContainer: {
-    backgroundColor: '#1a1a1a',
     flexDirection: 'row',
     padding: 3,
     gap: 3
