@@ -1,12 +1,79 @@
-### whenhl
+# WheNHL
 
-a mobile app built to get the latest games and more from nhl's public api.
+A mobile app to follow NHL games, teams, and players in real-time.
 
-<img src="preview.png" width="100%" >
+## Features
 
-### TODO
+- **Schedule** - View past results and upcoming games for all teams
+- **Player Profiles** - Access player stats, career totals, and more
+- **Team Statistics** - View detailed team stats, standings, and recent performance
+- **Game Details** - See scoring summaries, team leaders, and matchup information
 
-- [ ] a guessing game
-- [ ] better game component rendering
-- [ ] cleaner UI
-- [ ] screen change animation
+<img src="preview.jpg" width="100%" >
+
+## Tech Stack
+- **React Native** with Expo
+- **Expo Router** for navigation
+- **NHL API** for live data
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/okkonie/whenhl.git
+
+# Navigate to project directory
+cd whenhl
+
+# Install dependencies
+npm install
+
+# Start the development server
+npx expo start
+```
+
+## Development
+
+```bash
+# Start with tunnel for testing on physical devices
+npx expo start
+
+# Run on Android
+npx expo run:android
+
+# Run on iOS
+npx expo run:ios
+```
+
+## Build
+
+```bash
+# Build for Android
+eas build --platform android
+
+# Build for iOS
+eas build --platform ios
+```
+
+## Project Structure
+
+```
+whenhl/
+├── app/              # Main app screens and navigation
+│   ├── index.jsx     # Home screen with live games
+│   ├── teams.jsx     # Teams list and standings
+│   └── players.jsx   # Players list and search
+├── components/       # Reusable UI components
+│   ├── game.jsx
+│   ├── gameModal.jsx
+│   ├── playerModal.jsx
+│   ├── TeamModal.jsx
+│   └── modal.jsx     # Base modal component
+└── assets/          # Images and fonts
+```
+
+## TODO
+
+- [ ] A feature to let user predict game outcomes
+- [ ] Implement favorites/bookmarks for teams and players
+- [ ] Add playoff bracket
