@@ -155,6 +155,7 @@ const s = StyleSheet.create({
   itemContainer: {
     paddingHorizontal: 16,
     borderWidth: 1,
+    backgroundColor: '#171717',
     borderColor: "#222",
     borderRadius: 10,
     marginBottom: 10,

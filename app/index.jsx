@@ -172,7 +172,7 @@ export default function Index() {
 
 const s = StyleSheet.create({
   container: {
-    flex: 1, backgroundColor: "#111",
+    flex: 1, backgroundColor: "#131313",
   },
   header: {
     height: 60,
@@ -213,7 +213,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 25,
     paddingTop: 25,
     paddingBottom: 10,
-    backgroundColor: '#111',
+    backgroundColor: '#131313',
   },
   sectionHeaderText: {
     color: '#b0b0b0',

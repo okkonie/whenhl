@@ -53,7 +53,7 @@ const s = StyleSheet.create({
   },
   body: {
     flex: 1,
-    padding: 25,
+    padding: 20,
   },
   modalContainer: {
     flex: 1,
@@ -61,7 +61,7 @@ const s = StyleSheet.create({
     alignItems: 'stretch'
   },
   sheet: {
-    backgroundColor: '#111',
+    backgroundColor: '#131313',
     width: '100%',
     height: '90%',
     borderTopWidth: 1,

@@ -4,25 +4,29 @@ A mobile app to follow NHL games, teams, and players in real-time.
 <br>
 
 ### Features
-
 - **Schedule** - View past results and upcoming games for all teams
 - **Player Profiles** - Access player stats, career totals, and more
 - **Team Statistics** - View detailed team stats, standings, and recent performance
 - **Game Details** - See scoring summaries, team leaders, and matchup information
-
 <br>
+
+### Download
+**Only possible to download for android because I can not test or distibute for ios.**
+<br>
+
+[Download apk here](https://github.com/okkonie/whenhl/releases)
+<br>
+
 <img src="preview.jpg" width="100%" >
 <br>
 
 ### Tech stack
-
 - **React Native** with Expo
 - **Expo Router** for navigation
 - **NHL API** for live data
 <br>
 
-### Installation
-
+### Project installation
 ```bash
 # Clone the repository
 git clone https://github.com/okkonie/whenhl.git
@@ -41,8 +45,7 @@ npx expo run:ios
 ```
 <br>
 
-### Project Structure
-
+### Project structure
 ```
 whenhl/
 ├── app/              # Main app screens and navigation

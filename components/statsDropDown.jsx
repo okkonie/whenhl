@@ -73,7 +73,7 @@ const s = StyleSheet.create({
     position: 'relative',
   },
   btn: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#171717',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#222',

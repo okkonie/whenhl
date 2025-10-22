@@ -74,7 +74,7 @@ const s = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderColor: '#222',
-    backgroundColor: '#111',
+    backgroundColor: '#171717',
     flexDirection: 'row',
     justifyContent: "space-between",
     gap: 30,
@@ -100,6 +100,7 @@ const s = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
     fontSize: 16,
+    marginRight: 10
   },
   infoCol: {
     justifyContent: 'space-evenly',

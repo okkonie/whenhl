@@ -237,7 +237,7 @@ const s = StyleSheet.create({
     overflow: 'hidden',
     width: 90,
     padding: 3,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#171717',
     alignItems: 'center',
     justifyContent: 'space-evenly',
     flexDirection: 'row'

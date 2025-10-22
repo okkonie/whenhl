@@ -37,7 +37,7 @@ export default function RootLayout() {
             borderColor: '#222',
             height: 55,
             position: 'absolute',
-            backgroundColor: '#111',
+            backgroundColor: '#131313',
             width: '100%',
             paddingTop: 5,
           },

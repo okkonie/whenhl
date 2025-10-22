@@ -87,7 +87,7 @@ export default function SeasonDropdown({ season, setSeason, setModalVisible, mod
 
 const s = StyleSheet.create({
   btn: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#171717',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#222',
