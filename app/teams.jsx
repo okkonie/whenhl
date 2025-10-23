@@ -1,9 +1,11 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, SectionList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SvgUri } from 'react-native-svg';
-import TeamModal from '../components/TeamModal'
+import TeamModal from '../components/TeamModal';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 export default function Teams() {
   const [teams, setTeams] = useState([]);
@@ -11,6 +13,7 @@ export default function Teams() {
   const [sortingCriteria, setSortingCriteria] = useState('Conference');
   const [teamVisible, setTeamVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -59,7 +62,7 @@ export default function Teams() {
             <SvgUri width={35} height={35} uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev?.default}_dark.svg`} />
           </View>
           <View>
-            <Text style={s.teamPlace}>
+            <Text style={s.teamName}>
               {item.placeName.default === 'NY Islanders' ? 'New York' : item.placeName.default === 'NY Rangers' ? 'New York' : item.placeName.default}
             </Text>
             <Text style={s.teamName}>
@@ -70,6 +73,17 @@ export default function Teams() {
   
         <View style={s.teamRight}>
           <Text style={s.teamPoints}>{item.points}p</Text>
+
+          <TouchableOpacity 
+            style={s.favButton}
+            onPress={() => toggleFavorite(item.teamAbbrev?.default)}
+          >
+            <FontAwesome 
+              name={isFavorite(item.teamAbbrev?.default) ? "star" : "star-o"} 
+              size={20} 
+              color={isFavorite(item.teamAbbrev?.default) ? "#ffd700" : "white"}
+            />
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     );
@@ -117,6 +131,11 @@ export default function Teams() {
 };
 
 const s = StyleSheet.create({
+  favButton: {
+    paddingLeft: 20,
+    paddingVertical: 7,
+    paddingRight: 5
+  },
   container: {
     flex: 1,
     backgroundColor: '#111',
@@ -158,7 +177,7 @@ const s = StyleSheet.create({
     backgroundColor: '#171717',
     borderColor: "#222",
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 8,
     paddingVertical: 15,
     paddingHorizontal: 20,
     flexDirection: 'row'
@@ -177,14 +196,9 @@ const s = StyleSheet.create({
     width: 20,
     textAlign: 'right'
   },
-  teamPlace: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 14,
-  },
   teamName: {
     color: 'white',
-    fontWeight: '700',
+    fontWeight: 600,
     fontSize: 14,
   },
   teamRight: {
@@ -195,7 +209,7 @@ const s = StyleSheet.create({
   teamPoints: {
     color: 'white',
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: 14,
   },
   emptyText: {
     color: 'white',

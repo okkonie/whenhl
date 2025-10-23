@@ -4,6 +4,8 @@ import Game from "../components/game";
 import GameModal from "../components/gameModal"; // default export
 import { useState, useEffect } from "react";
 import Entypo from '@expo/vector-icons/Entypo';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 export default function Index() {
   const [loading, setLoading] = useState(false);
@@ -11,6 +13,8 @@ export default function Index() {
   const [gameVisible, setGameVisible] = useState(false);
   const [selectedGame, setSelectedGame] = useState(null);
   const [selectedLabels, setSelectedLabels] = useState({});
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const { favoriteTeams } = useFavorites();
   const [currentDate, setCurrentDate] = useState(() => {
     // default to 2 days ago in YYYY-MM-DD format
     const d = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
@@ -31,11 +35,20 @@ export default function Index() {
       const data = await response.json();
       // Flatten { gameWeek: [{ date, games: [...] }, ...] } => games[]
       const flattened = (data?.gameWeek ?? []).flatMap((d) => d?.games ?? []);
-      setGames(flattened);
+      
+      // Filter by favorites if enabled
+      const filteredGames = showFavoritesOnly
+        ? flattened.filter(game => 
+            favoriteTeams.includes(game?.homeTeam?.abbrev) || 
+            favoriteTeams.includes(game?.awayTeam?.abbrev)
+          )
+        : flattened;
+      
+      setGames(filteredGames);
 
       // Calculate date range from first to last game
-      if (flattened.length > 0) {
-        const dates = flattened
+      if (filteredGames.length > 0) {
+        const dates = filteredGames
           .map(g => g?.startTimeUTC ? new Date(g.startTimeUTC) : null)
           .filter(d => d && !isNaN(d))
           .sort((a, b) => a - b);
@@ -65,7 +78,7 @@ export default function Index() {
 
       // Group games by client's local date
       const groups = {};
-      flattened.forEach((g) => {
+      filteredGames.forEach((g) => {
         const start = g?.startTimeUTC ? new Date(g.startTimeUTC) : null;
         let key = 'TBA';
         let title = 'TBA';
@@ -100,6 +113,11 @@ export default function Index() {
     fetchGames(currentDate);
   }, []);
 
+  useEffect(() => {
+    // Refetch games when favorite filter changes
+    fetchGames(currentDate);
+  }, [showFavoritesOnly]);
+
   const handleGamePress = (game, labels) => {
     setGameVisible(true);
     setSelectedGame(game);
@@ -112,24 +130,36 @@ export default function Index() {
         <Text style={s.headerText}>
           Games
         </Text>
-        <View style={s.buttons}>
+        <View style={s.headerRight}>
           <TouchableOpacity
-            onPress={() => previousStartDate && fetchGames(previousStartDate)}
-            disabled={!previousStartDate}
-            style={[s.navButton, !previousStartDate && s.navButtonDisabled]}
+            onPress={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            style={[s.filterButton, showFavoritesOnly && s.filterButtonActive]}
           >
-            <Entypo name="chevron-left" size={24} color="white" />
+            <FontAwesome 
+              name={showFavoritesOnly ? "star" : "star-o"} 
+              size={18} 
+              color={showFavoritesOnly ? "#ffd700" : "white"} 
+            />
           </TouchableOpacity>
-          <View style={s.dateRangeContainer}>
-            <Text style={s.dateRangeText}>{dateRangeText}</Text>
+          <View style={s.buttons}>
+            <TouchableOpacity
+              onPress={() => previousStartDate && fetchGames(previousStartDate)}
+              disabled={!previousStartDate}
+              style={[s.navButton, !previousStartDate && s.navButtonDisabled]}
+            >
+              <Entypo name="chevron-left" size={24} color="white" />
+            </TouchableOpacity>
+            <View style={s.dateRangeContainer}>
+              <Text style={s.dateRangeText}>{dateRangeText}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => nextStartDate && fetchGames(nextStartDate)}
+              disabled={!nextStartDate}
+              style={[s.navButton, !nextStartDate && s.navButtonDisabled]}
+            >
+              <Entypo name="chevron-right" size={24} color="white" />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            onPress={() => nextStartDate && fetchGames(nextStartDate)}
-            disabled={!nextStartDate}
-            style={[s.navButton, !nextStartDate && s.navButtonDisabled]}
-          >
-            <Entypo name="chevron-right" size={24} color="white" />
-          </TouchableOpacity>
         </View>
       </View>
       {loading ? (
@@ -185,6 +215,21 @@ const s = StyleSheet.create({
     fontSize: 20,
     color: 'white',
     fontWeight: 700,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  filterButton: {
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.6,
+  },
+  filterButtonActive: {
+    opacity: 1,
   },
   buttons: {
     flexDirection: 'row',

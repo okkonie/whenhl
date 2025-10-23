@@ -4,6 +4,7 @@ import { Tabs } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { FavoritesProvider } from '../contexts/FavoritesContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,7 +24,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <FavoritesProvider>
       <StatusBar
         style="light"
         hidden={false}
@@ -83,6 +84,6 @@ export default function RootLayout() {
           }}
         />
       </Tabs>
-    </>
+    </FavoritesProvider>
   );
 }

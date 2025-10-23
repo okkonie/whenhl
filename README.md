@@ -11,10 +11,11 @@ A mobile app to follow NHL games, teams, and players in real-time.
 <br>
 
 ### Download
-**Only possible to download for android because I can not test or distibute for ios.**
+Only possible to download for android because I can not test or distibute for ios.
 <br>
 
 [Download apk here](https://github.com/okkonie/whenhl/releases)
+<br>
 <br>
 
 <img src="preview.jpg" width="100%" >
@@ -28,42 +29,19 @@ A mobile app to follow NHL games, teams, and players in real-time.
 
 ### Project installation
 ```bash
-# Clone the repository
+# Clone repo
 git clone https://github.com/okkonie/whenhl.git
 
 # Install dependencies
 npm install
 
-# Start the development server
+# Start dev server
 npx expo start
 
-# or android
-npx expo run:android
-
-# or iOS
-npx expo run:ios
-```
-<br>
-
-### Project structure
-```
-whenhl/
-├── app/              # Main app screens and navigation
-│   ├── index.jsx     # Home screen with live games
-│   ├── teams.jsx     # Teams list and standings
-│   └── players.jsx   # Players list and search
-├── components/       # Reusable UI components
-│   ├── game.jsx
-│   ├── gameModal.jsx
-│   ├── playerModal.jsx
-│   ├── TeamModal.jsx
-│   └── modal.jsx     # Base modal component
-└── assets/          # Images and fonts
 ```
 <br>
 
 ### TODO
-
+- [x] favorites for teams
 - [ ] A feature to let user predict game outcomes
-- [ ] Implement favorites/bookmarks for teams and players
 - [ ] Add playoff bracket

@@ -67,7 +67,7 @@ export default function Game({ game, onPress, index }) {
 
 const s = StyleSheet.create({
   container: {
-    marginBottom: 10,
+    marginBottom: 8,
     marginHorizontal: 20,
     borderWidth: 1,
     borderRadius: 10,
