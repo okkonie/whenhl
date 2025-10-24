@@ -37,11 +37,10 @@ npm install
 
 # Start dev server
 npx expo start
-
 ```
 <br>
 
 ### TODO
 - [x] favorites for teams
 - [ ] A feature to let user predict game outcomes
-- [ ] Add playoff bracket
+- [ ] Playoff bracket

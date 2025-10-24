@@ -80,7 +80,7 @@ export default function Teams() {
           >
             <FontAwesome 
               name={isFavorite(item.teamAbbrev?.default) ? "star" : "star-o"} 
-              size={20} 
+              size={18} 
               color={isFavorite(item.teamAbbrev?.default) ? "#ffd700" : "white"}
             />
           </TouchableOpacity>
@@ -121,7 +121,7 @@ export default function Teams() {
           )}
           ListEmptyComponent={<Text style={s.emptyText}>No teams found</Text>}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={<View style={{ height: 55 }} />}
+          ListFooterComponent={<View style={{ height: 60 }} />}
         />
       )}
 

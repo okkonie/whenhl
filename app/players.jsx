@@ -256,7 +256,7 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
   },
   container: {
-    backgroundColor: "#111",
+    backgroundColor: "#131313",
     flex:1,
   },
   header: {
