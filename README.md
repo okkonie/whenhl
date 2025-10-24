@@ -8,7 +8,6 @@ A mobile app to follow NHL games, teams, and players in real-time.
 - **Player Profiles** - Access player stats, career totals, and more
 - **Team Statistics** - View detailed team stats, standings, and recent performance
 - **Game Details** - See scoring summaries, team leaders, and matchup information
-<br>
 
 ### Download
 Only possible to download for android because I can not test or distibute for ios.
@@ -18,7 +17,7 @@ Only possible to download for android because I can not test or distibute for io
 <br>
 <br>
 
-<img src="preview.jpg" width="100%" >
+<img src="preview.png" width="100%" >
 <br>
 
 ### Tech stack
