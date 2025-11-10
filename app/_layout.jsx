@@ -1,6 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -28,61 +27,13 @@ export default function RootLayout() {
         style="light"
         hidden={false}
       />
-      <Tabs
-        screenOptions={() => ({
-          tabBarShowLabel: false,
+      <Stack
+        screenOptions={{
           headerShown: false,
-          tabBarStyle: {
-            borderTopWidth: 1,
-            borderColor: '#222',
-            height: 55,
-            position: 'absolute',
-            backgroundColor: '#111',
-            width: '100%',
-            paddingTop: 5,
-          },
-        })}
+        }}
       >
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'home',
-            tabBarIcon: ({ focused }) => (
-              <Ionicons
-                name={focused ? 'calendar-clear' : 'calendar-clear-outline'}
-                size={25}
-                color={'white'}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="players"
-          options={{
-            title: 'players',
-            tabBarIcon: ({ focused }) => (
-              <Ionicons
-                name={focused ? 'people' : 'people-outline'}
-                size={25}
-                color={'white'}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="teams"
-          options={{
-            title: 'teams',
-            tabBarIcon: ({ focused }) => (
-              <Ionicons
-                name={focused ? 'stats-chart' : 'stats-chart-outline'}
-                size={25}
-                color={'white'}
-              />
-            ),
-          }}
-        />
-      </Tabs>
+        <Stack.Screen name="index" />
+      </Stack>
     </>
   );
 }

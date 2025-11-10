@@ -1,7 +1,6 @@
 import { View, Text, SectionList, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Game from "../components/game";
-import GameModal from "../components/gameModal"; // default export
 import { useState, useEffect } from "react";
 import Entypo from '@expo/vector-icons/Entypo';
 
@@ -110,7 +109,7 @@ export default function Index() {
     <SafeAreaView style={ s.container }>
       <View style={s.header}>
         <Text style={s.headerText}>
-          Games
+          WHENHL
         </Text>
         <View style={s.buttons}>
           <TouchableOpacity
@@ -157,15 +156,6 @@ export default function Index() {
           ListFooterComponent={<View style={{ height: 55 }} />}
         />
       )}
-      {gameVisible && (
-        <GameModal
-          visible={gameVisible}
-          game={selectedGame}
-          dateLabel={selectedLabels.dateLabel}
-          timeLabel={selectedLabels.timeLabel}
-          onClose={() => setGameVisible(false)}
-        />
-      )}
     </SafeAreaView>
   );
 }
@@ -182,7 +172,7 @@ const s = StyleSheet.create({
     alignItems: 'center'
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 16,
     color: 'white',
     fontWeight: 700,
   },
