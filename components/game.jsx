@@ -62,14 +62,11 @@ export default function Game({ game, index }) {
 
 const s = StyleSheet.create({
   container: {
-    marginBottom: 10,
-    marginHorizontal: 20,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderColor: '#222',
-    backgroundColor: '#141414',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderTopWidth: 2,
+    borderColor: '#050505',
+    backgroundColor: '#151515',
     flexDirection: 'row',
     justifyContent: "space-between",
     gap: 30,
@@ -96,8 +93,14 @@ const s = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  infoCol: {
+  scoreCol: {
+    flex: 1,
     justifyContent: 'space-evenly',
+  }, 
+  infoCol: {
+    paddingRight: 10,
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'flex-end',
   },
   dateLabel: {

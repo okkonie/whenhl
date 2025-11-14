@@ -153,7 +153,7 @@ export default function Index() {
             </View>
           )}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={<View style={{ height: 55 }} />}
+          ListFooterComponent={<View style={{ height: 10 }} />}
         />
       )}
     </SafeAreaView>
@@ -162,7 +162,9 @@ export default function Index() {
 
 const s = StyleSheet.create({
   container: {
-    flex: 1, backgroundColor: "#111",
+    flex: 1, 
+    backgroundColor: "#050505",
+    paddingHorizontal: 20,
   },
   header: {
     height: 60,
@@ -200,22 +202,22 @@ const s = StyleSheet.create({
     fontWeight: '600',
   },
   sectionHeader: {
-    paddingHorizontal: 25,
-    paddingTop: 25,
-    paddingBottom: 10,
-    backgroundColor: '#111',
+    backgroundColor: '#151515',
+    padding: 15,
+    borderTopEndRadius: 20,
+    borderTopStartRadius: 20,
   },
   sectionHeaderText: {
-    color: '#b0b0b0',
-    fontSize: 14,
+    color: '#ddd',
+    fontSize: 16,
     fontWeight: '600'
   },
   loader: {
-    flex: 1, alignItems: "center", justifyContent: "center"
+    flex: 1, 
+    alignItems: "center", 
+    justifyContent: "center"
   },
   list :{
-    flex: 1,
-    borderTopWidth: 1,
-    borderColor: "#222"
+    flex: 1
   }
 })
