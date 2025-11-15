@@ -33,6 +33,13 @@ export default function Game({ game }) {
   return (
     <View style={s.container}>
         <View>
+          <View style={s.top}>
+            <Text style={s.time}>
+              {game?.gameState == "FUT" ? timeLabel : game?.gameState}
+              {game?.gameOutcome && game?.gameOutcome.lastPeriodType != "REG" && ` / ${game?.gameOutcome.lastPeriodType}`}
+            </Text>
+            <Text style={s.date}>{dateLabel}</Text>
+          </View>
           <View style={s.teamRow}>
             <View style={s.svgplace}>
               <SvgUri width={40} height={40} uri={game?.homeTeam?.darkLogo} />
@@ -47,12 +54,7 @@ export default function Game({ game }) {
           </View>
         </View>
         <View style={s.infoCol}>
-          {game.gameState == "FUT" ? (
-            <>
-              <Text style={homeScoreStyle}>{timeLabel}</Text>
-              <Text style={s.dateLabel}>{dateLabel}</Text>
-            </>
-          ) : (
+          {game.gameState != "FUT" && (
             <View style={s.scoreCol}>
               <Text style={homeScoreStyle}>{game?.homeTeam?.score}</Text>
               <Text style={awayScoreStyle}>{game?.awayTeam?.score}</Text>
@@ -65,7 +67,7 @@ export default function Game({ game }) {
 
 const s = StyleSheet.create({
   container: {
-    paddingVertical: 5,
+    paddingVertical: 8,
     paddingHorizontal: 20,
     marginBottom: 10,
     backgroundColor: '#191919',
@@ -90,7 +92,7 @@ const s = StyleSheet.create({
   teamRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 3,
   },
   teamName: {
     color: "white",
@@ -111,9 +113,21 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
-  dateLabel: {
+  date: {
     color: '#b0b0b0',
     fontSize: 13,
-    marginTop: 5,
   },
+  time: {
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: "#333",
+    color: "#bbb",
+    fontSize: 12,
+    fontWeight: 600
+  },
+  top: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingVertical: 5
+  }
 });
