@@ -1,13 +1,16 @@
 import { View, Text, StyleSheet } from "react-native";
 import { SvgUri } from "react-native-svg";
 
-export default function Game({ game, index }) {
+export default function Game({ game }) {
 
   const start = game?.startTimeUTC ? new Date(game.startTimeUTC) : null;
   const isValidStart = start && !isNaN(start);
   const timeLabel = isValidStart
     ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
+  const dateLabel = isValidStart
+    ? start.toLocaleDateString([], { weekday: 'short', month: 'numeric', day: 'numeric' })
+    : 'TBA';
 
   // Compute styles: only change colors for finished games (not FUT or LIVE)
   const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE';
@@ -28,27 +31,27 @@ export default function Game({ game, index }) {
   }
 
   return (
-    <View
-      key={index}
-      style={s.container}
-    >
+    <View style={s.container}>
         <View>
           <View style={s.teamRow}>
             <View style={s.svgplace}>
-              <SvgUri width={35} height={35} uri={game?.homeTeam?.darkLogo} />
+              <SvgUri width={40} height={40} uri={game?.homeTeam?.darkLogo} />
             </View>
             <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default }</Text>
           </View>
           <View style={s.teamRow}>
             <View style={s.svgplace}>
-              <SvgUri width={35} height={35} uri={game?.awayTeam?.darkLogo} />
+              <SvgUri width={40} height={40} uri={game?.awayTeam?.darkLogo} />
             </View>
             <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
           </View>
         </View>
         <View style={s.infoCol}>
           {game.gameState == "FUT" ? (
-           <Text style={homeScoreStyle}>{timeLabel}</Text>
+            <>
+              <Text style={homeScoreStyle}>{timeLabel}</Text>
+              <Text style={s.dateLabel}>{dateLabel}</Text>
+            </>
           ) : (
             <View style={s.scoreCol}>
               <Text style={homeScoreStyle}>{game?.homeTeam?.score}</Text>
@@ -62,14 +65,18 @@ export default function Game({ game, index }) {
 
 const s = StyleSheet.create({
   container: {
-    paddingVertical: 10,
+    paddingVertical: 5,
     paddingHorizontal: 20,
-    borderTopWidth: 2,
-    borderColor: '#050505',
-    backgroundColor: '#151515',
+    marginBottom: 10,
+    backgroundColor: '#191919',
+    borderRadius: 10,
     flexDirection: 'row',
     justifyContent: "space-between",
-    gap: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   row: {
     justifyContent: 'space-between',
@@ -77,8 +84,8 @@ const s = StyleSheet.create({
     width: '60%'
   },
   svgplace: {
-    width: 35,
-    height: 35,
+    width: 40,
+    height: 40,
   },
   teamRow: {
     flexDirection: 'row',
@@ -87,11 +94,12 @@ const s = StyleSheet.create({
   },
   teamName: {
     color: "white",
+    fontWeight: 600
   },
   score: {
     color: 'white',
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: 18,
   },
   scoreCol: {
     flex: 1,
@@ -105,10 +113,7 @@ const s = StyleSheet.create({
   },
   dateLabel: {
     color: '#b0b0b0',
-    fontSize: 12,
-  },
-  stateLabel: {
-    color: 'white',
-    fontWeight: '600',
+    fontSize: 13,
+    marginTop: 5,
   },
 });
