@@ -1,7 +1,35 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { SvgUri } from "react-native-svg";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState, useEffect } from "react";
 
 export default function Game({ game }) {
+  const [pick, setPick] = useState(null);
+
+  useEffect(() => {
+    loadPick();
+  }, [game?.id]);
+
+  const loadPick = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(`pick_${game?.id}`);
+      if (stored) {
+        setPick(stored);
+      }
+    } catch (e) {
+      console.error("Error loading pick", e);
+    }
+  };
+
+  const handlePick = (team) => async () => {
+    try {
+      const teamType = team === game?.homeTeam ? 'home' : 'away';
+      await AsyncStorage.setItem(`pick_${game?.id}`, teamType);
+      setPick(teamType);
+    } catch (e) {
+      console.error("Error saving pick", e);
+    }
+  };
 
   const start = game?.startTimeUTC ? new Date(game.startTimeUTC) : null;
   const isValidStart = start && !isNaN(start);
@@ -9,7 +37,7 @@ export default function Game({ game }) {
     ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
   const dateLabel = isValidStart
-    ? start.toLocaleDateString([], { weekday: 'short', month: 'numeric', day: 'numeric' })
+    ? start.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
     : 'TBA';
 
   // Compute styles: only change colors for finished games (not FUT or LIVE)
@@ -24,22 +52,23 @@ export default function Game({ game }) {
 
   if (isPlayed && !isNaN(homeScoreNum) && !isNaN(awayScoreNum) && homeScoreNum !== awayScoreNum) {
     const homeIsWinner = homeScoreNum > awayScoreNum;
-    homeNameStyle = [s.teamName, { color: homeIsWinner ? 'white' : '#b0b0b0' }];
-    awayNameStyle = [s.teamName, { color: homeIsWinner ? '#b0b0b0' : 'white' }];
-    homeScoreStyle = [s.score, { color: homeIsWinner ? 'white' : '#b0b0b0' }];
-    awayScoreStyle = [s.score, { color: homeIsWinner ? '#b0b0b0' : 'white' }];
+    homeNameStyle = [s.teamName, { color: homeIsWinner ? '#eee' : '#999' }];
+    awayNameStyle = [s.teamName, { color: homeIsWinner ? '#999' : '#eee' }];
+    homeScoreStyle = [s.score, { color: homeIsWinner ? '#eee' : '#999' }];
+    awayScoreStyle = [s.score, { color: homeIsWinner ? '#999' : '#eee' }];
   }
 
   return (
     <View style={s.container}>
+      <View style={s.top}>
+        <Text style={s.time}>
+          {game?.gameState == "FUT" && timeLabel}
+          {game?.gameOutcome && game?.gameOutcome.lastPeriodType}
+        </Text>
+        <Text style={s.date}>{dateLabel}</Text>
+      </View>
+      <View style={s.body}>
         <View>
-          <View style={s.top}>
-            <Text style={s.time}>
-              {game?.gameState == "FUT" ? timeLabel : game?.gameState}
-              {game?.gameOutcome && game?.gameOutcome.lastPeriodType != "REG" && ` / ${game?.gameOutcome.lastPeriodType}`}
-            </Text>
-            <Text style={s.date}>{dateLabel}</Text>
-          </View>
           <View style={s.teamRow}>
             <View style={s.svgplace}>
               <SvgUri width={40} height={40} uri={game?.homeTeam?.darkLogo} />
@@ -54,36 +83,60 @@ export default function Game({ game }) {
           </View>
         </View>
         <View style={s.infoCol}>
-          {game.gameState != "FUT" && (
+          {game?.homeTeam?.score != undefined && game?.awayTeam?.score != undefined && (
             <View style={s.scoreCol}>
               <Text style={homeScoreStyle}>{game?.homeTeam?.score}</Text>
               <Text style={awayScoreStyle}>{game?.awayTeam?.score}</Text>
             </View>
           )}
+
+          {game?.gameState == "FUT" && (
+            <View style={s.scoreCol}>
+              <TouchableOpacity 
+                activeOpacity={0.7} 
+                style={[s.pickButton, pick === 'home' && s.pickButtonActive]}
+                onPress={handlePick(game.homeTeam)}
+              >
+
+              </TouchableOpacity>
+              <TouchableOpacity 
+                activeOpacity={0.7} 
+                style={[s.pickButton, pick === 'away' && s.pickButtonActive]}
+                onPress={handlePick(game.awayTeam)}
+              >
+
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
+      </View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  container: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    marginBottom: 10,
-    backgroundColor: '#191919',
-    borderRadius: 10,
-    flexDirection: 'row',
-    justifyContent: "space-between",
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  pickButton: {
+    width: 20,
+    height: 20,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: "#777"
   },
-  row: {
-    justifyContent: 'space-between',
+  pickButtonActive: {
+    backgroundColor: "#fff",
+    borderColor: "#fff"
+  },
+  container: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderColor: '#252525',
+    flexDirection: 'column',
+    justifyContent: "space-between",
+  },
+  body: {
     flexDirection: 'row',
-    width: '60%'
+    justifyContent: 'space-between'
   },
   svgplace: {
     width: 40,
@@ -92,11 +145,12 @@ const s = StyleSheet.create({
   teamRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 10,
   },
   teamName: {
-    color: "white",
-    fontWeight: 600
+    color: "#eee",
+    fontWeight: 500,
+    fontSize: 13,
   },
   score: {
     color: 'white',
@@ -114,20 +168,22 @@ const s = StyleSheet.create({
     alignItems: 'flex-end',
   },
   date: {
-    color: '#b0b0b0',
-    fontSize: 13,
+    color: '#bbb',
+    fontSize: 14,
+    fontWeight: 400,
   },
   time: {
-    paddingHorizontal: 5,
-    borderRadius: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
     backgroundColor: "#333",
-    color: "#bbb",
-    fontSize: 12,
-    fontWeight: 600
+    color: "#ccc",
+    fontSize: 13,
+    fontWeight: 500,
   },
   top: {
     flexDirection: 'row',
-    gap: 10,
-    paddingVertical: 5
+    paddingVertical: 15,
+    gap: 10
   }
 });

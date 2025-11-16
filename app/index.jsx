@@ -1,7 +1,8 @@
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Game from "../components/game";
 import { useState, useEffect } from "react";
+import Octicons from '@expo/vector-icons/Octicons'
 
 export default function Index() {
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,18 @@ export default function Index() {
   return (
     <SafeAreaView style={s.container}>
       <View style={s.header}>
-        <Text style={s.headerText}>GAMES</Text>
+        <Text style={s.headerText}>Games</Text>
+        <View style={s.buttons}>
+          <TouchableOpacity>
+            <Octicons name="star" size={20} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Octicons name="list-ordered" size={20} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Octicons name="calendar" size={20} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
       {loading ? (
         <View style={s.loader}>
@@ -54,19 +66,26 @@ export default function Index() {
 }
 
 const s = StyleSheet.create({
+  buttons: {
+    gap: 30,
+    alignItems: 'center',
+    flexDirection: 'row'
+  },
   container: {
     flex: 1, 
-    backgroundColor: "#000",
+    backgroundColor: "#161616",
   },
   header: {
-    height: 60,
-    paddingHorizontal: 10,
+    height: 80,
+    paddingHorizontal: 25,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: "#252525"
   },
   headerText: {
-    fontSize: 16,
+    fontSize: 18,
     color: 'white',
     fontWeight: 700,
   },
