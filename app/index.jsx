@@ -1,12 +1,14 @@
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Game from "../components/game";
+import Teams from "../components/teams";
 import { useState, useEffect } from "react";
-import Octicons from '@expo/vector-icons/Octicons'
+import Octicons from '@expo/vector-icons/Octicons';
 
 export default function Index() {
   const [loading, setLoading] = useState(false);
   const [games, setGames] = useState([]);
+  const [showTeams, setShowTeams] = useState(false);
 
   const fetchGames = async () => {
     try {
@@ -37,13 +39,13 @@ export default function Index() {
       <View style={s.header}>
         <Text style={s.headerText}>Games</Text>
         <View style={s.buttons}>
-          <TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.8}>
             <Octicons name="star" size={20} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowTeams(true)} activeOpacity={0.8}>
             <Octicons name="list-ordered" size={20} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.8}>
             <Octicons name="calendar" size={20} color="white" />
           </TouchableOpacity>
         </View>
@@ -60,6 +62,9 @@ export default function Index() {
           renderItem={({ item }) => <Game game={item} />}
           showsVerticalScrollIndicator={false}
         />
+      )}
+      {showTeams && (
+        <Teams visible={showTeams} favorites={null} />
       )}
     </SafeAreaView>
   );
@@ -80,9 +85,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 25,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: "#252525"
+    alignItems: 'center'
   },
   headerText: {
     fontSize: 18,

@@ -37,7 +37,7 @@ export default function Game({ game }) {
     ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
   const dateLabel = isValidStart
-    ? start.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
+    ? start.toLocaleDateString([], { weekday: 'short', month: 'numeric', day: 'numeric' })
     : 'TBA';
 
   // Compute styles: only change colors for finished games (not FUT or LIVE)
@@ -61,7 +61,7 @@ export default function Game({ game }) {
   return (
     <View style={s.container}>
       <View style={s.top}>
-        <Text style={s.time}>
+        <Text style={[s.time, { fontSize: game?.gameState == "FUT" ? 16 : 14 }]}>
           {game?.gameState == "FUT" && timeLabel}
           {game?.gameOutcome && game?.gameOutcome.lastPeriodType}
         </Text>
@@ -116,8 +116,8 @@ export default function Game({ game }) {
 
 const s = StyleSheet.create({
   pickButton: {
-    width: 20,
-    height: 20,
+    width: 16,
+    height: 16,
     borderRadius: 5,
     borderWidth: 1.5,
     borderColor: "#777"
@@ -128,15 +128,16 @@ const s = StyleSheet.create({
   },
   container: {
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderColor: '#252525',
-    flexDirection: 'column',
-    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    borderBottomWidth: 5,
+    borderColor: '#050505',
+    flexDirection: 'row',
   },
   body: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    flex: 1,
+    paddingHorizontal: 10,
   },
   svgplace: {
     width: 40,
@@ -168,22 +169,19 @@ const s = StyleSheet.create({
     alignItems: 'flex-end',
   },
   date: {
-    color: '#bbb',
-    fontSize: 14,
+    color: '#ccc',
+    fontSize: 12,
     fontWeight: 400,
   },
   time: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 999,
-    backgroundColor: "#333",
     color: "#ccc",
-    fontSize: 13,
-    fontWeight: 500,
+    fontWeight: 600,
   },
   top: {
-    flexDirection: 'row',
-    paddingVertical: 15,
-    gap: 10
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 5,
+    width: 80,
   }
 });
