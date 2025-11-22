@@ -39,14 +39,14 @@ export default function Index() {
       <View style={s.header}>
         <Text style={s.headerText}>Games</Text>
         <View style={s.buttons}>
-          <TouchableOpacity activeOpacity={0.8}>
+          <TouchableOpacity activeOpacity={0.8} style={s.btn}>
             <Octicons name="star" size={20} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setShowTeams(true)} activeOpacity={0.8}>
-            <Octicons name="list-ordered" size={20} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8}>
+          <TouchableOpacity activeOpacity={0.8} style={s.btn}>
             <Octicons name="calendar" size={20} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowTeams(true)} activeOpacity={0.8} style={s.btn}>
+            <Octicons name="list-ordered" size={20} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -63,16 +63,20 @@ export default function Index() {
           showsVerticalScrollIndicator={false}
         />
       )}
-      {showTeams && (
-        <Teams visible={showTeams} favorites={null} />
-      )}
+      <Teams visible={showTeams} favorites={null} onClose={() => setShowTeams(false)}/>
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
+  btn: { 
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   buttons: {
-    gap: 30,
+    gap: 10,
     alignItems: 'center',
     flexDirection: 'row'
   },
@@ -81,13 +85,14 @@ const s = StyleSheet.create({
     backgroundColor: "#161616",
   },
   header: {
-    height: 80,
-    paddingHorizontal: 25,
+    height: 65,
+    paddingHorizontal: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
   },
   headerText: {
+    paddingLeft: 10,
     fontSize: 18,
     color: 'white',
     fontWeight: 700,
