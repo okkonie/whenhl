@@ -6,7 +6,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 export default function Teams({visible, favorites, onClose}){
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [groupBy, setGroupBy] = useState('division'); // 'division', 'conference', or 'all'
+  const [groupBy, setGroupBy] = useState('division');
   
   useEffect(() => {
     const fetchStandings = async () => {
@@ -60,12 +60,6 @@ export default function Teams({visible, favorites, onClose}){
     });
   };
 
-  const getGroupLabel = () => {
-    if (groupBy === 'division') return 'Division';
-    if (groupBy === 'conference') return 'Conference';
-    return 'All';
-  };
-
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={s.container}>
@@ -102,10 +96,21 @@ export default function Teams({visible, favorites, onClose}){
                 <View style={s.teamLeft}>
                   
                   <Text style={s.rank}>{index + 1}.</Text>
-                  <SvgUri width={40} height={30} uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev.default}_dark.svg`} />
+                  <View style={s.svgPlace}>
+                    <SvgUri 
+                      width={40} 
+                      height={30} 
+                      uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev.default}_dark.svg`} 
+                    />
+                  </View>
                   <Text style={s.teamName}>{item.teamName.default}</Text>
                 </View>
-                <Text style={s.teamPoints}>{item.points}</Text>
+                <View style={s.teamRight}>
+                  <Text style={s.teamPoints}>{item.points}</Text>
+                  <TouchableOpacity style={s.favBtn}>
+                    <Octicons name="star" color="#666" size={18} activeOpacity={0.8} />
+                  </TouchableOpacity>
+                </View>
               </View>
             }
           />
@@ -117,17 +122,24 @@ export default function Teams({visible, favorites, onClose}){
 }
 
 const s = StyleSheet.create({
+  favBtn: {
+    padding: 10,
+  },
   btn: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  svgPlace: {
+    width: 40,
+    height: 30
+  },
   header: {
     color: 'white',
     fontSize: 18,
     fontWeight: 600,
-    paddingLeft: 10
+    paddingLeft: 10,
   },
   top: {
     paddingHorizontal: 15,
@@ -140,12 +152,6 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10
-  },
-  groupButton: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 500,
-    opacity: 0.8
   },
   container: {
     flex: 1,
@@ -160,14 +166,14 @@ const s = StyleSheet.create({
     flex: 1,
   },
   sectionHeader: {
-    backgroundColor: '#202020',
     paddingHorizontal: 25,
-    paddingVertical: 12,
+    paddingTop: 20,
+    paddingBottom: 5,
+    borderTopWidth: 5,
+    borderColor: "#050505"
   },
   sectionTitle: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 600
+    color: '#aaa'
   },
   teamRow: {
     paddingHorizontal: 25,
@@ -175,10 +181,13 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1a'
   },
   teamLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
+  },
+  teamRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10
@@ -192,7 +201,7 @@ const s = StyleSheet.create({
     fontSize: 13,
   },
   teamPoints: {
-    color: '#aaa',
+    color: '#ccc',
     fontSize: 15,
     fontWeight: 600
   }

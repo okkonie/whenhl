@@ -61,7 +61,7 @@ export default function Game({ game }) {
   return (
     <View style={s.container}>
       <View style={s.top}>
-        <Text style={[s.time, { fontSize: game?.gameState == "FUT" ? 16 : 14 }]}>
+        <Text style={s.time}>
           {game?.gameState == "FUT" && timeLabel}
           {game?.gameOutcome && game?.gameOutcome.lastPeriodType}
         </Text>
@@ -129,7 +129,7 @@ const s = StyleSheet.create({
   container: {
     paddingVertical: 12,
     paddingHorizontal: 10,
-    borderBottomWidth: 5,
+    borderTopWidth: 5,
     borderColor: '#050505',
     flexDirection: 'row',
   },
@@ -170,12 +170,12 @@ const s = StyleSheet.create({
   },
   date: {
     color: '#ccc',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 400,
   },
   time: {
     color: "#ccc",
-    fontWeight: 600,
+    fontSize: 13
   },
   top: {
     flexDirection: 'column',
