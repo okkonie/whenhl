@@ -73,10 +73,10 @@ export default function Teams({visible, favorites, onClose}){
           <View style={s.top}>
             <Text style={s.header}>Standings</Text>
             <View style={s.topButtons}>
-              <TouchableOpacity onPress={toggleGrouping} activeOpacity={0.8} style={s.btn}>
+              <TouchableOpacity onPress={toggleGrouping} activeOpacity={0.7} style={s.btn}>
                 <Octicons name="sort-desc" size={22} color="white"/>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onClose} activeOpacity={0.8} style={s.btn}>
+              <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={s.btn}>
                 <Octicons name="x" size={24} color="white"/>
               </TouchableOpacity>
             </View>
@@ -108,7 +108,7 @@ export default function Teams({visible, favorites, onClose}){
                 <View style={s.teamRight}>
                   <Text style={s.teamPoints}>{item.points}</Text>
                   <TouchableOpacity style={s.favBtn}>
-                    <Octicons name="star" color="#666" size={18} activeOpacity={0.8} />
+                    <Octicons name="star" color="#666" size={18} activeOpacity={0.7} />
                   </TouchableOpacity>
                 </View>
               </View>

@@ -71,13 +71,13 @@ export default function Game({ game }) {
         <View>
           <View style={s.teamRow}>
             <View style={s.svgplace}>
-              <SvgUri width={40} height={40} uri={game?.homeTeam?.darkLogo} />
+              <SvgUri width={40} height={35} uri={game?.homeTeam?.darkLogo} />
             </View>
             <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default }</Text>
           </View>
           <View style={s.teamRow}>
             <View style={s.svgplace}>
-              <SvgUri width={40} height={40} uri={game?.awayTeam?.darkLogo} />
+              <SvgUri width={40} height={35} uri={game?.awayTeam?.darkLogo} />
             </View>
             <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
           </View>
@@ -141,7 +141,7 @@ const s = StyleSheet.create({
   },
   svgplace: {
     width: 40,
-    height: 40,
+    height: 35,
   },
   teamRow: {
     flexDirection: 'row',
