@@ -73,13 +73,18 @@ export default function Game({ game }) {
             <View style={s.svgplace}>
               <SvgUri width={40} height={35} uri={game?.homeTeam?.darkLogo} />
             </View>
-            <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default }</Text>
+            
+              <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default}</Text>
           </View>
           <View style={s.teamRow}>
             <View style={s.svgplace}>
               <SvgUri width={40} height={35} uri={game?.awayTeam?.darkLogo} />
             </View>
+            
             <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
+            <View>
+              <Text style={s.secText}></Text>
+            </View>
           </View>
         </View>
         <View style={s.infoCol}>
@@ -129,7 +134,7 @@ const s = StyleSheet.create({
   container: {
     paddingVertical: 12,
     paddingHorizontal: 10,
-    borderTopWidth: 5,
+    borderTopWidth: 2,
     borderColor: '#050505',
     flexDirection: 'row',
   },

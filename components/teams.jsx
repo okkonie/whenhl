@@ -94,16 +94,20 @@ export default function Teams({visible, favorites, onClose}){
             renderItem={({ item, index }) => 
               <View style={s.teamRow}>
                 <View style={s.teamLeft}>
-                  
-                  <Text style={s.rank}>{index + 1}.</Text>
-                  <View style={s.svgPlace}>
-                    <SvgUri 
-                      width={40} 
-                      height={30} 
-                      uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev.default}_dark.svg`} 
-                    />
+                  <Text style={s.rank}>{index + 1}</Text>
+                  <View style={s.team}>
+                    <View style={s.svgPlace}>
+                      <SvgUri 
+                        width={40} 
+                        height={30} 
+                        uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev.default}_dark.svg`} 
+                      />
+                    </View>
+                    <View>
+                      <Text style={s.teamName}>{item.teamName.default}</Text>
+                      <Text style={s.score}>{item.regulationPlusOtWins + item.shootoutWins}-{item.losses}-{item.otLosses}</Text>
+                    </View>
                   </View>
-                  <Text style={s.teamName}>{item.teamName.default}</Text>
                 </View>
                 <View style={s.teamRight}>
                   <Text style={s.teamPoints}>{item.points}</Text>
@@ -169,23 +173,29 @@ const s = StyleSheet.create({
     paddingHorizontal: 25,
     paddingTop: 20,
     paddingBottom: 5,
-    borderTopWidth: 5,
+    borderTopWidth: 2,
     borderColor: "#050505"
   },
   sectionTitle: {
-    color: '#aaa'
+    color: '#aaa',
+    fontWeight: 500,
+    fontSize: 15,
   },
   teamRow: {
     paddingHorizontal: 25,
-    paddingVertical: 14,
+    paddingVertical: 18,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  teamLeft: {
+  team: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10
+  },
+  teamLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   teamRight: {
     flexDirection: 'row',
@@ -194,15 +204,21 @@ const s = StyleSheet.create({
   },
   rank: {
     color: "#aaa",
+    width: 24,
   },
   teamName: {
     color: 'white',
-    fontWeight: 500,
     fontSize: 13,
+    fontWeight: 500
   },
   teamPoints: {
-    color: '#ccc',
-    fontSize: 15,
+    color: 'white',
+    fontSize: 14,
     fontWeight: 600
-  }
+  },
+  score: {
+    color: "#aaa",
+    fontSize: 11,
+    paddingTop: 2,
+  },
 });
