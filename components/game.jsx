@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { SvgUri } from "react-native-svg";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SvgUri } from "react-native-svg";
 
 export default function Game({ game }) {
   const [pick, setPick] = useState(null);
@@ -134,7 +134,7 @@ const s = StyleSheet.create({
   container: {
     paddingVertical: 12,
     paddingHorizontal: 10,
-    borderTopWidth: 2,
+    borderBottomWidth: 2,
     borderColor: '#050505',
     flexDirection: 'row',
   },

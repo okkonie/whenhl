@@ -1,12 +1,11 @@
-import Octicons from '@expo/vector-icons/Octicons';
 import { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Game from "../components/game";
 
 export default function Index() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [games, setGames] = useState([]);
+  const [showTeams, setShowTeams] = useState(false);
 
   const fetchGames = async () => {
     try {
@@ -37,50 +36,19 @@ export default function Index() {
       <View style={s.header}>
         <Text style={s.headerText}>Games</Text>
         <View style={s.buttons}>
-          <TouchableOpacity activeOpacity={0.8} style={s.btn}>
-            <Octicons name="star" size={20} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={s.btn}>
-            <Octicons name="calendar" size={20} color="white" />
-          </TouchableOpacity>
         </View>
       </View>
-      {loading ? (
-        <View style={s.loader}>
-          <ActivityIndicator color="#fff" />
-        </View>
-      ) : (
-        <FlatList
-          style={s.list}
-          data={games}
-          keyExtractor={(item, index) => item?.id?.toString() || item?.gameId?.toString() || index.toString()}
-          renderItem={({ item }) => <Game game={item} />}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
-  btn: { 
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  buttons: {
-    gap: 10,
-    alignItems: 'center',
-    flexDirection: 'row'
-  },
   container: {
     flex: 1, 
     backgroundColor: "#161616",
   },
   header: {
     height: 65,
-    paddingTop: 10,
     paddingHorizontal: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
