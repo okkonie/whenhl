@@ -134,8 +134,8 @@ const s = StyleSheet.create({
   container: {
     paddingVertical: 12,
     paddingHorizontal: 10,
-    borderBottomWidth: 2,
-    borderColor: '#050505',
+    borderBottomWidth: 3,
+    borderColor: '#080808',
     flexDirection: 'row',
   },
   body: {
@@ -160,8 +160,8 @@ const s = StyleSheet.create({
   },
   score: {
     color: 'white',
-    fontWeight: '600',
-    fontSize: 18,
+    fontWeight: 500,
+    fontSize: 16,
   },
   scoreCol: {
     flex: 1,

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SvgUri } from "react-native-svg";
+import Header from "../components/header";
 
 export default function Teams() {
   const [standings, setStandings] = useState([]);
@@ -68,19 +69,17 @@ export default function Teams() {
       </View>
     ) : (
       <>
-        <View style={s.header}>
-          <Text style={s.headerText}>Standings</Text>
-          <View style={s.buttons}>
-            <TouchableOpacity onPress={toggleGrouping} activeOpacity={0.7} style={s.btn}>
-              <Octicons name="sort-desc" size={22} color="white"/>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <Header text={'Standings'}>
+          <TouchableOpacity onPress={toggleGrouping} activeOpacity={0.7} style={s.btn}>
+            <Octicons name="sort-desc" size={20} color="white"/>
+          </TouchableOpacity>
+        </Header>
         <SectionList 
           style={s.list}
           sections={groupedStandings()}
           keyExtractor={(item, index) => item?.teamName?.default || index.toString()}
           showsVerticalScrollIndicator={false}
+          ListFooterComponent={<View style={{height: 50}}/>}
           renderSectionHeader={({ section: { title } }) => (
             <View style={s.sectionHeader}>
               <Text style={s.sectionTitle}>{title}</Text>
@@ -133,25 +132,6 @@ const s = StyleSheet.create({
   svgPlace: {
     width: 40,
     height: 30
-  },
-  header: {
-    height: 65,
-    paddingTop: 10,
-    paddingHorizontal: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  headerText: {
-    paddingLeft: 10,
-    fontSize: 18,
-    color: 'white',
-    fontWeight: 700,
-  },
-  buttons: {
-    gap: 10,
-    alignItems: 'center',
-    flexDirection: 'row'
   },
   container: {
     flex: 1,

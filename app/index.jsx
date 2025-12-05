@@ -1,8 +1,9 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Game from "../components/game";
+import Header from '../components/header';
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
@@ -34,17 +35,14 @@ export default function Index() {
 
   return (
     <SafeAreaView style={s.container}>
-      <View style={s.header}>
-        <Text style={s.headerText}>Games</Text>
-        <View style={s.buttons}>
-          <TouchableOpacity activeOpacity={0.8} style={s.btn}>
-            <Octicons name="star" size={20} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={s.btn}>
-            <Octicons name="calendar" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Header text={'Games'}>
+        <TouchableOpacity activeOpacity={0.8} style={s.btn}>
+          <Octicons name="star" size={18} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.8} style={s.btn}>
+          <Octicons name="calendar" size={18} color="white" />
+        </TouchableOpacity>
+      </Header>
       {loading ? (
         <View style={s.loader}>
           <ActivityIndicator color="#fff" />
@@ -56,6 +54,7 @@ export default function Index() {
           keyExtractor={(item, index) => item?.id?.toString() || item?.gameId?.toString() || index.toString()}
           renderItem={({ item }) => <Game game={item} />}
           showsVerticalScrollIndicator={false}
+          ListFooterComponent={<View style={{height: 50}} />}
         />
       )}
     </SafeAreaView>
@@ -67,30 +66,11 @@ const s = StyleSheet.create({
     width: 40,
     height: 40,
     justifyContent: 'center',
-    alignItems: 'center'
-  },
-  buttons: {
-    gap: 10,
     alignItems: 'center',
-    flexDirection: 'row'
   },
   container: {
     flex: 1, 
     backgroundColor: "#161616",
-  },
-  header: {
-    height: 65,
-    paddingTop: 10,
-    paddingHorizontal: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  headerText: {
-    paddingLeft: 10,
-    fontSize: 18,
-    color: 'white',
-    fontWeight: 700,
   },
   loader: {
     flex: 1, 
