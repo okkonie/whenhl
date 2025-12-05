@@ -1,9 +1,10 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Game from "../components/game";
 import Header from '../components/header';
+import Loader from '../components/loader';
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
@@ -35,27 +36,25 @@ export default function Index() {
 
   return (
     <SafeAreaView style={s.container}>
-      <Header text={'Games'}>
-        <TouchableOpacity activeOpacity={0.8} style={s.btn}>
-          <Octicons name="star" size={18} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.8} style={s.btn}>
-          <Octicons name="calendar" size={18} color="white" />
-        </TouchableOpacity>
-      </Header>
-      {loading ? (
-        <View style={s.loader}>
-          <ActivityIndicator color="#fff" />
-        </View>
-      ) : (
-        <FlatList
-          style={s.list}
-          data={games}
-          keyExtractor={(item, index) => item?.id?.toString() || item?.gameId?.toString() || index.toString()}
-          renderItem={({ item }) => <Game game={item} />}
-          showsVerticalScrollIndicator={false}
-          ListFooterComponent={<View style={{height: 50}} />}
-        />
+      {loading ? <Loader /> : (
+        <>
+          <Header text={'Games'}>
+            <TouchableOpacity activeOpacity={0.8} style={s.btn}>
+              <Octicons name="star" size={18} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.8} style={s.btn}>
+              <Octicons name="calendar" size={18} color="white" />
+            </TouchableOpacity>
+          </Header>
+          <FlatList
+            style={s.list}
+            data={games}
+            keyExtractor={(item, index) => item?.id?.toString() || item?.gameId?.toString() || index.toString()}
+            renderItem={({ item }) => <Game game={item} />}
+            showsVerticalScrollIndicator={false}
+            ListFooterComponent={<View style={{height: 50}} />}
+          />
+        </>
       )}
     </SafeAreaView>
   );
@@ -71,11 +70,6 @@ const s = StyleSheet.create({
   container: {
     flex: 1, 
     backgroundColor: "#161616",
-  },
-  loader: {
-    flex: 1, 
-    alignItems: "center", 
-    justifyContent: "center"
   },
   list :{
     flex: 1

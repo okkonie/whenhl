@@ -61,11 +61,10 @@ export default function Game({ game }) {
   return (
     <View style={s.container}>
       <View style={s.top}>
-        <Text style={s.time}>
-          {game?.gameState == "FUT" && timeLabel}
-          {game?.gameOutcome && game?.gameOutcome.lastPeriodType}
-        </Text>
         <Text style={s.date}>{dateLabel}</Text>
+        <Text style={s.time}>
+          {game?.gameState == "FUT" ? timeLabel : game?.gameOutcome && game?.gameOutcome.lastPeriodType}
+        </Text>
       </View>
       <View style={s.body}>
         <View>
@@ -121,8 +120,8 @@ export default function Game({ game }) {
 
 const s = StyleSheet.create({
   pickButton: {
-    width: 16,
-    height: 16,
+    width: 15,
+    height: 15,
     borderRadius: 5,
     borderWidth: 1.5,
     borderColor: "#777"
@@ -134,8 +133,8 @@ const s = StyleSheet.create({
   container: {
     paddingVertical: 12,
     paddingHorizontal: 10,
-    borderBottomWidth: 3,
-    borderColor: '#080808',
+    borderBottomWidth: 2,
+    borderColor: '#050505',
     flexDirection: 'row',
   },
   body: {
@@ -155,7 +154,6 @@ const s = StyleSheet.create({
   },
   teamName: {
     color: "#eee",
-    fontWeight: 500,
     fontSize: 13,
   },
   score: {

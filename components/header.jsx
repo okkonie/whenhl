@@ -19,11 +19,13 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#202020'
   },
   headerText: {
     paddingLeft: 10,
     fontSize: 18,
-    color: '#ddd',
+    color: 'white',
     fontWeight: 500,
   },
   buttons: {

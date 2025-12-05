@@ -1,10 +1,17 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 
-export default function statMode(mode, visible){
+export default function statMode(mode, visible, onClose){
+  const modes = ['points', 'goals', 'assists', 
+                'plusMinus', 'toi', 'goalsPp', 
+                'faceoffLeaders', 'penaltyMins'
+                ]
+
   return  (
-    <View style={sback}>
-
-    </View>
+    <TouchableOpacity style={s.back} onPress={onClose}>
+      <Modal>
+        
+      </Modal>
+    </TouchableOpacity>
   )
 }
 

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/header";
+import Loader from "../components/loader";
 
 export default function Players() {
   const [loading, setLoading] = useState(true);
@@ -10,11 +11,13 @@ export default function Players() {
 
   return (
     <SafeAreaView style={s.container}>
-      <Header text={'Players'}>
-        <TouchableOpacity onPress={() => setMode('dont')} activeOpacity={0.7} style={s.btn}>
-          <Octicons name="arrow-switch" size={20} color="white"/>
-        </TouchableOpacity>
-      </Header>
+      {loading ? <Loader /> : (
+        <Header text={'Players'}>
+          <TouchableOpacity onPress={() => setMode('dont')} activeOpacity={0.7} style={s.btn}>
+            <Octicons name="arrow-switch" size={20} color="white"/>
+          </TouchableOpacity>
+        </Header>
+      )}
     </SafeAreaView>
   );
 }

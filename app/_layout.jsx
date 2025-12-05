@@ -45,6 +45,8 @@ export default function RootLayout() {
             width: '100%',
             paddingTop: 5,
             elevation: 0,
+            borderTopWidth: 1,
+            borderColor: '#202020'
           },
           tabBarBackground: () => (
             <View style={{ flex: 1, backgroundColor: '#161616' }}>

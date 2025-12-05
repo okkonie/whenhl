@@ -1,9 +1,10 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { useEffect, useState } from "react";
-import { ActivityIndicator, SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SvgUri } from "react-native-svg";
 import Header from "../components/header";
+import Loader from '../components/loader';
 
 export default function Teams() {
   const [standings, setStandings] = useState([]);
@@ -62,67 +63,59 @@ export default function Teams() {
 
   return (
     <SafeAreaView style={s.container}>
-
-    {loading ? (
-      <View style={s.loader}>
-        <ActivityIndicator color="#fff" />
-      </View>
-    ) : (
-      <>
-        <Header text={'Standings'}>
-          <TouchableOpacity onPress={toggleGrouping} activeOpacity={0.7} style={s.btn}>
-            <Octicons name="sort-desc" size={20} color="white"/>
-          </TouchableOpacity>
-        </Header>
-        <SectionList 
-          style={s.list}
-          sections={groupedStandings()}
-          keyExtractor={(item, index) => item?.teamName?.default || index.toString()}
-          showsVerticalScrollIndicator={false}
-          ListFooterComponent={<View style={{height: 50}}/>}
-          renderSectionHeader={({ section: { title } }) => (
-            <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>{title}</Text>
-            </View>
-          )}
-          renderItem={({ item, index }) => 
-            <View style={s.teamRow}>
-              <View style={s.teamLeft}>
-                <Text style={s.rank}>{index + 1}</Text>
-                <View style={s.team}>
-                  <View style={s.svgPlace}>
-                    <SvgUri 
-                      width={40} 
-                      height={30} 
-                      uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev.default}_dark.svg`} 
-                    />
-                  </View>
-                  <View>
-                    <Text style={s.teamName}>{item.teamName.default}</Text>
-                    <Text style={s.score}>{item.regulationPlusOtWins + item.shootoutWins}-{item.losses}-{item.otLosses}</Text>
+      {loading ? <Loader /> : (
+        <>
+          <Header text={'Standings'}>
+            <TouchableOpacity onPress={toggleGrouping} activeOpacity={0.7} style={s.btn}>
+              <Octicons name="sort-desc" size={20} color="white"/>
+            </TouchableOpacity>
+          </Header>
+          <SectionList 
+            style={s.list}
+            sections={groupedStandings()}
+            keyExtractor={(item, index) => item?.teamName?.default || index.toString()}
+            showsVerticalScrollIndicator={false}
+            ListFooterComponent={<View style={{height: 50}}/>}
+            renderSectionHeader={({ section: { title } }) => (
+              <View style={s.sectionHeader}>
+                <Text style={s.sectionTitle}>{title}</Text>
+              </View>
+            )}
+            renderItem={({ item, index }) => 
+              <View style={s.teamRow}>
+                <View style={s.teamLeft}>
+                  <Text style={s.rank}>{index + 1}</Text>
+                  <View style={s.team}>
+                    <View style={s.svgPlace}>
+                      <SvgUri 
+                        width={40} 
+                        height={30} 
+                        uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev.default}_dark.svg`} 
+                      />
+                    </View>
+                    <View>
+                      <Text style={s.teamName}>{item.teamName.default}</Text>
+                      <Text style={s.score}>{item.regulationPlusOtWins + item.shootoutWins}-{item.losses}-{item.otLosses}</Text>
+                    </View>
                   </View>
                 </View>
+                <View style={s.teamRight}>
+                  <Text style={s.teamPoints}>{item.points}</Text>
+                  <TouchableOpacity style={s.favBtn}>
+                    <Octicons name="star" color="#666" size={18} activeOpacity={0.7} />
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={s.teamRight}>
-                <Text style={s.teamPoints}>{item.points}</Text>
-                <TouchableOpacity style={s.favBtn}>
-                  <Octicons name="star" color="#666" size={18} activeOpacity={0.7} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          }
-        />
-      </>
-    )}
+            }
+          />
+        </>
+      )}
     </SafeAreaView>
   );
 }
 
 
 const s = StyleSheet.create({
-  favBtn: {
-    padding: 10,
-  },
   btn: {
     width: 40,
     height: 40,
@@ -152,8 +145,7 @@ const s = StyleSheet.create({
   },
   sectionTitle: {
     color: '#aaa',
-    fontWeight: 500,
-    fontSize: 15,
+    fontSize: 16,
   },
   teamRow: {
     paddingHorizontal: 25,
@@ -174,7 +166,7 @@ const s = StyleSheet.create({
   teamRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10
+    gap: 20
   },
   rank: {
     color: "#aaa",
@@ -182,8 +174,7 @@ const s = StyleSheet.create({
   },
   teamName: {
     color: 'white',
-    fontSize: 13,
-    fontWeight: 500
+    fontSize: 14,
   },
   teamPoints: {
     color: 'white',
