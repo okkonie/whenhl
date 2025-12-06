@@ -9,6 +9,7 @@ import Loader from '../components/loader';
 export default function Index() {
   const [loading, setLoading] = useState(true);
   const [games, setGames] = useState([]);
+  const [favorites, setFavorites] = useState(false);
 
   const fetchGames = async () => {
     try {
@@ -39,8 +40,8 @@ export default function Index() {
       {loading ? <Loader /> : (
         <>
           <Header text={'Games'}>
-            <TouchableOpacity activeOpacity={0.8} style={s.btn}>
-              <Octicons name="star" size={18} color="white" />
+            <TouchableOpacity activeOpacity={0.8} style={s.btn} onPress={() => setFavorites(!favorites)}>
+              <Octicons name={favorites ? 'star-fill' : 'star'}size={18} color="white" />
             </TouchableOpacity>
             <TouchableOpacity activeOpacity={0.8} style={s.btn}>
               <Octicons name="calendar" size={18} color="white" />
@@ -69,7 +70,7 @@ const s = StyleSheet.create({
   },
   container: {
     flex: 1, 
-    backgroundColor: "#161616",
+    backgroundColor: "#111",
   },
   list :{
     flex: 1

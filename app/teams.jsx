@@ -84,7 +84,9 @@ export default function Teams() {
             renderItem={({ item, index }) => 
               <View style={s.teamRow}>
                 <View style={s.teamLeft}>
-                  <Text style={s.rank}>{index + 1}</Text>
+                  <View style={s.rank}>
+                    <Text style={s.rankText}>{index + 1}</Text>
+                  </View>
                   <View style={s.team}>
                     <View style={s.svgPlace}>
                       <SvgUri 
@@ -94,15 +96,15 @@ export default function Teams() {
                       />
                     </View>
                     <View>
-                      <Text style={s.teamName}>{item.teamName.default}</Text>
-                      <Text style={s.score}>{item.regulationPlusOtWins + item.shootoutWins}-{item.losses}-{item.otLosses}</Text>
+                      <Text style={s.teamName}>{item.placeName.default.startsWith('NY') ? 'New York' : item.placeName.default}</Text>
+                      <Text style={s.teamName}>{item.teamCommonName.default}</Text>
                     </View>
                   </View>
                 </View>
                 <View style={s.teamRight}>
                   <Text style={s.teamPoints}>{item.points}</Text>
                   <TouchableOpacity style={s.favBtn}>
-                    <Octicons name="star" color="#666" size={18} activeOpacity={0.7} />
+                    <Octicons name="star" color="#aaa" size={14} activeOpacity={0.8} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -128,7 +130,7 @@ const s = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#161616',
+    backgroundColor: '#111',
   },
   loader: {
     flex: 1, 
@@ -149,32 +151,38 @@ const s = StyleSheet.create({
   },
   teamRow: {
     paddingHorizontal: 25,
-    paddingVertical: 18,
+    paddingVertical: 25,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderBottomWidth: 2,
+    borderColor: '#050505'
   },
   team: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10
+    gap: 15
   },
   teamLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10
   },
   teamRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20
+    gap: 25
   },
   rank: {
+    width: 18,
+  },
+  rankText: {
     color: "#aaa",
-    width: 24,
+    textAlign: 'right',
   },
   teamName: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 13,
   },
   teamPoints: {
     color: 'white',
@@ -186,4 +194,10 @@ const s = StyleSheet.create({
     fontSize: 11,
     paddingTop: 2,
   },
+  favBtn: {
+    padding: 6,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#555'
+  }
 });

@@ -20,7 +20,8 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderColor: '#202020'
+    borderColor: '#181818',
+    backgroundColor: '#111'
   },
   headerText: {
     paddingLeft: 10,

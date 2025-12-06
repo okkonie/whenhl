@@ -41,15 +41,14 @@ export default function RootLayout() {
             borderTopWidth: 0,
             height: 50,
             position: 'absolute',
-            backgroundColor: '#161616',
             width: '100%',
             paddingTop: 5,
-            elevation: 0,
             borderTopWidth: 1,
-            borderColor: '#202020'
+            borderColor: '#181818',
+            elevation: 0,
           },
           tabBarBackground: () => (
-            <View style={{ flex: 1, backgroundColor: '#161616' }}>
+            <View style={{ flex: 1, backgroundColor: '#111' }}>
               <Animated.View
                 style={{
                   position: 'absolute',
@@ -57,7 +56,7 @@ export default function RootLayout() {
                   left: 20,
                   width: tabWidth / 1.5,
                   height: 34,
-                  backgroundColor: '#2a2a2a',
+                  backgroundColor: '#222',
                   borderRadius: 25,
                   transform: [{ translateX }],
                 }}

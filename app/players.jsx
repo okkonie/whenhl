@@ -25,7 +25,7 @@ export default function Players() {
 const s = StyleSheet.create({
   container: {
     flex: 1, 
-    backgroundColor: "#161616",
+    backgroundColor: "#111",
   },
   header: {
     height: 65,
