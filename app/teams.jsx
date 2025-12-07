@@ -1,11 +1,11 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
-import { SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SvgUri } from "react-native-svg";
 import Header from "../components/header";
 import Loader from '../components/loader';
+import Team from '../components/team';
 
 export default function Teams() {
   const [standings, setStandings] = useState([]);
@@ -102,50 +102,28 @@ export default function Teams() {
               <Octicons name="sort-desc" size={20} color="white"/>
             </TouchableOpacity>
           </Header>
-          <SectionList 
+          <FlatList 
             style={s.list}
-            sections={groupedStandings()}
-            keyExtractor={(item, index) => item?.teamName?.default || index.toString()}
+            data={groupedStandings()}
+            keyExtractor={(item, index) => item.title + index}
             showsVerticalScrollIndicator={false}
             ListFooterComponent={<View style={{height: 50}}/>}
-            renderSectionHeader={({ section: { title } }) => (
-              <View style={s.sectionHeader}>
-                <Text style={s.sectionTitle}>{title}</Text>
+            renderItem={({ item }) => (
+              <View style={s.teamsContainer}>
+                <View style={s.sectionHeader}>
+                  <Text style={s.sectionTitle}>{item.title}</Text>
+                </View>
+                {item.data.map((team, index) => (
+                  <Team 
+                    key={team.teamAbbrev.default} 
+                    item={team} 
+                    index={index} 
+                    isFavorite={favoriteTeams.includes(team.teamAbbrev.default)}
+                    onToggleFavorite={() => toggleFavorite(team.teamAbbrev.default)}
+                  />
+                ))}
               </View>
             )}
-            renderItem={({ item, index }) => 
-              <View style={s.teamRow}>
-                <View style={s.teamLeft}>
-                  <View style={s.rank}>
-                    <Text style={s.rankText}>{index + 1}</Text>
-                  </View>
-                  <View style={s.team}>
-                    <View style={s.svgPlace}>
-                      <SvgUri 
-                        width={40} 
-                        height={30} 
-                        uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev.default}_dark.svg`} 
-                      />
-                    </View>
-                    <View>
-                      <Text style={s.teamName}>{item.placeName.default.startsWith('NY') ? 'New York' : item.placeName.default}</Text>
-                      <Text style={s.teamName}>{item.teamCommonName.default}</Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={s.teamRight}>
-                  <Text style={s.teamPoints}>{item.points}</Text>
-                  <TouchableOpacity style={s.favBtn} onPress={() => toggleFavorite(item.teamAbbrev.default)}>
-                    <Octicons 
-                      name={favoriteTeams.includes(item.teamAbbrev.default) ? "star-fill" : "star"} 
-                      color={favoriteTeams.includes(item.teamAbbrev.default) ? "#FFD700" : "#aaa"} 
-                      size={16} 
-                      activeOpacity={0.8} 
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            }
           />
         </>
       )}
@@ -155,15 +133,17 @@ export default function Teams() {
 
 
 const s = StyleSheet.create({
+  teamsContainer: {
+    backgroundColor: '#171717',
+    borderRadius: 15,
+    marginHorizontal: 10,
+    marginVertical: 5
+  },
   btn: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  svgPlace: {
-    width: 40,
-    height: 30
   },
   container: {
     flex: 1,
@@ -179,62 +159,12 @@ const s = StyleSheet.create({
   },
   sectionHeader: {
     paddingHorizontal: 25,
-    paddingVertical: 15,
+    paddingTop: 20,
+    paddingBottom: 10
   },
   sectionTitle: {
     color: 'white',
     fontSize: 16,
     fontWeight: 500
   },
-  teamRow: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    marginVertical: 3,
-    marginHorizontal: 10,
-    borderRadius: 5,
-    backgroundColor: '#171717',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  team: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15
-  },
-  teamLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10
-  },
-  teamRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 20
-  },
-  rank: {
-    width: 18,
-  },
-  rankText: {
-    color: "#aaa",
-    textAlign: 'right',
-  },
-  teamName: {
-    color: 'white',
-    fontSize: 13,
-  },
-  teamPoints: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 600
-  },
-  score: {
-    color: "#aaa",
-    fontSize: 11,
-    paddingTop: 2,
-  },
-  favBtn: {
-    padding: 8,
-    borderRadius: 5,
-  }
 });

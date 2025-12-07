@@ -4,19 +4,23 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/header";
 import Loader from "../components/loader";
+import StatMode from "../components/statMode";
 
 export default function Players() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState('points');
-
+  const [modalVisible, setModalVisible] = useState(false);
   return (
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
-        <Header text={'PLAYERS'}>
-          <TouchableOpacity onPress={() => setMode('dont')} activeOpacity={0.7} style={s.btn}>
-            <Octicons name="arrow-switch" size={20} color="white"/>
-          </TouchableOpacity>
-        </Header>
+        <>
+          <Header text={'PLAYERS'}>
+            <TouchableOpacity onPress={() => setModalVisible(true)} activeOpacity={0.7} style={s.btn}>
+              <Octicons name="arrow-switch" size={20} color="white"/>
+            </TouchableOpacity>
+          </Header>
+          <StatMode mode={mode} setMode={setMode} onClose={() => setModalVisible(false)} visible={modalVisible}/>
+        </>
       )}
     </SafeAreaView>
   );

@@ -36,11 +36,7 @@ export default function Game({ game }) {
   const timeLabel = isValidStart
     ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
-  const dateLabel = isValidStart
-    ? start.toLocaleDateString([], { weekday: 'short', month: 'numeric', day: 'numeric' })
-    : 'TBA';
 
-  // Compute styles: only change colors for finished games (not FUT or LIVE)
   const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE';
   const homeScoreNum = Number(game?.homeTeam?.score);
   const awayScoreNum = Number(game?.awayTeam?.score);
@@ -135,11 +131,9 @@ const s = StyleSheet.create({
   },
   container: {
     paddingVertical: 12,
-    paddingHorizontal: 10,
-    marginVertical: 3,
-    marginHorizontal: 10,
-    borderRadius: 5,
-    backgroundColor: '#171717',
+    borderTopWidth: 1,
+    borderColor: '#222',
+    marginHorizontal: 20,
     flexDirection: 'row'
   },
   body: {
@@ -184,6 +178,6 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 5,
-    width: 80,
+    width: 70,
   }
 });

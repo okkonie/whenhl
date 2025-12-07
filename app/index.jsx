@@ -2,7 +2,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from "react";
-import { SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Game from "../components/game";
 import Header from '../components/header';
@@ -87,14 +87,18 @@ export default function Index() {
               <Octicons name="calendar" size={18} color="white" />
             </TouchableOpacity>
           </Header>
-          <SectionList
+          <FlatList
             style={s.list}
-            sections={games}
-            keyExtractor={(item, index) => item?.id?.toString() || item?.gameId?.toString() || index.toString()}
-            renderItem={({ item }) => <Game game={item} />}
-            renderSectionHeader={({ section: { title } }) => (
-              <View style={s.sectionHeader}>
-                <Text style={s.sectionTitle}>{title}</Text>
+            data={games}
+            keyExtractor={(item, index) => item.title + index}
+            renderItem={({ item }) => (
+              <View style={s.gameContainer}>
+                <View style={s.sectionHeader}>
+                  <Text style={s.sectionTitle}>{item.title}</Text>
+                </View>
+                {item.data.map((game, index) => (
+                  <Game key={game.id || game.gameId || index} game={game} />
+                ))}
               </View>
             )}
             showsVerticalScrollIndicator={false}
@@ -107,6 +111,12 @@ export default function Index() {
 }
 
 const s = StyleSheet.create({
+  gameContainer: {
+    backgroundColor: '#171717',
+    borderRadius: 15,
+    marginHorizontal: 10,
+    marginVertical: 5
+  },
   btn: { 
     width: 40,
     height: 40,
@@ -122,7 +132,8 @@ const s = StyleSheet.create({
   },
   sectionHeader: {
     paddingHorizontal: 25,
-    paddingVertical: 15,
+    paddingTop: 20,
+    paddingBottom: 10
   },
   sectionTitle: {
     color: 'white',
