@@ -1,4 +1,5 @@
 import Octicons from '@expo/vector-icons/Octicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
 import { SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,6 +11,37 @@ export default function Teams() {
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [groupBy, setGroupBy] = useState('division');
+  const [favoriteTeams, setFavoriteTeams] = useState([]);
+
+  useEffect(() => {
+    loadFavorites();
+  }, []);
+
+  const loadFavorites = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('favoriteTeams');
+      if (stored) {
+        setFavoriteTeams(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error("Failed to load favorites", e);
+    }
+  };
+
+  const toggleFavorite = async (teamAbbrev) => {
+    try {
+      let newFavorites;
+      if (favoriteTeams.includes(teamAbbrev)) {
+        newFavorites = favoriteTeams.filter(t => t !== teamAbbrev);
+      } else {
+        newFavorites = [...favoriteTeams, teamAbbrev];
+      }
+      setFavoriteTeams(newFavorites);
+      await AsyncStorage.setItem('favoriteTeams', JSON.stringify(newFavorites));
+    } catch (e) {
+      console.error("Failed to save favorite", e);
+    }
+  };
   
   useEffect(() => {
     const fetchStandings = async () => {
@@ -65,7 +97,7 @@ export default function Teams() {
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
         <>
-          <Header text={'Standings'}>
+          <Header text={'STANDINGS'}>
             <TouchableOpacity onPress={toggleGrouping} activeOpacity={0.7} style={s.btn}>
               <Octicons name="sort-desc" size={20} color="white"/>
             </TouchableOpacity>
@@ -103,8 +135,13 @@ export default function Teams() {
                 </View>
                 <View style={s.teamRight}>
                   <Text style={s.teamPoints}>{item.points}</Text>
-                  <TouchableOpacity style={s.favBtn}>
-                    <Octicons name="star" color="#aaa" size={14} activeOpacity={0.8} />
+                  <TouchableOpacity style={s.favBtn} onPress={() => toggleFavorite(item.teamAbbrev.default)}>
+                    <Octicons 
+                      name={favoriteTeams.includes(item.teamAbbrev.default) ? "star-fill" : "star"} 
+                      color={favoriteTeams.includes(item.teamAbbrev.default) ? "#FFD700" : "#aaa"} 
+                      size={16} 
+                      activeOpacity={0.8} 
+                    />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -142,21 +179,23 @@ const s = StyleSheet.create({
   },
   sectionHeader: {
     paddingHorizontal: 25,
-    paddingTop: 20,
-    paddingBottom: 5,
+    paddingVertical: 15,
   },
   sectionTitle: {
-    color: '#aaa',
+    color: 'white',
     fontSize: 16,
+    fontWeight: 500
   },
   teamRow: {
-    paddingHorizontal: 25,
-    paddingVertical: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginVertical: 3,
+    marginHorizontal: 10,
+    borderRadius: 5,
+    backgroundColor: '#171717',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderColor: '#050505'
   },
   team: {
     flexDirection: 'row',
@@ -171,7 +210,7 @@ const s = StyleSheet.create({
   teamRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 25
+    gap: 20
   },
   rank: {
     width: 18,
@@ -195,9 +234,7 @@ const s = StyleSheet.create({
     paddingTop: 2,
   },
   favBtn: {
-    padding: 6,
+    padding: 8,
     borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#555'
   }
 });

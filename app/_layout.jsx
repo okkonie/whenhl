@@ -43,8 +43,6 @@ export default function RootLayout() {
             position: 'absolute',
             width: '100%',
             paddingTop: 5,
-            borderTopWidth: 1,
-            borderColor: '#181818',
             elevation: 0,
           },
           tabBarBackground: () => (

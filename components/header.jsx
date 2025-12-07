@@ -13,21 +13,17 @@ export default function Header({children, text}){
 
 const s = StyleSheet.create({
   header: {
-    height: 65,
-    paddingTop: 10,
+    height: 60,
     paddingHorizontal: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: '#181818',
-    backgroundColor: '#111'
   },
   headerText: {
     paddingLeft: 10,
-    fontSize: 18,
+    fontSize: 16,
     color: 'white',
-    fontWeight: 500,
+    fontWeight: 700,
   },
   buttons: {
     gap: 10,

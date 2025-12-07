@@ -61,9 +61,12 @@ export default function Game({ game }) {
   return (
     <View style={s.container}>
       <View style={s.top}>
-        <Text style={s.date}>{dateLabel}</Text>
         <Text style={s.time}>
-          {game?.gameState == "FUT" ? timeLabel : game?.gameOutcome && game?.gameOutcome.lastPeriodType}
+          {
+            (game?.gameState == "FUT" || game?.gameState == "PRE") ? timeLabel 
+            : game.gameState == "LIVE" ? "LIVE" 
+            : game?.gameOutcome && game?.gameOutcome.lastPeriodType
+          }
         </Text>
       </View>
       <View style={s.body}>
@@ -87,14 +90,14 @@ export default function Game({ game }) {
           </View>
         </View>
         <View style={s.infoCol}>
-          {game?.homeTeam?.score != undefined && game?.awayTeam?.score != undefined && (
+          {(game?.gameState != "FUT" && game?.gameState != "PRE") && (
             <View style={s.scoreCol}>
-              <Text style={homeScoreStyle}>{game?.homeTeam?.score}</Text>
-              <Text style={awayScoreStyle}>{game?.awayTeam?.score}</Text>
+              <Text style={homeScoreStyle}>{game?.homeTeam?.score ? game?.homeTeam?.score : 0}</Text>
+              <Text style={awayScoreStyle}>{game?.awayTeam?.score ? game?.awayTeam?.score : 0}</Text>
             </View>
           )}
 
-          {game?.gameState == "FUT" && (
+          {(game?.gameState == "FUT" || game?.gameState == "PRE") && (
             <View style={s.scoreCol}>
               <TouchableOpacity 
                 activeOpacity={0.7} 
@@ -133,8 +136,10 @@ const s = StyleSheet.create({
   container: {
     paddingVertical: 12,
     paddingHorizontal: 10,
-    borderBottomWidth: 2,
-    borderColor: '#050505',
+    marginVertical: 3,
+    marginHorizontal: 10,
+    borderRadius: 5,
+    backgroundColor: '#171717',
     flexDirection: 'row'
   },
   body: {
@@ -171,14 +176,8 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
-  date: {
-    color: '#ccc',
-    fontSize: 13,
-    fontWeight: 400,
-  },
   time: {
-    color: "#ccc",
-    fontSize: 13
+    color: "white"
   },
   top: {
     flexDirection: 'column',
