@@ -1,6 +1,7 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SvgUri } from "react-native-svg";
+import { colors } from '../assets/colors';
 
 export default function Team({ item, index, isFavorite, onToggleFavorite }) {
   return (
@@ -28,7 +29,7 @@ export default function Team({ item, index, isFavorite, onToggleFavorite }) {
         <TouchableOpacity style={s.favBtn} onPress={onToggleFavorite}>
           <Octicons 
             name={isFavorite ? "star-fill" : "star"} 
-            color={isFavorite ? "#FFD700" : "#aaa"} 
+            color={isFavorite ? colors.yellow : colors.grey} 
             size={16} 
             activeOpacity={0.8} 
           />
@@ -51,7 +52,7 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderColor: '#222'
+    borderColor: colors.border
   },
   team: {
     flexDirection: 'row',
@@ -72,15 +73,15 @@ const s = StyleSheet.create({
     width: 18,
   },
   rankText: {
-    color: "#aaa",
+    color: colors.text2,
     textAlign: 'right',
   },
   teamName: {
-    color: 'white',
+    color: colors.text,
     fontSize: 13,
   },
   teamPoints: {
-    color: 'white',
+    color: colors.text,
     fontSize: 14,
     fontWeight: 600
   },

@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SvgUri } from "react-native-svg";
+import { colors } from '../assets/colors';
 
 export default function Game({ game }) {
   const [pick, setPick] = useState(null);
@@ -37,9 +38,9 @@ export default function Game({ game }) {
     ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
 
-  const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE';
-  const homeScoreNum = Number(game?.homeTeam?.score);
-  const awayScoreNum = Number(game?.awayTeam?.score);
+  const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE' && game.gameState !== 'PRE';
+  const homeScoreNum = game?.homeTeam?.score;
+  const awayScoreNum = game?.awayTeam?.score;
 
   let homeNameStyle = s.teamName;
   let awayNameStyle = s.teamName;
@@ -48,10 +49,10 @@ export default function Game({ game }) {
 
   if (isPlayed && !isNaN(homeScoreNum) && !isNaN(awayScoreNum) && homeScoreNum !== awayScoreNum) {
     const homeIsWinner = homeScoreNum > awayScoreNum;
-    homeNameStyle = [s.teamName, { color: homeIsWinner ? '#eee' : '#999' }];
-    awayNameStyle = [s.teamName, { color: homeIsWinner ? '#999' : '#eee' }];
-    homeScoreStyle = [s.score, { color: homeIsWinner ? '#eee' : '#999' }];
-    awayScoreStyle = [s.score, { color: homeIsWinner ? '#999' : '#eee' }];
+    homeNameStyle = [s.teamName, { color: homeIsWinner ? colors.text : colors.text2 }];
+    awayNameStyle = [s.teamName, { color: homeIsWinner ? colors.text2 : colors.text }];
+    homeScoreStyle = [s.score, { color: homeIsWinner ? colors.text : colors.text2 }];
+    awayScoreStyle = [s.score, { color: homeIsWinner ? colors.text2 : colors.text }];
   }
 
   return (
@@ -121,18 +122,18 @@ const s = StyleSheet.create({
   pickButton: {
     width: 15,
     height: 15,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: "#777"
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: colors.grey
   },
   pickButtonActive: {
-    backgroundColor: "#fff",
-    borderColor: "#fff"
+    backgroundColor: colors.text,
+    borderColor: colors.text,
   },
   container: {
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderColor: '#222',
+    borderColor: colors.border,
     marginHorizontal: 20,
     flexDirection: 'row'
   },
@@ -152,11 +153,11 @@ const s = StyleSheet.create({
     gap: 10,
   },
   teamName: {
-    color: "#eee",
+    color: colors.text,
     fontSize: 13,
   },
   score: {
-    color: 'white',
+    color: colors.text,
     fontWeight: 500,
     fontSize: 16,
   },
@@ -171,7 +172,8 @@ const s = StyleSheet.create({
     alignItems: 'flex-end',
   },
   time: {
-    color: "white"
+    fontWeight: 500,
+    color: colors.text
   },
   top: {
     flexDirection: 'column',

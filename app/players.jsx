@@ -2,6 +2,7 @@ import { Octicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from '../assets/colors';
 import Header from "../components/header";
 import Loader from "../components/loader";
 import StatMode from "../components/statMode";
@@ -16,7 +17,7 @@ export default function Players() {
         <>
           <Header text={'PLAYERS'}>
             <TouchableOpacity onPress={() => setModalVisible(true)} activeOpacity={0.7} style={s.btn}>
-              <Octicons name="arrow-switch" size={20} color="white"/>
+              <Octicons name="arrow-switch" size={20} color={colors.text}/>
             </TouchableOpacity>
           </Header>
           <StatMode mode={mode} setMode={setMode} onClose={() => setModalVisible(false)} visible={modalVisible}/>
@@ -29,7 +30,7 @@ export default function Players() {
 const s = StyleSheet.create({
   container: {
     flex: 1, 
-    backgroundColor: "#111",
+    backgroundColor: colors.background,
   },
   header: {
     height: 65,
@@ -37,12 +38,6 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
-  },
-  headerText: {
-    paddingLeft: 10,
-    fontSize: 18,
-    color: 'white',
-    fontWeight: 700,
   },
   loader: {
     flex: 1, 

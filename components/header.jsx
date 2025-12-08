@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-
+import { colors } from '../assets/colors'
 export default function Header({children, text}){
   return (
     <View style={s.header}>
@@ -22,7 +22,7 @@ const s = StyleSheet.create({
   headerText: {
     paddingLeft: 10,
     fontSize: 16,
-    color: 'white',
+    color: colors.text,
     fontWeight: 700,
   },
   buttons: {

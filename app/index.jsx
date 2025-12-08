@@ -4,6 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from '../assets/colors';
 import Game from "../components/game";
 import Header from '../components/header';
 import Loader from '../components/loader';
@@ -35,11 +36,7 @@ export default function Index() {
   const fetchGames = async () => {
     try {
       setLoading(true);
-      const d = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const date = `${yyyy}-${mm}-${dd}`;
+      const date = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${date}`);
       const data = await response.json();
@@ -81,7 +78,7 @@ export default function Index() {
         <>
           <Header text={'GAMES'}>
             <TouchableOpacity activeOpacity={0.8} style={s.btn} onPress={() => setFavorites(!favorites)}>
-              <Octicons name={favorites ? 'star-fill' : 'star'}size={18} color={favorites ? "#FFD700" : "white"} />
+              <Octicons name={favorites ? 'star-fill' : 'star'} size={18} color={favorites ? colors.yellow : colors.text} />
             </TouchableOpacity>
             <TouchableOpacity activeOpacity={0.8} style={s.btn}>
               <Octicons name="calendar" size={18} color="white" />
@@ -112,7 +109,7 @@ export default function Index() {
 
 const s = StyleSheet.create({
   gameContainer: {
-    backgroundColor: '#171717',
+    backgroundColor: colors.card,
     borderRadius: 15,
     marginHorizontal: 10,
     marginVertical: 5
@@ -125,7 +122,7 @@ const s = StyleSheet.create({
   },
   container: {
     flex: 1, 
-    backgroundColor: "#111",
+    backgroundColor: colors.background,
   },
   list :{
     flex: 1
@@ -136,7 +133,7 @@ const s = StyleSheet.create({
     paddingBottom: 10
   },
   sectionTitle: {
-    color: 'white',
+    color: colors.text,
     fontSize: 16,
     fontWeight: 500
   }

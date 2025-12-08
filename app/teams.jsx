@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from '../assets/colors';
 import Header from "../components/header";
 import Loader from '../components/loader';
 import Team from '../components/team';
@@ -99,7 +100,7 @@ export default function Teams() {
         <>
           <Header text={'STANDINGS'}>
             <TouchableOpacity onPress={toggleGrouping} activeOpacity={0.7} style={s.btn}>
-              <Octicons name="sort-desc" size={20} color="white"/>
+              <Octicons name="sort-desc" size={20} color={colors.text}/>
             </TouchableOpacity>
           </Header>
           <FlatList 
@@ -134,7 +135,7 @@ export default function Teams() {
 
 const s = StyleSheet.create({
   teamsContainer: {
-    backgroundColor: '#171717',
+    backgroundColor: colors.card,
     borderRadius: 15,
     marginHorizontal: 10,
     marginVertical: 5
@@ -147,7 +148,7 @@ const s = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#111',
+    backgroundColor: colors.background,
   },
   loader: {
     flex: 1, 
@@ -163,7 +164,7 @@ const s = StyleSheet.create({
     paddingBottom: 10
   },
   sectionTitle: {
-    color: 'white',
+    color: colors.text,
     fontSize: 16,
     fontWeight: 500
   },

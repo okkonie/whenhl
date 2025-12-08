@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { Animated, Dimensions, View } from 'react-native';
+import { colors } from '../assets/colors';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,8 +36,8 @@ export default function RootLayout() {
       />
       <Tabs
         screenOptions={() => ({
-          tabBarShowLabel: false,
           headerShown: false,
+          tabBarShowLabel: false,
           tabBarStyle: {
             borderTopWidth: 0,
             height: 50,
@@ -46,7 +47,7 @@ export default function RootLayout() {
             elevation: 0,
           },
           tabBarBackground: () => (
-            <View style={{ flex: 1, backgroundColor: '#111' }}>
+            <View style={{ flex: 1, backgroundColor: colors.background }}>
               <Animated.View
                 style={{
                   position: 'absolute',
@@ -54,7 +55,7 @@ export default function RootLayout() {
                   left: 20,
                   width: tabWidth / 1.5,
                   height: 34,
-                  backgroundColor: '#222',
+                  backgroundColor: colors.border,
                   borderRadius: 25,
                   transform: [{ translateX }],
                 }}
@@ -82,7 +83,7 @@ export default function RootLayout() {
               <Ionicons
                 name='calendar-clear'
                 size={25}
-                color={'white'}
+                color={colors.text}
               />
             ),
           }}
@@ -95,7 +96,7 @@ export default function RootLayout() {
               <Ionicons
                 name='list'
                 size={25}
-                color={'white'}
+                color={colors.text}
               />
             ),
           }}
@@ -108,7 +109,7 @@ export default function RootLayout() {
               <Ionicons
                 name='people'
                 size={25}
-                color={'white'}
+                color={colors.text}
               />
             ),
           }}

@@ -1,5 +1,5 @@
 import { Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
-
+import { colors } from '../assets/colors';
 export default function StatMode({ mode, setMode, visible, onClose }) {
   const modes = ['points', 'goals', 'assists', 
                 'plusMinus', 'toi', 'goalsPp', 
@@ -33,12 +33,12 @@ const s = StyleSheet.create({
   header: {
     fontWeight: 600,
     fontSize: 16,
-    color: 'white',
+    color: colors.text,
     paddingVertical: 10
   },
   text: {
     paddingVertical: 6,
-    color: 'white'
+    color: colors.text
   },
   back: {
     flex: 1,
@@ -50,6 +50,6 @@ const s = StyleSheet.create({
     padding: 30,
     minWidth: '70%',
     borderRadius: 15,
-    backgroundColor: '#171717',
+    backgroundColor: colors.card,
   }
 })
