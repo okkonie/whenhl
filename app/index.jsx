@@ -11,7 +11,9 @@ import Loader from '../components/loader';
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
-  const [schedule, setSchedule] = useState([]);
+  const [pastSchedule, setPastSchedule] = useState([]);
+  const [futureSchedule, setFutureSchedule] = useState([]);
+  const [viewMode, setViewMode] = useState('future');
   const [games, setGames] = useState([]);
   const [favorites, setFavorites] = useState(false);
   const [favoriteTeams, setFavoriteTeams] = useState([]);
@@ -36,16 +38,31 @@ export default function Index() {
   const fetchGames = async () => {
     try {
       setLoading(true);
-      const date = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const date = new Date(Date.now() - 259200000).toISOString().split('T')[0];
 
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${date}`);
       const data = await response.json();
-      const sections = (data?.gameWeek ?? []).map((day) => ({
-        title: new Date(day.date + 'T00:00:00').toLocaleDateString('default', { weekday: 'short', month: 'numeric', day: 'numeric' }),
-        data: day.games ?? []
-      })).filter(s => s.data.length > 0);
-      setSchedule(sections);
-      setGames(sections);
+      
+      const past = [];
+      const future = [];
+
+      (data?.gameWeek ?? []).forEach((day) => {
+        const title = new Date(day.date + 'T00:00:00').toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric' });
+        const dayGames = day.games ?? [];
+        
+        const pastGames = dayGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF');
+        const futureGames = dayGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
+
+        if (pastGames.length > 0) {
+          past.push({ title, data: pastGames.reverse() });
+        }
+        if (futureGames.length > 0) {
+          future.push({ title, data: futureGames });
+        }
+      });
+
+      setPastSchedule(past.reverse());
+      setFutureSchedule(future);
     } catch (e) {
       console.error("Error fetching games", e);
     } finally {
@@ -58,8 +75,10 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
+    const source = viewMode === 'past' ? pastSchedule : futureSchedule;
+
     if (favorites) {
-      const filtered = schedule.map(section => ({
+      const filtered = source.map(section => ({
         ...section,
         data: section.data.filter(game => 
           favoriteTeams.includes(game.awayTeam.abbrev) || 
@@ -68,9 +87,9 @@ export default function Index() {
       })).filter(section => section.data.length > 0);
       setGames(filtered);
     } else {
-      setGames(schedule);
+      setGames(source);
     }
-  }, [favorites, favoriteTeams, schedule]);
+  }, [favorites, favoriteTeams, pastSchedule, futureSchedule, viewMode]);
 
   return (
     <SafeAreaView style={s.container}>
@@ -80,22 +99,33 @@ export default function Index() {
             <TouchableOpacity activeOpacity={0.8} style={s.btn} onPress={() => setFavorites(!favorites)}>
               <Octicons name={favorites ? 'star-fill' : 'star'} size={18} color={favorites ? colors.yellow : colors.text} />
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.8} style={s.btn}>
-              <Octicons name="calendar" size={18} color="white" />
-            </TouchableOpacity>
           </Header>
+          <View style={s.selectorContainer}>
+            <TouchableOpacity 
+              style={[s.selectorBtn, viewMode === 'past' && s.selectorBtnActive]} 
+              onPress={() => setViewMode('past')}
+            >
+              <Text style={s.selectorText}>PAST</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[s.selectorBtn, viewMode === 'future' && s.selectorBtnActive]} 
+              onPress={() => setViewMode('future')}
+            >
+              <Text style={s.selectorText}>UPCOMING</Text>
+            </TouchableOpacity>
+          </View>
           <FlatList
             style={s.list}
             data={games}
             keyExtractor={(item, index) => item.title + index}
             renderItem={({ item }) => (
-              <View style={s.gameContainer}>
-                <View style={s.sectionHeader}>
-                  <Text style={s.sectionTitle}>{item.title}</Text>
+              <View>
+                <Text style={s.sectionTitle}>{item.title}</Text>
+                <View style={s.gameContainer}>
+                  {item.data.map((game, index) => (
+                    <Game key={game.id || game.gameId || index} game={game} isFirst={index === 0} />
+                  ))}
                 </View>
-                {item.data.map((game, index) => (
-                  <Game key={game.id || game.gameId || index} game={game} />
-                ))}
               </View>
             )}
             showsVerticalScrollIndicator={false}
@@ -124,17 +154,32 @@ const s = StyleSheet.create({
     flex: 1, 
     backgroundColor: colors.background,
   },
+  selectorContainer: {
+    flexDirection: 'row',
+  },
+  selectorBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  selectorBtnActive: {
+    borderBottomWidth: 1,
+    borderColor: colors.text
+  },
+  selectorText: {
+    color: colors.text,
+    fontSize: 12,
+    fontWeight: 500
+  },
   list :{
     flex: 1
   },
-  sectionHeader: {
+  sectionTitle: {
     paddingHorizontal: 25,
     paddingTop: 20,
-    paddingBottom: 10
-  },
-  sectionTitle: {
+    paddingBottom: 10,
     color: colors.text,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 500
   }
 })

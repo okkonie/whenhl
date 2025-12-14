@@ -4,7 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SvgUri } from "react-native-svg";
 import { colors } from '../assets/colors';
 
-export default function Game({ game }) {
+export default function Game({ game, isFirst }) {
   const [pick, setPick] = useState(null);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function Game({ game }) {
   }
 
   return (
-    <View style={s.container}>
+    <View style={[s.container, isFirst && { borderTopWidth: 0 }]}>
       <View style={s.top}>
         <Text style={s.time}>
           {

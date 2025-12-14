@@ -110,10 +110,11 @@ export default function Teams() {
             showsVerticalScrollIndicator={false}
             ListFooterComponent={<View style={{height: 50}}/>}
             renderItem={({ item }) => (
-              <View style={s.teamsContainer}>
+              <View>
                 <View style={s.sectionHeader}>
                   <Text style={s.sectionTitle}>{item.title}</Text>
                 </View>
+                <View style={s.teamsContainer}>
                 {item.data.map((team, index) => (
                   <Team 
                     key={team.teamAbbrev.default} 
@@ -123,6 +124,7 @@ export default function Teams() {
                     onToggleFavorite={() => toggleFavorite(team.teamAbbrev.default)}
                   />
                 ))}
+                </View>
               </View>
             )}
           />
@@ -165,7 +167,7 @@ const s = StyleSheet.create({
   },
   sectionTitle: {
     color: colors.text,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 500
   },
 });

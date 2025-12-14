@@ -5,7 +5,7 @@ import { colors } from '../assets/colors';
 
 export default function Team({ item, index, isFavorite, onToggleFavorite }) {
   return (
-    <View style={s.teamRow}>
+    <View style={[s.teamRow, index == 0 && { borderTopWidth: 0 }]}>
       <View style={s.teamLeft}>
         <View style={s.rank}>
           <Text style={s.rankText}>{index + 1}</Text>
