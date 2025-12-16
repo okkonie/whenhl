@@ -37,13 +37,16 @@ export default function RootLayout() {
       <Tabs
         screenOptions={() => ({
           headerShown: false,
-          tabBarShowLabel: false,
+          tabBarLabelStyle: {
+            color: colors.text,
+            fontSize: 9,
+            fontWeight: 400
+          },
           tabBarStyle: {
             borderTopWidth: 0,
             height: 50,
             position: 'absolute',
             width: '100%',
-            paddingTop: 5,
             elevation: 0,
           },
           tabBarBackground: () => (
@@ -51,12 +54,12 @@ export default function RootLayout() {
               <Animated.View
                 style={{
                   position: 'absolute',
-                  bottom: 8,
-                  left: 20,
-                  width: tabWidth / 1.5,
-                  height: 34,
+                  bottom: 17,
+                  left: 33,
+                  width: tabWidth / 2.2,
+                  height: 29,
                   backgroundColor: colors.border,
-                  borderRadius: 25,
+                  borderRadius: 15,
                   transform: [{ translateX }],
                 }}
               />
@@ -78,11 +81,11 @@ export default function RootLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'home',
+            title: 'games',
             tabBarIcon: () => (
               <Ionicons
                 name='calendar-clear'
-                size={25}
+                size={22}
                 color={colors.text}
               />
             ),
@@ -91,11 +94,11 @@ export default function RootLayout() {
         <Tabs.Screen
           name="teams"
           options={{
-            title: 'teams',
+            title: 'standings',
             tabBarIcon: () =>(
               <Ionicons
                 name='list'
-                size={25}
+                size={22}
                 color={colors.text}
               />
             ),
@@ -108,7 +111,7 @@ export default function RootLayout() {
             tabBarIcon: () =>(
               <Ionicons
                 name='people'
-                size={25}
+                size={22}
                 color={colors.text}
               />
             ),

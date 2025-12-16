@@ -1,8 +1,9 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import PagerView from 'react-native-pager-view';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
 import Game from "../components/game";
@@ -13,10 +14,12 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [pastSchedule, setPastSchedule] = useState([]);
   const [futureSchedule, setFutureSchedule] = useState([]);
-  const [viewMode, setViewMode] = useState('future');
-  const [games, setGames] = useState([]);
+  const [page, setPage] = useState(1);
+  const [filteredPast, setFilteredPast] = useState([]);
+  const [filteredFuture, setFilteredFuture] = useState([]);
   const [favorites, setFavorites] = useState(false);
   const [favoriteTeams, setFavoriteTeams] = useState([]);
+  const pagerRef = useRef(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -75,21 +78,42 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    const source = viewMode === 'past' ? pastSchedule : futureSchedule;
+    const filterGames = (source) => {
+      if (favorites) {
+        return source.map(section => ({
+          ...section,
+          data: section.data.filter(game => 
+            favoriteTeams.includes(game.awayTeam.abbrev) || 
+            favoriteTeams.includes(game.homeTeam.abbrev)
+          )
+        })).filter(section => section.data.length > 0);
+      }
+      return source;
+    };
 
-    if (favorites) {
-      const filtered = source.map(section => ({
-        ...section,
-        data: section.data.filter(game => 
-          favoriteTeams.includes(game.awayTeam.abbrev) || 
-          favoriteTeams.includes(game.homeTeam.abbrev)
-        )
-      })).filter(section => section.data.length > 0);
-      setGames(filtered);
-    } else {
-      setGames(source);
-    }
-  }, [favorites, favoriteTeams, pastSchedule, futureSchedule, viewMode]);
+    setFilteredPast(filterGames(pastSchedule));
+    setFilteredFuture(filterGames(futureSchedule));
+  }, [favorites, favoriteTeams, pastSchedule, futureSchedule]);
+
+  const renderGameList = (data) => (
+    <FlatList
+      style={s.list}
+      data={data}
+      keyExtractor={(item, index) => item.title + index}
+      renderItem={({ item }) => (
+        <View>
+          <Text style={s.sectionTitle}>{item.title}</Text>
+          <View style={s.gameContainer}>
+            {item.data.map((game, index) => (
+              <Game key={game.id || game.gameId || index} game={game} isFirst={index === 0} />
+            ))}
+          </View>
+        </View>
+      )}
+      showsVerticalScrollIndicator={false}
+      ListFooterComponent={<View style={{height: 50}} />}
+    />
+  );
 
   return (
     <SafeAreaView style={s.container}>
@@ -102,35 +126,39 @@ export default function Index() {
           </Header>
           <View style={s.selectorContainer}>
             <TouchableOpacity 
-              style={[s.selectorBtn, viewMode === 'past' && s.selectorBtnActive]} 
-              onPress={() => setViewMode('past')}
+              activeOpacity={0.8}
+              style={[s.selectorBtn, page == 0 && s.selected]} 
+              onPress={() => {
+                setPage(0);
+                pagerRef.current?.setPage(0);
+              }}
             >
               <Text style={s.selectorText}>PAST</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={[s.selectorBtn, viewMode === 'future' && s.selectorBtnActive]} 
-              onPress={() => setViewMode('future')}
+              activeOpacity={0.8}
+              style={[s.selectorBtn, page == 1 && s.selected]} 
+              onPress={() => {
+                setPage(1);
+                pagerRef.current?.setPage(1);
+              }}
             >
               <Text style={s.selectorText}>UPCOMING</Text>
             </TouchableOpacity>
           </View>
-          <FlatList
-            style={s.list}
-            data={games}
-            keyExtractor={(item, index) => item.title + index}
-            renderItem={({ item }) => (
-              <View>
-                <Text style={s.sectionTitle}>{item.title}</Text>
-                <View style={s.gameContainer}>
-                  {item.data.map((game, index) => (
-                    <Game key={game.id || game.gameId || index} game={game} isFirst={index === 0} />
-                  ))}
-                </View>
-              </View>
-            )}
-            showsVerticalScrollIndicator={false}
-            ListFooterComponent={<View style={{height: 50}} />}
-          />
+          <PagerView 
+            ref={pagerRef}
+            style={s.pagerView} 
+            initialPage={1}
+            onPageSelected={(e) => setPage(e.nativeEvent.position)}
+          >
+            <View key="0">
+              {renderGameList(filteredPast)}
+            </View>
+            <View key="1">
+              {renderGameList(filteredFuture)}
+            </View>
+          </PagerView>
         </>
       )}
     </SafeAreaView>
@@ -138,11 +166,14 @@ export default function Index() {
 }
 
 const s = StyleSheet.create({
+  pagerView: {
+    flex: 1,
+  },
   gameContainer: {
     backgroundColor: colors.card,
     borderRadius: 15,
     marginHorizontal: 10,
-    marginVertical: 5
+    marginTop: 5
   },
   btn: { 
     width: 40,
@@ -156,15 +187,17 @@ const s = StyleSheet.create({
   },
   selectorContainer: {
     flexDirection: 'row',
+    marginBottom: 3
   },
   selectorBtn: {
     flex: 1,
     paddingVertical: 8,
     alignItems: 'center',
-  },
-  selectorBtnActive: {
     borderBottomWidth: 1,
-    borderColor: colors.text
+    borderColor: colors.background
+  },
+  selected: {
+    borderColor: 'white',
   },
   selectorText: {
     color: colors.text,
@@ -181,5 +214,12 @@ const s = StyleSheet.create({
     color: colors.text,
     fontSize: 15,
     fontWeight: 500
+  },
+  underline: {
+    position: 'absolute',
+    bottom: 0,
+    height: 1,
+    width: '50%',
+    backgroundColor: colors.text,
   }
 })

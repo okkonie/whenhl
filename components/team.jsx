@@ -18,10 +18,7 @@ export default function Team({ item, index, isFavorite, onToggleFavorite }) {
               uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev.default}_dark.svg`} 
             />
           </View>
-          <View>
-            <Text style={s.teamName}>{item.placeName.default.startsWith('NY') ? 'New York' : item.placeName.default}</Text>
-            <Text style={s.teamName}>{item.teamCommonName.default}</Text>
-          </View>
+          <Text style={s.teamName}>{item.teamCommonName.default}</Text>
         </View>
       </View>
       <View style={s.teamRight}>
@@ -45,7 +42,7 @@ const s = StyleSheet.create({
     height: 30
   },
   teamRow: {
-    paddingVertical: 20,
+    paddingVertical: 15,
     marginHorizontal: 15,
     paddingHorizontal: 10,
     flexDirection: 'row',
@@ -78,7 +75,7 @@ const s = StyleSheet.create({
   },
   teamName: {
     color: colors.text,
-    fontSize: 13,
+    fontSize: 14,
   },
   teamPoints: {
     color: colors.text,
