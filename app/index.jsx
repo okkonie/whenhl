@@ -111,7 +111,7 @@ export default function Index() {
         </View>
       )}
       showsVerticalScrollIndicator={false}
-      ListFooterComponent={<View style={{height: 50}} />}
+      ListFooterComponent={<View style={{height: 55}} />}
     />
   );
 
@@ -119,33 +119,33 @@ export default function Index() {
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
         <>
-          <Header text={'GAMES'}>
+          <Header text={'Games'}>
+            <View style={s.selectorContainer}>
+              <TouchableOpacity 
+                activeOpacity={0.8}
+                style={[s.selectorBtn, page == 0 && s.selected]} 
+                onPress={() => {
+                  setPage(0);
+                  pagerRef.current?.setPage(0);
+                }}
+              >
+                <Text style={s.selectorText}>PAST</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                activeOpacity={0.8}
+                style={[s.selectorBtn, page == 1 && s.selected]} 
+                onPress={() => {
+                  setPage(1);
+                  pagerRef.current?.setPage(1);
+                }}
+              >
+                <Text style={s.selectorText}>UPCOMING</Text>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity activeOpacity={0.8} style={s.btn} onPress={() => setFavorites(!favorites)}>
               <Octicons name={favorites ? 'star-fill' : 'star'} size={18} color={favorites ? colors.yellow : colors.text} />
             </TouchableOpacity>
           </Header>
-          <View style={s.selectorContainer}>
-            <TouchableOpacity 
-              activeOpacity={0.8}
-              style={[s.selectorBtn, page == 0 && s.selected]} 
-              onPress={() => {
-                setPage(0);
-                pagerRef.current?.setPage(0);
-              }}
-            >
-              <Text style={s.selectorText}>PAST</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              activeOpacity={0.8}
-              style={[s.selectorBtn, page == 1 && s.selected]} 
-              onPress={() => {
-                setPage(1);
-                pagerRef.current?.setPage(1);
-              }}
-            >
-              <Text style={s.selectorText}>UPCOMING</Text>
-            </TouchableOpacity>
-          </View>
           <PagerView 
             ref={pagerRef}
             style={s.pagerView} 
@@ -187,21 +187,23 @@ const s = StyleSheet.create({
   },
   selectorContainer: {
     flexDirection: 'row',
-    marginBottom: 3
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    padding: 2
   },
   selectorBtn: {
-    flex: 1,
+    width: 80,
     paddingVertical: 8,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: colors.background
+    borderRadius: 999
   },
   selected: {
-    borderColor: 'white',
+    backgroundColor: colors.border,
   },
   selectorText: {
-    color: colors.text,
-    fontSize: 12,
+    color: colors.text2,
+    fontSize: 10,
     fontWeight: 500
   },
   list :{
@@ -215,11 +217,4 @@ const s = StyleSheet.create({
     fontSize: 15,
     fontWeight: 500
   },
-  underline: {
-    position: 'absolute',
-    bottom: 0,
-    height: 1,
-    width: '50%',
-    backgroundColor: colors.text,
-  }
 })

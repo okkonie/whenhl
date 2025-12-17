@@ -14,6 +14,7 @@ export default function Header({children, text}){
 const s = StyleSheet.create({
   header: {
     height: 60,
+    paddingTop: 10,
     paddingHorizontal: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -21,9 +22,9 @@ const s = StyleSheet.create({
   },
   headerText: {
     paddingLeft: 10,
-    fontSize: 16,
+    fontSize: 18,
     color: colors.text,
-    fontWeight: 700,
+    fontWeight: 500,
   },
   buttons: {
     gap: 10,

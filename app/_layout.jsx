@@ -44,7 +44,7 @@ export default function RootLayout() {
           },
           tabBarStyle: {
             borderTopWidth: 0,
-            height: 50,
+            height: 55,
             position: 'absolute',
             width: '100%',
             elevation: 0,
@@ -54,10 +54,10 @@ export default function RootLayout() {
               <Animated.View
                 style={{
                   position: 'absolute',
-                  bottom: 17,
+                  bottom: 23,
                   left: 33,
                   width: tabWidth / 2.2,
-                  height: 29,
+                  height: 27,
                   backgroundColor: colors.border,
                   borderRadius: 15,
                   transform: [{ translateX }],

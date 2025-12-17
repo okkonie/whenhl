@@ -47,7 +47,7 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0)'
   },
   sheet: {
-    padding: 30,
+    padding: 15,
     minWidth: '70%',
     borderRadius: 15,
     backgroundColor: colors.card,

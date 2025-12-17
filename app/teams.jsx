@@ -98,7 +98,7 @@ export default function Teams() {
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
         <>
-          <Header text={'STANDINGS'}>
+          <Header text={'Standings'}>
             <TouchableOpacity onPress={toggleGrouping} activeOpacity={0.7} style={s.btn}>
               <Octicons name="sort-desc" size={20} color={colors.text}/>
             </TouchableOpacity>

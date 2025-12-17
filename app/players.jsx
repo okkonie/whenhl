@@ -15,7 +15,7 @@ export default function Players() {
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
         <>
-          <Header text={'PLAYERS'}>
+          <Header text={'Players'}>
             <TouchableOpacity onPress={() => setModalVisible(true)} activeOpacity={0.7} style={s.btn}>
               <Octicons name="arrow-switch" size={20} color={colors.text}/>
             </TouchableOpacity>
