@@ -1,26 +1,25 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
-import PagerView from 'react-native-pager-view';
+import { useCallback, useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
 import Game from "../components/game";
 import Header from '../components/header';
 import Loader from '../components/loader';
 
+const Tab = createMaterialTopTabNavigator();
+
 export default function Index() {
   const [loading, setLoading] = useState(true);
   const [pastSchedule, setPastSchedule] = useState([]);
   const [futureSchedule, setFutureSchedule] = useState([]);
-  const [page, setPage] = useState(1);
   const [filteredPast, setFilteredPast] = useState([]);
   const [filteredFuture, setFilteredFuture] = useState([]);
   const [favorites, setFavorites] = useState(false);
   const [favoriteTeams, setFavoriteTeams] = useState([]);
-  const pagerRef = useRef(null);
-  const { width } = useWindowDimensions();
 
   useFocusEffect(
     useCallback(() => {
@@ -98,7 +97,7 @@ export default function Index() {
 
   const renderGameList = (data) => (
     <FlatList
-      style={s.list}
+      style={[s.list, { backgroundColor: colors.background }]}
       data={data}
       keyExtractor={(item, index) => item.title + index}
       renderItem={({ item }) => (
@@ -116,6 +115,9 @@ export default function Index() {
     />
   );
 
+  const PastScreen = () => renderGameList(filteredPast);
+  const UpcomingScreen = () => renderGameList(filteredFuture);
+
   return (
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
@@ -125,19 +127,20 @@ export default function Index() {
               <Octicons name={favorites ? 'star-fill' : 'star'} size={18} color={favorites ? colors.yellow : colors.text} />
             </TouchableOpacity>
           </Header>
-          <PagerView 
-            ref={pagerRef}
-            style={s.pagerView} 
-            initialPage={1}
-            onPageSelected={(e) => setPage(e.nativeEvent.position)}
+          <Tab.Navigator
+            initialRouteName="Upcoming"
+            screenOptions={{
+              tabBarActiveTintColor: colors.text,
+              tabBarInactiveTintColor: colors.text2,
+              tabBarStyle: { backgroundColor: colors.background },
+              tabBarIndicatorStyle: { backgroundColor: colors.text },
+              tabBarLabelStyle: { fontWeight: '600', textTransform: 'none', fontSize: 12 },
+            }}
+            sceneContainerStyle={{ backgroundColor: colors.background }}
           >
-            <View key="0">
-              {renderGameList(filteredPast)}
-            </View>
-            <View key="1">
-              {renderGameList(filteredFuture)}
-            </View>
-          </PagerView>
+            <Tab.Screen name="Past" component={PastScreen}/>
+            <Tab.Screen name="Upcoming" component={UpcomingScreen} />
+          </Tab.Navigator>
         </>
       )}
     </SafeAreaView>

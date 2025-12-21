@@ -120,13 +120,13 @@ export default function Game({ game, isFirst }) {
 
 const s = StyleSheet.create({
   pickBtn: {
-    paddingHorizontal: 5,
+    paddingRight: 5,
+    paddingLeft: 15,
     height: '50%',
     justifyContent: 'center',
-    backgroundColor: 'red'
   },
   pickButton: {
-    width: 25,
+    width: 15,
     height: 15,
     borderRadius: 7,
     borderWidth: 1,

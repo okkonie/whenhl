@@ -44,7 +44,7 @@ export default function RootLayout() {
           },
           tabBarStyle: {
             borderTopWidth: 0,
-            height: 55,
+            height: 50,
             position: 'absolute',
             width: '100%',
             elevation: 0,
@@ -54,7 +54,7 @@ export default function RootLayout() {
               <Animated.View
                 style={{
                   position: 'absolute',
-                  bottom: 23,
+                  bottom: 18,
                   left: 33,
                   width: tabWidth / 2.2,
                   height: 27,
@@ -85,7 +85,7 @@ export default function RootLayout() {
             tabBarIcon: () => (
               <Ionicons
                 name='calendar-clear'
-                size={22}
+                size={20}
                 color={colors.text}
               />
             ),
@@ -98,7 +98,7 @@ export default function RootLayout() {
             tabBarIcon: () =>(
               <Ionicons
                 name='list'
-                size={22}
+                size={20}
                 color={colors.text}
               />
             ),
@@ -111,7 +111,7 @@ export default function RootLayout() {
             tabBarIcon: () =>(
               <Ionicons
                 name='people'
-                size={22}
+                size={20}
                 color={colors.text}
               />
             ),

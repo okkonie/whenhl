@@ -18,7 +18,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   headerText: {
     paddingLeft: 10,
