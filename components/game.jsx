@@ -70,14 +70,14 @@ export default function Game({ game, isFirst }) {
         <View>
           <View style={s.teamRow}>
             <View style={s.svgplace}>
-              <SvgUri width={40} height={35} uri={game?.homeTeam?.darkLogo} />
+              <SvgUri width={35} height={30} uri={game?.homeTeam?.darkLogo} />
             </View>
             
               <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default}</Text>
           </View>
           <View style={s.teamRow}>
             <View style={s.svgplace}>
-              <SvgUri width={40} height={35} uri={game?.awayTeam?.darkLogo} />
+              <SvgUri width={35} height={30} uri={game?.awayTeam?.darkLogo} />
             </View>
             
             <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
@@ -98,17 +98,17 @@ export default function Game({ game, isFirst }) {
             <View style={s.scoreCol}>
               <TouchableOpacity 
                 activeOpacity={0.7} 
-                style={[s.pickButton, pick === 'home' && s.pickButtonActive]}
+                style={s.pickBtn}
                 onPress={handlePick(game.homeTeam)}
               >
-
+                <View style={[s.pickButton, pick === 'home' && s.pickButtonActive]}/>
               </TouchableOpacity>
               <TouchableOpacity 
                 activeOpacity={0.7} 
-                style={[s.pickButton, pick === 'away' && s.pickButtonActive]}
+                style={s.pickBtn}
                 onPress={handlePick(game.awayTeam)}
               >
-
+                <View style={[s.pickButton, pick === 'away' && s.pickButtonActive]}/>
               </TouchableOpacity>
             </View>
           )}
@@ -119,8 +119,14 @@ export default function Game({ game, isFirst }) {
 }
 
 const s = StyleSheet.create({
+  pickBtn: {
+    paddingHorizontal: 5,
+    height: '50%',
+    justifyContent: 'center',
+    backgroundColor: 'red'
+  },
   pickButton: {
-    width: 15,
+    width: 25,
     height: 15,
     borderRadius: 7,
     borderWidth: 1,
@@ -131,21 +137,20 @@ const s = StyleSheet.create({
     borderColor: colors.text,
   },
   container: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderTopWidth: 1,
-    borderColor: colors.border,
     marginHorizontal: 20,
+    borderColor: colors.border,
     flexDirection: 'row'
   },
   body: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     flex: 1,
-    paddingHorizontal: 10,
   },
   svgplace: {
-    width: 40,
-    height: 35,
+    width: 35,
+    height: 30,
   },
   teamRow: {
     flexDirection: 'row',

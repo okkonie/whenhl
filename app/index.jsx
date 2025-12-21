@@ -2,7 +2,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import PagerView from 'react-native-pager-view';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
@@ -20,6 +20,7 @@ export default function Index() {
   const [favorites, setFavorites] = useState(false);
   const [favoriteTeams, setFavoriteTeams] = useState([]);
   const pagerRef = useRef(null);
+  const { width } = useWindowDimensions();
 
   useFocusEffect(
     useCallback(() => {
@@ -120,28 +121,6 @@ export default function Index() {
       {loading ? <Loader /> : (
         <>
           <Header text={'Games'}>
-            <View style={s.selectorContainer}>
-              <TouchableOpacity 
-                activeOpacity={0.8}
-                style={[s.selectorBtn, page == 0 && s.selected]} 
-                onPress={() => {
-                  setPage(0);
-                  pagerRef.current?.setPage(0);
-                }}
-              >
-                <Text style={s.selectorText}>PAST</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                activeOpacity={0.8}
-                style={[s.selectorBtn, page == 1 && s.selected]} 
-                onPress={() => {
-                  setPage(1);
-                  pagerRef.current?.setPage(1);
-                }}
-              >
-                <Text style={s.selectorText}>UPCOMING</Text>
-              </TouchableOpacity>
-            </View>
             <TouchableOpacity activeOpacity={0.8} style={s.btn} onPress={() => setFavorites(!favorites)}>
               <Octicons name={favorites ? 'star-fill' : 'star'} size={18} color={favorites ? colors.yellow : colors.text} />
             </TouchableOpacity>
@@ -185,27 +164,6 @@ const s = StyleSheet.create({
     flex: 1, 
     backgroundColor: colors.background,
   },
-  selectorContainer: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 999,
-    padding: 2
-  },
-  selectorBtn: {
-    width: 80,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderRadius: 999
-  },
-  selected: {
-    backgroundColor: colors.border,
-  },
-  selectorText: {
-    color: colors.text2,
-    fontSize: 10,
-    fontWeight: 500
-  },
   list :{
     flex: 1
   },
@@ -216,5 +174,12 @@ const s = StyleSheet.create({
     color: colors.text,
     fontSize: 15,
     fontWeight: 500
+  },
+  underline: {
+    position: 'absolute',
+    height: 2,
+    backgroundColor: colors.text,
+    borderRadius: 2,
+    bottom: 0,
   },
 })
