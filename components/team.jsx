@@ -26,7 +26,7 @@ export default function Team({ item, index, isFavorite, onToggleFavorite }) {
         <TouchableOpacity style={s.favBtn} onPress={onToggleFavorite}>
           <Octicons 
             name={isFavorite ? "star-fill" : "star"} 
-            color={isFavorite ? colors.yellow : colors.grey} 
+            color={isFavorite ? colors.brand : colors.grey} 
             size={16} 
             activeOpacity={0.8} 
           />
@@ -54,7 +54,7 @@ const s = StyleSheet.create({
   team: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 15
+    gap: 5
   },
   teamLeft: {
     flexDirection: 'row',

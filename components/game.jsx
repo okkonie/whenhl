@@ -133,8 +133,8 @@ const s = StyleSheet.create({
     borderColor: colors.grey
   },
   pickButtonActive: {
-    backgroundColor: colors.text,
-    borderColor: colors.text,
+    backgroundColor: colors.brand,
+    borderColor: colors.brand,
   },
   container: {
     paddingVertical: 14,

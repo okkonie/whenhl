@@ -5,5 +5,5 @@ export const colors = {
   text: '#eeeeee',
   text2: '#aaaaaa',
   grey: '#777777',
-  yellow: '#ffd700',
+  brand: '#cfb647ff',
 };

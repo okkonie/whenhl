@@ -18,7 +18,7 @@ const statLabels = {
   shutouts: 'SO',
 };
 
-export default function Player({ player, rank, mode }) {
+export default function Player({ player, rank, mode, isLast }) {
   const getStatValue = () => {
     const value = player.value;
     if (mode === 'toi') {
@@ -36,7 +36,7 @@ export default function Player({ player, rank, mode }) {
   };
 
   return (
-    <View style={s.container}>
+    <View style={[s.container, isLast && { borderBottomWidth: 0 }]}>
       <Text style={s.rank}>{rank}</Text>
       <View style={s.info}>
         <SvgUri width={35} height={30} uri={`https://assets.nhle.com/logos/nhl/svg/${player.teamAbbrev}_dark.svg`} />
@@ -54,7 +54,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
-    paddingHorizontal: 25,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },

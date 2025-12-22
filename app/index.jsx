@@ -2,7 +2,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
@@ -115,8 +115,8 @@ export default function Index() {
     />
   );
 
-  const PastScreen = () => renderGameList(filteredPast);
-  const UpcomingScreen = () => renderGameList(filteredFuture);
+  const PastScreen = useMemo(() => () => renderGameList(filteredPast), [filteredPast]);
+  const UpcomingScreen = useMemo(() => () => renderGameList(filteredFuture), [filteredFuture]);
 
   return (
     <SafeAreaView style={s.container}>
@@ -124,7 +124,7 @@ export default function Index() {
         <>
           <Header text={'Games'}>
             <TouchableOpacity activeOpacity={0.8} style={s.btn} onPress={() => setFavorites(!favorites)}>
-              <Octicons name={favorites ? 'star-fill' : 'star'} size={18} color={favorites ? colors.yellow : colors.text} />
+              <Octicons name={favorites ? 'star-fill' : 'star'} size={18} color={favorites ? colors.brand : colors.text} />
             </TouchableOpacity>
           </Header>
           <Tab.Navigator
@@ -132,9 +132,9 @@ export default function Index() {
             screenOptions={{
               tabBarActiveTintColor: colors.text,
               tabBarInactiveTintColor: colors.text2,
-              tabBarStyle: { backgroundColor: colors.background },
-              tabBarIndicatorStyle: { backgroundColor: colors.text },
-              tabBarLabelStyle: { fontWeight: '600', textTransform: 'none', fontSize: 12 },
+              tabBarStyle: { backgroundColor: colors.background, height: 36 },
+              tabBarIndicatorStyle: { backgroundColor: colors.text, height: 2 },
+              tabBarLabelStyle: { fontWeight: '600', textTransform: 'none', fontSize: 12, marginTop: -8 },
             }}
             sceneContainerStyle={{ backgroundColor: colors.background }}
           >
