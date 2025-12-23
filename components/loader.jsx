@@ -4,7 +4,7 @@ import { colors } from '../assets/colors'
 export default function Loader(){
   return (
     <View style={s.loader}>
-      <ActivityIndicator color={colors.text}/>
+      <ActivityIndicator color={colors.text} size="large" />
     </View>
   )
 }

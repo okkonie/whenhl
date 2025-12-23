@@ -53,13 +53,13 @@ const s = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 10,
+    paddingVertical: 12,
+    paddingRight: 15,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
   rank: {
-    width: 20,
+    width: 28,
     textAlign: 'right',
     color: colors.text2,
     fontSize: 14,

@@ -2,8 +2,8 @@ import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
 import Game from "../components/game";
@@ -14,12 +14,15 @@ const Tab = createMaterialTopTabNavigator();
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [pastSchedule, setPastSchedule] = useState([]);
   const [futureSchedule, setFutureSchedule] = useState([]);
   const [filteredPast, setFilteredPast] = useState([]);
   const [filteredFuture, setFilteredFuture] = useState([]);
   const [favorites, setFavorites] = useState(false);
   const [favoriteTeams, setFavoriteTeams] = useState([]);
+  const [previousStartDate, setPreviousStartDate] = useState('');
+  const [nextStartDate, setNextStartDate] = useState('');
 
   useFocusEffect(
     useCallback(() => {
@@ -45,6 +48,9 @@ export default function Index() {
 
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${date}`);
       const data = await response.json();
+      
+      setPreviousStartDate(data.previousStartDate);
+      setNextStartDate(data.nextStartDate);
       
       const past = [];
       const future = [];
@@ -73,6 +79,60 @@ export default function Index() {
     }
   };
 
+  const parseGames = (gameWeek) => {
+    const past = [];
+    const future = [];
+
+    (gameWeek ?? []).forEach((day) => {
+      const title = new Date(day.date + 'T00:00:00').toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric' });
+      const dayGames = day.games ?? [];
+      
+      const pastGames = dayGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF');
+      const futureGames = dayGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
+
+      if (pastGames.length > 0) {
+        past.push({ title, data: pastGames.reverse() });
+      }
+      if (futureGames.length > 0) {
+        future.push({ title, data: futureGames });
+      }
+    });
+
+    return { past, future };
+  };
+
+  const loadMorePast = useCallback(async () => {
+    if (loadingMore || !previousStartDate) return;
+    try {
+      setLoadingMore(true);
+      const response = await fetch(`https://api-web.nhle.com/v1/schedule/${previousStartDate}`);
+      const data = await response.json();
+      const { past } = parseGames(data?.gameWeek);
+      setPastSchedule(prev => [...prev, ...past.reverse()]);
+      setPreviousStartDate(data.previousStartDate);
+    } catch (e) {
+      console.error("Error loading more past games", e);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, previousStartDate]);
+
+  const loadMoreFuture = useCallback(async () => {
+    if (loadingMore || !nextStartDate) return;
+    try {
+      setLoadingMore(true);
+      const response = await fetch(`https://api-web.nhle.com/v1/schedule/${nextStartDate}`);
+      const data = await response.json();
+      const { future } = parseGames(data?.gameWeek);
+      setFutureSchedule(prev => [...prev, ...future]);
+      setNextStartDate(data.nextStartDate);
+    } catch (e) {
+      console.error("Error loading more future games", e);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, nextStartDate]);
+
   useEffect(() => {
     fetchGames();
   }, []);
@@ -95,28 +155,16 @@ export default function Index() {
     setFilteredFuture(filterGames(futureSchedule));
   }, [favorites, favoriteTeams, pastSchedule, futureSchedule]);
 
-  const renderGameList = (data) => (
-    <FlatList
-      style={[s.list, { backgroundColor: colors.background }]}
-      data={data}
-      keyExtractor={(item, index) => item.title + index}
-      renderItem={({ item }) => (
-        <View>
-          <Text style={s.sectionTitle}>{item.title}</Text>
-          <View style={s.gameContainer}>
-            {item.data.map((game, index) => (
-              <Game key={game.id || game.gameId || index} game={game} isFirst={index === 0} />
-            ))}
-          </View>
-        </View>
-      )}
-      showsVerticalScrollIndicator={false}
-      ListFooterComponent={<View style={{height: 55}} />}
-    />
-  );
-
-  const PastScreen = useMemo(() => () => renderGameList(filteredPast), [filteredPast]);
-  const UpcomingScreen = useMemo(() => () => renderGameList(filteredFuture), [filteredFuture]);
+  const renderItem = useCallback(({ item }) => (
+    <View>
+      <Text style={s.sectionTitle}>{item.title}</Text>
+      <View style={s.gameContainer}>
+        {item.data.map((game, index) => (
+          <Game key={game.id || game.gameId || index} game={game} isFirst={index === 0} />
+        ))}
+      </View>
+    </View>
+  ), []);
 
   return (
     <SafeAreaView style={s.container}>
@@ -138,8 +186,44 @@ export default function Index() {
             }}
             sceneContainerStyle={{ backgroundColor: colors.background }}
           >
-            <Tab.Screen name="Past" component={PastScreen}/>
-            <Tab.Screen name="Upcoming" component={UpcomingScreen} />
+            <Tab.Screen name="Past">
+              {() => (
+                <FlatList
+                  style={[s.list, { backgroundColor: colors.background }]}
+                  data={filteredPast}
+                  extraData={loadingMore}
+                  keyExtractor={(item, index) => item.title + index}
+                  renderItem={renderItem}
+                  showsVerticalScrollIndicator={false}
+                  ListFooterComponent={
+                    <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
+                      {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
+                    </View>
+                  }
+                  onEndReached={loadMorePast}
+                  onEndReachedThreshold={0.5}
+                />
+              )}
+            </Tab.Screen>
+            <Tab.Screen name="Upcoming">
+              {() => (
+                <FlatList
+                  style={[s.list, { backgroundColor: colors.background }]}
+                  data={filteredFuture}
+                  extraData={loadingMore}
+                  keyExtractor={(item, index) => item.title + index}
+                  renderItem={renderItem}
+                  showsVerticalScrollIndicator={false}
+                  ListFooterComponent={
+                    <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
+                      {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
+                    </View>
+                  }
+                  onEndReached={loadMoreFuture}
+                  onEndReachedThreshold={0.5}
+                />
+              )}
+            </Tab.Screen>
           </Tab.Navigator>
         </>
       )}

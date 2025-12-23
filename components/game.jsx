@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SvgUri } from "react-native-svg";
 import { colors } from '../assets/colors';
 
-export default function Game({ game, isFirst }) {
+function Game({ game, isFirst }) {
   const [pick, setPick] = useState(null);
 
   useEffect(() => {
@@ -188,3 +188,5 @@ const s = StyleSheet.create({
     width: 70,
   }
 });
+
+export default memo(Game);

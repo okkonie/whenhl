@@ -1,6 +1,6 @@
 import { Octicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
-import { Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
 import Header from "../components/header";
@@ -33,6 +33,9 @@ export default function Players() {
   const [modalMode, setModalMode] = useState(null);
   const [skaterStats, setSkaterStats] = useState({});
   const [goalieStats, setGoalieStats] = useState({});
+  const [search, setSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     fetchStats();
@@ -68,32 +71,120 @@ export default function Players() {
     setModalVisible(true);
   };
 
+  const searchTimeout = useRef(null);
+
+  const searchPlayers = (query) => {
+    setSearchQuery(query);
+    
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
+    
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    
+    searchTimeout.current = setTimeout(async () => {
+      try {
+        const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=20&q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        setSearchResults(data);
+      } catch (e) {
+        console.error('Error searching players', e);
+      }
+    }, 300);
+  };
+
+  const closeSearch = () => {
+    setSearch(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
   const allModes = [...skaterModes, ...goalieModes];
+
+  const renderSection = useCallback(({ item: mode }) => (
+    <View>
+      <View style={s.sectionHeader}>
+        <Text style={s.sectionTitle}>{statLabels[mode]}</Text>
+        <TouchableOpacity onPress={() => openModal(mode)} activeOpacity={0.7} style={s.moreBtn}>
+          <Text style={s.moreBtnText}>See more</Text>
+          <Octicons name="chevron-right" size={15} color={colors.text2} style={{paddingTop: 2}}/>
+        </TouchableOpacity>
+      </View>
+      <View style={s.playersContainer}>
+        {getPlayers(mode).slice(0, 5).map((player, index) => (
+          <Player 
+            key={player.player?.playerId || index} 
+            player={player} 
+            rank={index + 1} 
+            mode={mode} 
+            isLast={index === 4} 
+          />
+        ))}
+      </View>
+    </View>
+  ), [skaterStats, goalieStats]);
 
   return (
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
         <>
-          <Header text={'Players'} />
-          <ScrollView style={s.list} showsVerticalScrollIndicator={false}>
-            {allModes.map((mode) => (
-              <View key={mode}>
-                <View style={s.sectionHeader}>
-                  <Text style={s.sectionTitle}>{statLabels[mode]}</Text>
-                  <TouchableOpacity onPress={() => openModal(mode)} activeOpacity={0.7} style={s.moreBtn}>
-                    <Text style={s.moreBtnText}>See more</Text>
-                    <Octicons name="chevron-right" size={14} color={colors.text2} />
-                  </TouchableOpacity>
-                </View>
-                <View style={s.playersContainer}>
-                  {getPlayers(mode).slice(0, 5).map((player, index) => (
-                    <Player key={player.player?.playerId || index} player={player} rank={index + 1} mode={mode} isLast={index === 4} />
-                  ))}
-                </View>
+          {search ? (
+            <View style={s.searchContainer}>
+              <View style={s.searchInputContainer}>
+                <Octicons name="search" color={colors.text2} size={18} />
+                <TextInput
+                  style={s.searchInput}
+                  placeholder="Search players..."
+                  placeholderTextColor={colors.text2}
+                  value={searchQuery}
+                  onChangeText={searchPlayers}
+                  autoFocus
+                />
+                <TouchableOpacity onPress={closeSearch} style={s.closeSearchBtn}>
+                  <Octicons name="x" size={18} color={colors.text} />
+                </TouchableOpacity>
               </View>
-            ))}
-            <View style={{ height: 50 }} />
-          </ScrollView>
+              <FlatList
+                style={s.list}
+                data={searchResults}
+                keyExtractor={(item) => item.playerId}
+                renderItem={({ item }) => (
+                  <View style={s.searchResultItem}>
+                    <Text style={s.searchResultName}>{item.name}</Text>
+                    <Text style={s.searchResultTeam}>{item.teamAbbrev} • {item.positionCode}</Text>
+                  </View>
+                )}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                  searchQuery.length >= 2 ? (
+                    <Text style={s.emptyText}>No players found</Text>
+                  ) : (
+                    <Text style={s.emptyText}>Type at least 2 characters to search</Text>
+                  )
+                }
+                ListFooterComponent={<View style={{ height: 55 }} />}
+              />
+            </View>
+          ): (
+            <>
+              <Header text={'Players'}> 
+                <TouchableOpacity style={s.btn} activeOpacity={0.8} onPress={() => setSearch(true)}>
+                  <Octicons name="search" color={colors.text} size={20}/>
+                </TouchableOpacity>
+              </Header>
+              <FlatList
+                style={s.list}
+                data={allModes}
+                keyExtractor={(item) => item}
+                renderItem={renderSection}
+                showsVerticalScrollIndicator={false}
+                ListFooterComponent={<View style={{ height: 55 }} />}
+              />
+            </>
+          )}
 
           <Modal
             visible={modalVisible}
@@ -104,12 +195,12 @@ export default function Players() {
             <SafeAreaView style={s.modalContainer}>
               <View style={s.modalHeader}>
                 <Text style={s.modalTitle}>{modalMode ? statLabels[modalMode] : ''}</Text>
-                <TouchableOpacity onPress={() => setModalVisible(false)} style={s.closeBtn}>
+                <TouchableOpacity onPress={() => setModalVisible(false)} style={s.btn}>
                   <Octicons name="x" size={22} color={colors.text} />
                 </TouchableOpacity>
               </View>
               <FlatList
-                style={s.list}
+                style={s.modalList}
                 data={modalMode ? getPlayers(modalMode) : []}
                 keyExtractor={(item, index) => item.player?.playerId?.toString() || index.toString()}
                 renderItem={({ item, index }) => (
@@ -130,8 +221,17 @@ const s = StyleSheet.create({
     flex: 1, 
     backgroundColor: colors.background,
   },
+  btn:{
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   list: {
     flex: 1
+  },
+  modalList: {
+    paddingHorizontal: 15,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -182,10 +282,50 @@ const s = StyleSheet.create({
     fontSize: 20,
     fontWeight: 800,
   },
-  closeBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
+  searchContainer: {
+    flex: 1,
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 10,
+    marginHorizontal: 15,
+    marginVertical: 10,
+    paddingHorizontal: 12,
+    gap: 10,
+  },
+  searchInput: {
+    flex: 1,
+    height: 44,
+    color: colors.text,
+    fontSize: 16,
+  },
+  closeSearchBtn: {
+    padding: 5,
+  },
+  searchResultItem: {
+    backgroundColor: colors.card,
+    marginHorizontal: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.background,
+  },
+  searchResultName: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  searchResultTeam: {
+    color: colors.text2,
+    fontSize: 14,
+    marginTop: 2,
+  },
+  emptyText: {
+    color: colors.text2,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
