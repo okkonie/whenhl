@@ -200,17 +200,17 @@ export default function Players() {
                 </TouchableOpacity>
               </View>
               <FlatList
+                showsVerticalScrollIndicator={false}
                 style={s.modalList}
                 data={modalMode ? getPlayers(modalMode) : []}
                 keyExtractor={(item, index) => item.player?.playerId?.toString() || index.toString()}
                 renderItem={({ item, index }) => (
                   <Player player={item} rank={index + 1} mode={modalMode} />
                 )}
-                showsVerticalScrollIndicator={false}
-              />
+                />
             </SafeAreaView>
           </Modal>
-        </>
+        </> 
       )}
     </SafeAreaView>
   );

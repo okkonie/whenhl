@@ -4,7 +4,7 @@ import { Tabs } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { Animated, Dimensions, View } from 'react-native';
+import { Animated, Dimensions } from 'react-native';
 import { colors } from '../assets/colors';
 
 SplashScreen.preventAutoHideAsync();
@@ -37,8 +37,9 @@ export default function RootLayout() {
       <Tabs
         screenOptions={() => ({
           headerShown: false,
+          tabBarActiveTintColor: colors.text,
+          tabBarInactiveTintColor: colors.grey,
           tabBarLabelStyle: {
-            color: colors.text,
             fontSize: 9,
             fontWeight: 400
           },
@@ -48,45 +49,19 @@ export default function RootLayout() {
             position: 'absolute',
             width: '100%',
             elevation: 0,
+            backgroundColor: colors.background
           },
-          tabBarBackground: () => (
-            <View style={{ flex: 1, backgroundColor: colors.background }}>
-              <Animated.View
-                style={{
-                  position: 'absolute',
-                  bottom: 18,
-                  left: 33,
-                  width: tabWidth / 2.2,
-                  height: 27,
-                  backgroundColor: colors.border,
-                  borderRadius: 15,
-                  transform: [{ translateX }],
-                }}
-              />
-            </View>
-          ),
         })}
-        screenListeners={{
-          state: (e) => {
-            const index = e.data.state.index;
-            Animated.spring(translateX, {
-              toValue: index * tabWidth,
-              useNativeDriver: true,
-              damping: 50,
-              stiffness: 400,
-            }).start();
-          },
-        }}
       >
         <Tabs.Screen
           name="index"
           options={{
             title: 'games',
-            tabBarIcon: () => (
+            tabBarIcon: ({ focused }) => (
               <Ionicons
                 name='calendar-clear'
                 size={20}
-                color={colors.text}
+                color={focused ? colors.text : colors.grey}
               />
             ),
           }}
@@ -95,11 +70,11 @@ export default function RootLayout() {
           name="teams"
           options={{
             title: 'standings',
-            tabBarIcon: () =>(
+            tabBarIcon: ({ focused }) => (
               <Ionicons
                 name='list'
                 size={20}
-                color={colors.text}
+                color={focused ? colors.text : colors.grey}
               />
             ),
           }}
@@ -108,11 +83,11 @@ export default function RootLayout() {
           name="players"
           options={{
             title: 'players',
-            tabBarIcon: () =>(
+            tabBarIcon: ({ focused }) => (
               <Ionicons
                 name='people'
                 size={20}
-                color={colors.text}
+                color={focused ? colors.text : colors.grey}
               />
             ),
           }}
