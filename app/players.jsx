@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
+import Flag from "../components/flag";
 import Header from "../components/header";
 import Loader from "../components/loader";
 import Player from "../components/player";
@@ -148,17 +149,20 @@ export default function Players() {
               </View>
               <FlatList
                 style={s.list}
-                contentContainerStyle={s.resultsContainer}
                 data={searchResults}
                 keyExtractor={(item) => item.playerId.toString()}
                 renderItem={({ item }) => (
                   <View style={s.searchResultItem}>
-                    <Text style={s.searchResultName}>{item.name}</Text>
+                    <View style={s.searchResultNameContainer}>
+                      <Flag country={item.birthCountry} />
+                      <Text style={s.searchResultName}>{item.name}</Text>
+                    </View>
                     <Text style={s.searchResultTeam}>{item.lastTeamAbbrev}</Text>
                   </View>
                 )}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={searchQuery.length >= 2 && <Text style={s.emptyText}>No players found</Text>}
+                ListFooterComponent={<View style={{height: 50}}/>}
               />
             </View>
           ): (
@@ -295,26 +299,27 @@ const s = StyleSheet.create({
   closeSearchBtn: {
     padding: 5,
   },  
-  resultsContainer: {
-    backgroundColor: colors.card,
-    padding: 15,
-    marginHorizontal: 15,
-    borderRadius: 15,
-    marginTop: 10,
-    paddingBottom: 100,
-  },
   searchResultItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingVertical: 10,
+    marginHorizontal: 15,
+    marginTop: 3,
+    backgroundColor: colors.card,
+    borderRadius: 5,
+  },
+  searchResultNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
   },
   searchResultName: {
     color: colors.text,
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 14,
+    flexShrink: 1,
   },
   searchResultTeam: {
     color: colors.text2,
