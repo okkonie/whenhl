@@ -38,7 +38,7 @@ export default function RootLayout() {
         screenOptions={() => ({
           headerShown: false,
           tabBarActiveTintColor: colors.text,
-          tabBarInactiveTintColor: colors.grey,
+          tabBarInactiveTintColor: colors.text2,
           tabBarLabelStyle: {
             fontSize: 9,
             fontWeight: 400
@@ -61,7 +61,7 @@ export default function RootLayout() {
               <Ionicons
                 name='calendar-clear'
                 size={20}
-                color={focused ? colors.text : colors.grey}
+                color={focused ? colors.text : colors.text2}
               />
             ),
           }}
@@ -74,7 +74,7 @@ export default function RootLayout() {
               <Ionicons
                 name='list'
                 size={20}
-                color={focused ? colors.text : colors.grey}
+                color={focused ? colors.text : colors.text2}
               />
             ),
           }}
@@ -87,7 +87,7 @@ export default function RootLayout() {
               <Ionicons
                 name='people'
                 size={20}
-                color={focused ? colors.text : colors.grey}
+                color={focused ? colors.text : colors.text2}
               />
             ),
           }}

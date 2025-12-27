@@ -155,6 +155,18 @@ export default function Index() {
     setFilteredFuture(filterGames(futureSchedule));
   }, [favorites, favoriteTeams, pastSchedule, futureSchedule]);
 
+  useEffect(() => {
+    if (!loading && !loadingMore && filteredPast.length === 0 && previousStartDate) {
+      loadMorePast();
+    }
+  }, [loading, loadingMore, filteredPast, previousStartDate, loadMorePast]);
+
+  useEffect(() => {
+    if (!loading && !loadingMore && filteredFuture.length === 0 && nextStartDate) {
+      loadMoreFuture();
+    }
+  }, [loading, loadingMore, filteredFuture, nextStartDate, loadMoreFuture]);
+
   const renderItem = useCallback(({ item }) => (
     <View>
       <Text style={s.sectionTitle}>{item.title}</Text>

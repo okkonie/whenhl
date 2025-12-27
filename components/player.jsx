@@ -39,7 +39,9 @@ export default function Player({ player, rank, mode, isLast }) {
     <View style={[s.container, isLast && { borderBottomWidth: 0 }]}>
       <Text style={s.rank}>{rank}</Text>
       <View style={s.info}>
-        <SvgUri width={35} height={30} uri={`https://assets.nhle.com/logos/nhl/svg/${player.teamAbbrev}_dark.svg`} />
+        <View style={s.svgPlace}>
+          <SvgUri width={35} height={30} uri={`https://assets.nhle.com/logos/nhl/svg/${player.teamAbbrev}_dark.svg`} />
+        </View>
         <Text style={s.name}>{player.firstName.default} {player.lastName.default}</Text>
       </View>
       <View style={s.statContainer}>
@@ -57,6 +59,10 @@ const s = StyleSheet.create({
     paddingRight: 15,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  svgPlace: {
+    width: 35,
+    height: 30
   },
   rank: {
     width: 28,

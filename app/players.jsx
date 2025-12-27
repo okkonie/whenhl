@@ -87,7 +87,7 @@ export default function Players() {
     
     searchTimeout.current = setTimeout(async () => {
       try {
-        const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=20&q=${encodeURIComponent(query)}`);
+        const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=100&q=${encodeURIComponent(query)}`);
         const data = await response.json();
         setSearchResults(data);
       } catch (e) {
@@ -134,7 +134,6 @@ export default function Players() {
           {search ? (
             <View style={s.searchContainer}>
               <View style={s.searchInputContainer}>
-                <Octicons name="search" color={colors.text2} size={18} />
                 <TextInput
                   style={s.searchInput}
                   placeholder="Search players..."
@@ -144,28 +143,22 @@ export default function Players() {
                   autoFocus
                 />
                 <TouchableOpacity onPress={closeSearch} style={s.closeSearchBtn}>
-                  <Octicons name="x" size={18} color={colors.text} />
+                  <Octicons name="x" size={22} color={colors.text} />
                 </TouchableOpacity>
               </View>
               <FlatList
                 style={s.list}
+                contentContainerStyle={s.resultsContainer}
                 data={searchResults}
-                keyExtractor={(item) => item.playerId}
+                keyExtractor={(item) => item.playerId.toString()}
                 renderItem={({ item }) => (
                   <View style={s.searchResultItem}>
                     <Text style={s.searchResultName}>{item.name}</Text>
-                    <Text style={s.searchResultTeam}>{item.teamAbbrev} • {item.positionCode}</Text>
+                    <Text style={s.searchResultTeam}>{item.lastTeamAbbrev}</Text>
                   </View>
                 )}
                 showsVerticalScrollIndicator={false}
-                ListEmptyComponent={
-                  searchQuery.length >= 2 ? (
-                    <Text style={s.emptyText}>No players found</Text>
-                  ) : (
-                    <Text style={s.emptyText}>Type at least 2 characters to search</Text>
-                  )
-                }
-                ListFooterComponent={<View style={{ height: 55 }} />}
+                ListEmptyComponent={searchQuery.length >= 2 && <Text style={s.emptyText}>No players found</Text>}
               />
             </View>
           ): (
@@ -288,11 +281,9 @@ const s = StyleSheet.create({
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.card,
     borderRadius: 10,
-    marginHorizontal: 15,
-    marginVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 20,
+    height: 50,
     gap: 10,
   },
   searchInput: {
@@ -303,14 +294,22 @@ const s = StyleSheet.create({
   },
   closeSearchBtn: {
     padding: 5,
+  },  
+  resultsContainer: {
+    backgroundColor: colors.card,
+    padding: 15,
+    marginHorizontal: 15,
+    borderRadius: 15,
+    marginTop: 10,
+    paddingBottom: 100,
   },
   searchResultItem: {
-    backgroundColor: colors.card,
-    marginHorizontal: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 15,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.background,
+    borderBottomColor: colors.border,
   },
   searchResultName: {
     color: colors.text,

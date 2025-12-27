@@ -20,7 +20,7 @@ const s = StyleSheet.create({
     alignItems: 'center'
   },
   headerText: {
-    paddingLeft: 10,
+    paddingLeft: 6,
     fontSize: 22,
     color: colors.text,
     fontWeight: 800,
