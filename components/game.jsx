@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { memo, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SvgUri } from "react-native-svg";
 import { colors } from '../assets/colors';
+import TeamLogo from './teamLogo';
 
 function Game({ game, isFirst }) {
   const [pick, setPick] = useState(null);
@@ -15,7 +15,8 @@ function Game({ game, isFirst }) {
     try {
       const stored = await AsyncStorage.getItem(`pick_${game?.id}`);
       if (stored) {
-        setPick(stored);
+        const parsed = JSON.parse(stored);
+        setPick(parsed.pick);
       }
     } catch (e) {
       console.error("Error loading pick", e);
@@ -25,7 +26,8 @@ function Game({ game, isFirst }) {
   const handlePick = (team) => async () => {
     try {
       const teamType = team === game?.homeTeam ? 'home' : 'away';
-      await AsyncStorage.setItem(`pick_${game?.id}`, teamType);
+      const pickData = { pick: teamType, timestamp: Date.now() };
+      await AsyncStorage.setItem(`pick_${game?.id}`, JSON.stringify(pickData));
       setPick(teamType);
     } catch (e) {
       console.error("Error saving pick", e);
@@ -47,12 +49,19 @@ function Game({ game, isFirst }) {
   let homeScoreStyle = s.score;
   let awayScoreStyle = s.score;
 
+  let pickResult = null; // 'correct' or 'wrong'
   if (isPlayed && !isNaN(homeScoreNum) && !isNaN(awayScoreNum) && homeScoreNum !== awayScoreNum) {
     const homeIsWinner = homeScoreNum > awayScoreNum;
     homeNameStyle = [s.teamName, { color: homeIsWinner ? colors.text : colors.text2 }];
     awayNameStyle = [s.teamName, { color: homeIsWinner ? colors.text2 : colors.text }];
     homeScoreStyle = [s.score, { color: homeIsWinner ? colors.text : colors.text2 }];
     awayScoreStyle = [s.score, { color: homeIsWinner ? colors.text2 : colors.text }];
+
+    // Check if pick was correct
+    if (pick) {
+      const pickedHome = pick === 'home';
+      pickResult = (pickedHome === homeIsWinner) ? 'correct' : 'wrong';
+    }
   }
 
   return (
@@ -69,16 +78,12 @@ function Game({ game, isFirst }) {
       <View style={s.body}>
         <View>
           <View style={s.teamRow}>
-            <View style={s.svgplace}>
-              <SvgUri width={35} height={30} uri={game?.homeTeam?.darkLogo} />
-            </View>
+            <TeamLogo abbrev={game?.homeTeam?.abbrev} width={35} height={30} />
             
               <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default}</Text>
           </View>
           <View style={s.teamRow}>
-            <View style={s.svgplace}>
-              <SvgUri width={35} height={30} uri={game?.awayTeam?.darkLogo} />
-            </View>
+            <TeamLogo abbrev={game?.awayTeam?.abbrev} width={35} height={30} />
             
             <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
             <View>
@@ -89,8 +94,18 @@ function Game({ game, isFirst }) {
         <View style={s.infoCol}>
           {(game?.gameState != "FUT" && game?.gameState != "PRE") && (
             <View style={s.scoreCol}>
-              <Text style={homeScoreStyle}>{game?.homeTeam?.score ? game?.homeTeam?.score : 0}</Text>
-              <Text style={awayScoreStyle}>{game?.awayTeam?.score ? game?.awayTeam?.score : 0}</Text>
+              <View style={s.scoreRow}>
+                {pickResult && pick === 'home' && (
+                  <View style={[s.resultDot, pickResult === 'correct' ? s.correctDot : s.wrongDot]} />
+                )}
+                <Text style={homeScoreStyle}>{game?.homeTeam?.score ? game?.homeTeam?.score : 0}</Text>
+              </View>
+              <View style={s.scoreRow}>
+                {pickResult && pick === 'away' && (
+                  <View style={[s.resultDot, pickResult === 'correct' ? s.correctDot : s.wrongDot]} />
+                )}
+                <Text style={awayScoreStyle}>{game?.awayTeam?.score ? game?.awayTeam?.score : 0}</Text>
+              </View>
             </View>
           )}
 
@@ -133,8 +148,24 @@ const s = StyleSheet.create({
     borderColor: colors.grey
   },
   pickButtonActive: {
-    backgroundColor: colors.brand,
-    borderColor: colors.brand,
+    backgroundColor: colors.text,
+    borderColor: colors.text,
+  },
+  scoreRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  resultDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  correctDot: {
+    backgroundColor: colors.green,
+  },
+  wrongDot: {
+    backgroundColor: colors.red,
   },
   container: {
     paddingVertical: 14,
@@ -147,10 +178,6 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     flex: 1,
-  },
-  svgplace: {
-    width: 35,
-    height: 30,
   },
   teamRow: {
     flexDirection: 'row',
@@ -169,6 +196,7 @@ const s = StyleSheet.create({
   scoreCol: {
     flex: 1,
     justifyContent: 'space-evenly',
+    alignItems: 'flex-end'
   }, 
   infoCol: {
     paddingRight: 10,

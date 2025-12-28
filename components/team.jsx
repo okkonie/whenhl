@@ -1,7 +1,7 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SvgUri } from "react-native-svg";
 import { colors } from '../assets/colors';
+import TeamLogo from './teamLogo';
 
 export default function Team({ item, index, isFavorite, onToggleFavorite }) {
   return (
@@ -11,13 +11,7 @@ export default function Team({ item, index, isFavorite, onToggleFavorite }) {
           <Text style={s.rankText}>{index + 1}</Text>
         </View>
         <View style={s.team}>
-          <View style={s.svgPlace}>
-            <SvgUri 
-              width={40} 
-              height={30} 
-              uri={`https://assets.nhle.com/logos/nhl/svg/${item.teamAbbrev.default}_dark.svg`} 
-            />
-          </View>
+          <TeamLogo abbrev={item.teamAbbrev.default} width={40} height={30} />
           <Text style={s.teamName}>{item.teamCommonName.default}</Text>
         </View>
       </View>
@@ -37,10 +31,6 @@ export default function Team({ item, index, isFavorite, onToggleFavorite }) {
 }
 
 const s = StyleSheet.create({
-  svgPlace: {
-    width: 40,
-    height: 30
-  },
   teamRow: {
     paddingVertical: 15,
     marginHorizontal: 15,

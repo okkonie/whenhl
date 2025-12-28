@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { Animated, Dimensions, StyleSheet, View } from 'react-native';
 import { colors } from '../assets/colors';
+import { cleanupOldPicks } from '../utils/cleanupPicks';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -32,6 +33,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      cleanupOldPicks();
     }
   }, [loaded]);
 
@@ -69,7 +71,8 @@ export default function RootLayout() {
             fontWeight: 400
           },
           tabBarStyle: {
-            borderTopWidth: 0,
+            borderTopWidth: 0.5,
+            borderTopColor: colors.card,
             height: 50,
             position: 'absolute',
             width: '100%',
@@ -140,8 +143,8 @@ const styles = StyleSheet.create({
   },
   tabHighlight: {
     position: 'absolute',
-    top: 6,
-    height: 26,
+    top: 5,
+    height: 27,
     backgroundColor: colors.text2 + '30',
     borderRadius: 999,
   },
