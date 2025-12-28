@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from '../assets/colors';
 import TeamLogo from './teamLogo';
 
@@ -18,7 +18,7 @@ const statLabels = {
   shutouts: 'SO',
 };
 
-export default function Player({ player, rank, mode, isLast }) {
+export default function Player({ player, rank, mode, isLast, onPress }) {
   const getStatValue = () => {
     const value = player.value;
     if (mode === 'toi') {
@@ -36,7 +36,11 @@ export default function Player({ player, rank, mode, isLast }) {
   };
 
   return (
-    <View style={[s.container, isLast && { borderBottomWidth: 0 }]}>
+    <TouchableOpacity 
+      style={[s.container, isLast && { borderBottomWidth: 0 }]} 
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <Text style={s.rank}>{rank}</Text>
       <View style={s.info}>
         <TeamLogo abbrev={player.teamAbbrev} width={35} height={30} />
@@ -45,7 +49,7 @@ export default function Player({ player, rank, mode, isLast }) {
       <View style={s.statContainer}>
         <Text style={s.statValue}>{getStatValue()}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

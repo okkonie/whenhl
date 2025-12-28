@@ -7,6 +7,7 @@ import Flag from "../components/flag";
 import Header from "../components/header";
 import Loader from "../components/loader";
 import Player from "../components/player";
+import PlayerStats from "../components/playerStats";
 
 const { width, height } = Dimensions.get('window');
 
@@ -37,6 +38,8 @@ export default function Players() {
   const [search, setSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [playerStatsVisible, setPlayerStatsVisible] = useState(false);
+  const [selectedPlayerId, setSelectedPlayerId] = useState(null);
 
   useEffect(() => {
     fetchStats();
@@ -103,6 +106,16 @@ export default function Players() {
     setSearchResults([]);
   };
 
+  const openPlayerStats = (playerId) => {
+    setSelectedPlayerId(playerId);
+    setPlayerStatsVisible(true);
+  };
+
+  const closePlayerStats = () => {
+    setPlayerStatsVisible(false);
+    setSelectedPlayerId(null);
+  };
+
   const allModes = [...skaterModes, ...goalieModes];
 
   const renderSection = useCallback(({ item: mode }) => (
@@ -117,11 +130,12 @@ export default function Players() {
       <View style={s.playersContainer}>
         {getPlayers(mode).slice(0, 5).map((player, index) => (
           <Player 
-            key={player.player?.playerId || index} 
+            key={player.player?.id || index} 
             player={player} 
             rank={index + 1} 
             mode={mode} 
-            isLast={index === 4} 
+            isLast={index === 4}
+            onPress={() => openPlayerStats(player.id)}
           />
         ))}
       </View>
@@ -152,13 +166,17 @@ export default function Players() {
                 data={searchResults}
                 keyExtractor={(item) => item.playerId.toString()}
                 renderItem={({ item }) => (
-                  <View style={s.searchResultItem}>
+                  <TouchableOpacity 
+                    style={s.searchResultItem} 
+                    onPress={() => openPlayerStats(item.playerId)}
+                    activeOpacity={0.7}
+                  >
                     <View style={s.searchResultNameContainer}>
                       <Flag country={item.birthCountry} />
                       <Text style={s.searchResultName}>{item.name}</Text>
                     </View>
                     <Text style={s.searchResultTeam}>{item.lastTeamAbbrev}</Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={searchQuery.length >= 2 && <Text style={s.emptyText}>No players found</Text>}
@@ -200,13 +218,24 @@ export default function Players() {
                 showsVerticalScrollIndicator={false}
                 style={s.modalList}
                 data={modalMode ? getPlayers(modalMode) : []}
-                keyExtractor={(item, index) => item.player?.playerId?.toString() || index.toString()}
+                keyExtractor={(item, index) => item.player?.id?.toString() || index.toString()}
                 renderItem={({ item, index }) => (
-                  <Player player={item} rank={index + 1} mode={modalMode} />
+                  <Player 
+                    player={item} 
+                    rank={index + 1} 
+                    mode={modalMode}
+                    onPress={() => openPlayerStats(item?.id)}
+                  />
                 )}
-                />
+              />
             </SafeAreaView>
           </Modal>
+
+          <PlayerStats 
+            visible={playerStatsVisible} 
+            playerId={selectedPlayerId} 
+            onClose={closePlayerStats} 
+          />
         </> 
       )}
     </SafeAreaView>

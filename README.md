@@ -5,10 +5,12 @@ An easier way to view future games, scores, standings and player stats of NHL on
 
 ### TODO
 
-- [ ] save guesses, check them on open
-- [x] games loading again every focus fix
+- [x] save picks and check on open
+- [x] delete old picks
+- [x] fix: games loading again every focus
 - [x] load more games when on the bottom of the list
 - [x] player top modal
-- [ ] cache team logos, maybe with sqlite
+- [x] cache team logos
 - [ ] player item modal
-- [ ] player search
+- [ ] team item modal
+- [x] player search
