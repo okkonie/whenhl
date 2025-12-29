@@ -174,16 +174,6 @@ export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) 
                   </View>
                 </View>
               </View>
-              <Text style={s.header}>Details</Text>
-              <View style={s.details}>
-                {player.position && <Detail detail="Position" value={getPosition(player.position)} />}
-                {player.shootsCatches && <Detail detail="Shoots/Catches" value={player.shootsCatches == 'L' ? 'Left' : 'Right'} />}
-                {player.draftDetails &&  <Detail detail="Draft" value={`${getOrdinalSuffix(player.draftDetails.overallPick)} by ${player.draftDetails.teamAbbrev}, ${player.draftDetails.year}`} />}
-                {player.birthDate && <Detail detail="Birth Date" value={formatDate(player.birthDate)} />}
-                {player.birthCity?.default && <Detail detail="Birth Place" value={`${player.birthCity.default}${player.birthCountry ? `, ${player.birthCountry}` : ''}`} />}
-                {player.heightInCentimeters && <Detail detail="Height" value={`${player.heightInCentimeters} cm${player.heightInInches ? ` / ${inchesToFeet(player.heightInInches)}` : ''}`} />}
-                {player.weightInKilograms && <Detail detail="Weight" value={`${player.weightInKilograms} kg${player.weightInPounds ? ` / ${player.weightInPounds} lb` : ''}`} isLast />}
-              </View>
               <Text style={s.header}>Stats</Text>
               {(player?.featuredStats?.regularSeason?.subSeason || player?.featuredStats?.playoffs?.subSeason) && (
                 <StatContainer 
@@ -200,6 +190,16 @@ export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) 
                   position={player?.position} 
                 />
               )}
+              <Text style={s.header}>Details</Text>
+              <View style={s.details}>
+                {player.position && <Detail detail="Position" value={getPosition(player.position)} />}
+                {player.shootsCatches && <Detail detail="Shoots/Catches" value={player.shootsCatches == 'L' ? 'Left' : 'Right'} />}
+                {player.draftDetails &&  <Detail detail="Draft" value={`${getOrdinalSuffix(player.draftDetails.overallPick)} by ${player.draftDetails.teamAbbrev}, ${player.draftDetails.year}`} />}
+                {player.birthDate && <Detail detail="Birth Date" value={formatDate(player.birthDate)} />}
+                {player.birthCity?.default && <Detail detail="Birth Place" value={`${player.birthCity.default}${player.birthCountry ? `, ${player.birthCountry}` : ''}`} />}
+                {player.heightInCentimeters && <Detail detail="Height" value={`${player.heightInCentimeters} cm${player.heightInInches ? ` / ${inchesToFeet(player.heightInInches)}` : ''}`} />}
+                {player.weightInKilograms && <Detail detail="Weight" value={`${player.weightInKilograms} kg${player.weightInPounds ? ` / ${player.weightInPounds} lb` : ''}`} isLast />}
+              </View>
               <View style={{height: 20}}/>
             </ScrollView>
           )}

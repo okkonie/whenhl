@@ -38,5 +38,6 @@ npx expo start
 ```
 
 ## To-do
+- [x] team item component
 - [ ] playoff bracket
-- [ ] team item component
+- [ ] SQLite instead of AsyncStorage

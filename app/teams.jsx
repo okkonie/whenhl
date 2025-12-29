@@ -6,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
 import Header from "../components/header";
 import Loader from '../components/loader';
-import Team from '../components/team';
+import TeamItem from '../components/teamItem';
 
 export default function Teams() {
   const [standings, setStandings] = useState([]);
@@ -116,7 +116,7 @@ export default function Teams() {
                 </View>
                 <View style={s.teamsContainer}>
                 {item.data.map((team, index) => (
-                  <Team 
+                  <TeamItem 
                     key={team.teamAbbrev.default} 
                     item={team} 
                     index={index} 
