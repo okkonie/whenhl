@@ -1,16 +1,42 @@
-# WHENHL
+# WHENHL 
+Easier and faster way to view NHL games, scores, standings, and player stats on mobile.
 
-An easier way to view future games, scores, standings and player stats of NHL on mobile.
+Built with React Native & Expo.
+<br>
 
+## Features
+- **Games** - View upcoming and past NHL games with scores
+- **Picks** - Make game predictions and track your picks
+- **Standings** - View team standings: division, conference and league wide
+- **Teams** - Browse all NHL teams and rosters
+- **Players** - View stat leaders and search players and view detailed stats
+<br>
 
-### TODO
+<img width="100%" src="preview.png" alt="preview"/>
+<br>
 
-- [x] save picks and check on open
-- [x] delete old picks
-- [x] fix: games loading again every focus
-- [x] load more games when on the bottom of the list
-- [x] player top modal
-- [x] cache team logos
-- [x] player item modal
-- [ ] team item modal
-- [x] player search
+## Download
+[Download apk here](https://github.com/okkonie/whenhl/releases)
+<br>
+
+## Tech Stack
+- [Expo](https://expo.dev/) - React Native framework
+- [Expo Router](https://docs.expo.dev/router/introduction/) - File-based routing
+- [NHL API](https://api-web.nhle.com/) - Official NHL data
+- AsyncStorage - Local data persistence
+
+## Installation
+```bash
+# clone the repo
+git clone https://github.com/okkonie/whenhl.git
+
+# Install dependencies
+npm install
+
+# Start the development server
+npx expo start
+```
+
+## To-do
+- [ ] playoff bracket
+- [ ] team item component
