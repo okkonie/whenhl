@@ -40,6 +40,7 @@ export default function Players() {
   const [searchResults, setSearchResults] = useState([]);
   const [playerStatsVisible, setPlayerStatsVisible] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
+  const [selectedTeamAbbrev, setSelectedTeamAbbrev] = useState(null);
 
   useEffect(() => {
     fetchStats();
@@ -106,14 +107,16 @@ export default function Players() {
     setSearchResults([]);
   };
 
-  const openPlayerStats = (playerId) => {
+  const openPlayerStats = (playerId, teamAbbrev) => {
     setSelectedPlayerId(playerId);
+    setSelectedTeamAbbrev(teamAbbrev);
     setPlayerStatsVisible(true);
   };
 
   const closePlayerStats = () => {
     setPlayerStatsVisible(false);
     setSelectedPlayerId(null);
+    setSelectedTeamAbbrev(null);
   };
 
   const allModes = [...skaterModes, ...goalieModes];
@@ -135,7 +138,7 @@ export default function Players() {
             rank={index + 1} 
             mode={mode} 
             isLast={index === 4}
-            onPress={() => openPlayerStats(player.id)}
+            onPress={() => openPlayerStats(player.id, player.teamAbbrev)}
           />
         ))}
       </View>
@@ -168,7 +171,7 @@ export default function Players() {
                 renderItem={({ item }) => (
                   <TouchableOpacity 
                     style={s.searchResultItem} 
-                    onPress={() => openPlayerStats(item.playerId)}
+                    onPress={() => openPlayerStats(item.playerId, item.lastTeamAbbrev)}
                     activeOpacity={0.7}
                   >
                     <View style={s.searchResultNameContainer}>
@@ -224,7 +227,7 @@ export default function Players() {
                     player={item} 
                     rank={index + 1} 
                     mode={modalMode}
-                    onPress={() => openPlayerStats(item?.id)}
+                    onPress={() => openPlayerStats(item?.id, item?.teamAbbrev)}
                   />
                 )}
               />
@@ -233,7 +236,8 @@ export default function Players() {
 
           <PlayerStats 
             visible={playerStatsVisible} 
-            playerId={selectedPlayerId} 
+            playerId={selectedPlayerId}
+            teamAbbrev={selectedTeamAbbrev}
             onClose={closePlayerStats} 
           />
         </> 

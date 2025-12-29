@@ -69,7 +69,7 @@ const s = StyleSheet.create({
   },
   teamPoints: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: 600
   },
   favBtn: {
