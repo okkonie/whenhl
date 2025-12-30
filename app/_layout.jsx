@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Octicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { Tabs } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -93,8 +93,8 @@ export default function RootLayout() {
           options={{
             title: 'games',
             tabBarIcon: ({ focused }) => (
-              <Ionicons
-                name='calendar-clear'
+              <Octicons
+                name='calendar'
                 size={20}
                 color={focused ? colors.text : colors.text2}
               />
@@ -106,8 +106,8 @@ export default function RootLayout() {
           options={{
             title: 'standings',
             tabBarIcon: ({ focused }) => (
-              <Ionicons
-                name='list'
+              <Octicons
+                name='list-ordered'
                 size={20}
                 color={focused ? colors.text : colors.text2}
               />
@@ -119,7 +119,7 @@ export default function RootLayout() {
           options={{
             title: 'players',
             tabBarIcon: ({ focused }) => (
-              <Ionicons
+              <Octicons
                 name='people'
                 size={20}
                 color={focused ? colors.text : colors.text2}
