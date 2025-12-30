@@ -1,19 +1,17 @@
 import { Octicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../assets/colors';
+import FullScheduleModal from './fullScheduleModal';
 import Loader from './loader';
-import StatBar from './statBar';
+import RosterModal from './rosterModal';
 import TeamLogo from './teamLogo';
 
 export default function TeamStats({ visible, logo, item, onClose }) {
   const [schedule, setSchedule] = useState({ recentGames: [], upcomingGames: [], allGames: [] });
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showRosterModal, setShowRosterModal] = useState(false);
-  const [roster, setRoster] = useState([]);
-  const [rosterLoading, setRosterLoading] = useState(false);
-  const [rosterError, setRosterError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,42 +37,6 @@ export default function TeamStats({ visible, logo, item, onClose }) {
     }
   }, [visible, item?.teamAbbrev?.default]);
 
-  useEffect(() => {
-    if (showRosterModal && item?.teamAbbrev?.default) {
-      setRosterLoading(true);
-      setRosterError(null);
-
-      fetch(`https://api-web.nhle.com/v1/roster/${item.teamAbbrev.default}/current`)
-        .then(res => res.json())
-        .then(data => {
-          const forwards = data?.forwards || [];
-          const defensemen = data?.defensemen || [];
-          const goalies = data?.goalies || [];
-
-          const normalize = (player, positionLabel) => ({
-            id: player?.id || `${player?.firstName?.default}-${player?.lastName?.default}-${player?.sweaterNumber}`,
-            first: player?.firstName?.default || '',
-            last: player?.lastName?.default || '',
-            number: player?.sweaterNumber || '-',
-            position: player?.positionCode || positionLabel,
-          });
-
-          const combined = [
-            ...forwards.map(p => normalize(p, 'F')),
-            ...defensemen.map(p => normalize(p, 'D')),
-            ...goalies.map(p => normalize(p, 'G')),
-          ];
-
-          setRoster(combined);
-        })
-        .catch(err => {
-          console.error('Error fetching roster:', err);
-          setRosterError('Could not load roster right now.');
-        })
-        .finally(() => setRosterLoading(false));
-    }
-  }, [showRosterModal, item?.teamAbbrev?.default]);
-
   const getGameResult = (game) => {
     const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
     const teamScore = isHome ? game.homeTeam.score : game.awayTeam.score;
@@ -84,6 +46,15 @@ export default function TeamStats({ visible, logo, item, onClose }) {
     
     return { opponent, won, isHome };
   };
+
+  const StatItem = ({head, value}) => {
+    return (
+      <View style={s.statItem}>
+        <Text style={s.statHead}>{head}</Text>
+        <Text style={s.statValue}>{value}</Text>
+      </View>
+    )
+  }
 
   return (
     <Modal
@@ -145,7 +116,7 @@ export default function TeamStats({ visible, logo, item, onClose }) {
                       return (
                         <View key={idx} style={s.upcomingGameBox}>
                           <TeamLogo abbrev={opponent} width={40} height={30} />
-                          <Text style={s.gameDate}>
+                          <Text style={s.gameTime}>
                             {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                           </Text>
                           <Text style={s.gameTime}>
@@ -165,111 +136,48 @@ export default function TeamStats({ visible, logo, item, onClose }) {
 
             <Text style={s.sectionTitle}>Stats</Text>
             <View style={s.statRow}>
-              <StatBar
-                label="Goals For"
+              <StatItem
+                head="Goals For"
                 value={item?.goalFor}
-                valueOf={item?.goalFor + item?.goalAgainst}
               />
-              <StatBar
-                label="Home Wins"
-                value={item?.homeWins}
-                valueOf={item?.homeWins + item?.homeLosses + item?.homeOtLosses}
+              <StatItem
+                head="Goals Against"
+                value={item?.goalAgainst}
               />
-              <StatBar
-                label="Road Wins"
-                value={item?.roadWins}
-                valueOf={item?.roadWins + item?.roadLosses + item?.roadOtLosses}
+              <StatItem
+                head="Rec"
+                value={`${item?.wins}-${item?.losses}-${item?.otLosses}`}
+              />
+              <StatItem
+                head="Home Rec"
+                value={`${item?.homeWins}-${item?.homeLosses}-${item?.homeOtLosses}`}
+              />
+              <StatItem
+                head="Road Rec"
+                value={`${item?.roadWins}-${item?.roadLosses}-${item?.roadOtLosses}`}
+              />
+              <StatItem
+                head="Win Pctg"
+                value={`${(item?.winPctg * 100).toFixed(2)}%`}
               />
             </View>
           </ScrollView>
         )}
       </SafeAreaView>
 
-      <Modal
+      <FullScheduleModal
         visible={showScheduleModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowScheduleModal(false)}
-      >
-        <SafeAreaView style={[s.modalContainer, s.overlayBg]}>
-          <View style={s.modalHeader}>
-            <Text style={s.modalTitle}>Full Schedule</Text>
-            <TouchableOpacity onPress={() => setShowScheduleModal(false)} style={s.btn}>
-              <Octicons name="x" size={22} color={colors.text} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
-            {schedule.allGames.map((game, idx) => {
-              const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
-              const opponent = isHome ? game.awayTeam : game.homeTeam;
-              const date = new Date(game.startTimeUTC);
-              const status = game.gameState === 'FUT' ? 'Scheduled' : game.gameState;
-              const result = getGameResult(game);
-              const isComplete = game.gameState === 'OFF' || game.gameState === 'FINAL';
-              const rowStyle = isComplete ? (result.won ? s.winCard : s.lossCard) : s.neutralCard;
-              const statusLabel = isComplete ? (result.won ? 'Won' : 'Lost') : status;
+        onClose={() => setShowScheduleModal(false)}
+        schedule={schedule}
+        item={item}
+        getGameResult={getGameResult}
+      />
 
-              return (
-                <View key={idx} style={[s.fullRow, rowStyle]}>
-                  <View style={s.fullRowLeft}>
-                    <TeamLogo abbrev={opponent?.abbrev} width={50} height={40} />
-                    <View>
-                      <Text style={s.fullOpponent}>{opponent?.abbrev}</Text>
-                      <Text style={s.fullMeta}>{isHome ? 'Home' : 'Away'} • {statusLabel}</Text>
-                    </View>
-                  </View>
-                  <View style={s.fullRowRight}>
-                    <Text style={s.fullDate}>{date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</Text>
-                    <Text style={s.fullTime}>{date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</Text>
-                  </View>
-                </View>
-              );
-            })}
-            {schedule.allGames.length === 0 && (
-              <Text style={s.emptyText}>No schedule available.</Text>
-            )}
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
-
-      <Modal
+      <RosterModal
         visible={showRosterModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowRosterModal(false)}
-      >
-        <SafeAreaView style={[s.modalContainer, s.overlayBg]}>
-          <View style={s.modalHeader}>
-            <Text style={s.modalTitle}>Roster</Text>
-            <TouchableOpacity onPress={() => setShowRosterModal(false)} style={s.btn}>
-              <Octicons name="x" size={22} color={colors.text} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
-            {rosterLoading && (
-              <View style={s.loadingRow}>
-                <ActivityIndicator color={colors.text} />
-                <Text style={s.loadingText}>Loading roster...</Text>
-              </View>
-            )}
-            {rosterError && <Text style={s.errorText}>{rosterError}</Text>}
-            {!rosterLoading && !rosterError && roster.map(player => (
-              <View key={player.id} style={s.playerRow}>
-                <View style={s.playerBadge}>
-                  <Text style={s.playerNumber}>{player.number}</Text>
-                </View>
-                <View style={s.playerInfo}>
-                  <Text style={s.playerName}>{player.first} {player.last}</Text>
-                  <Text style={s.playerMeta}>{player.position}</Text>
-                </View>
-              </View>
-            ))}
-            {!rosterLoading && !rosterError && roster.length === 0 && (
-              <Text style={s.emptyText}>No roster found.</Text>
-            )}
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
+        onClose={() => setShowRosterModal(false)}
+        teamAbbrev={item?.teamAbbrev?.default}
+      />
     </Modal>
   );
 }
@@ -310,8 +218,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     backgroundColor: colors.border,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 12,
     justifyContent: 'center',
   },
@@ -348,20 +255,15 @@ const s = StyleSheet.create({
   gamesRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 10
-  },
-  statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    paddingVertical: 20
   },
   gameBox: {
-    paddingVertical: 8,
     borderRadius: 8,
+    gap: 2,
     alignItems: 'center',
     width: '15%'
   },
   upcomingGameBox: {
-    paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 10,
     alignItems: 'center',
@@ -372,25 +274,11 @@ const s = StyleSheet.create({
   gameOpponent: {
     color: colors.text,
     fontSize: 12,
-    fontWeight: 700
-  },
-  gameLocation: {
-    color: colors.text2,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  gameDate: {
-    color: colors.text2,
-    fontSize: 12,
-    marginTop: 2,
+    fontWeight: 500
   },
   gameTime: {
-    color: colors.text2,
+    color: colors.text,
     fontSize: 12,
-    color: colors.text2,
-  },
-  overlayBg: {
-    backgroundColor: colors.background,
   },
   btn: {
     width: 40,
@@ -420,101 +308,28 @@ const s = StyleSheet.create({
     fontWeight: 500,
     paddingTop: 4
   },
-  fullRow: {
+  statRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-  winCard: {
-    backgroundColor: colors.green + '33',
-  },
-  lossCard: {
-    backgroundColor: colors.red + '26',
-  },
-  neutralCard: {
-    backgroundColor: colors.border2,
-  },
-  fullRowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  fullRowRight: {
-    alignItems: 'flex-end',
-  },
-  fullOpponent: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  fullMeta: {
-    color: colors.text2,
-    fontSize: 12,
-  },
-  fullDate: {
-    color: colors.text,
-    fontWeight: '700',
-  },
-  fullTime: {
-    color: colors.text2,
-    fontSize: 12,
-  },
-  emptyText: {
-    color: colors.text2,
-    textAlign: 'center',
-    paddingVertical: 10,
-  },
-  loadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 12,
-  },
-  loadingText: {
-    color: colors.text,
-    fontWeight: '600',
-  },
-  errorText: {
-    color: colors.red,
-    paddingVertical: 10,
-  },
-  playerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
+    flexWrap: 'wrap',
     backgroundColor: colors.card,
-    borderRadius: 10,
-    marginBottom: 8,
+    borderRadius: 15,
+    paddingVertical: 10
   },
-  playerBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: colors.border,
-    alignItems: 'center',
+  statItem: {
     justifyContent: 'center',
-    marginRight: 10,
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 10,
+    width: '33%',
   },
-  playerNumber: {
-    color: colors.text,
-    fontWeight: '800',
-  },
-  playerInfo: {
-    flex: 1,
-  },
-  playerName: {
-    color: colors.text,
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  playerMeta: {
+  statHead: {
     color: colors.text2,
     fontSize: 12,
-    marginTop: 2,
   },
+  statValue: {
+    color: colors.text,
+    fontWeight: 500,
+    fontSize: 16
+  }
 });

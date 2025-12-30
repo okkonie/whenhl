@@ -8,8 +8,8 @@ Built with React Native & Expo.
 - **Games** - View upcoming and past NHL games with scores
 - **Picks** - Make game predictions and track your picks
 - **Standings** - View team standings: division, conference and league wide
-- **Teams** - Browse all NHL teams and rosters
-- **Players** - View stat leaders and search players and view detailed stats
+- **Teams** - View all NHL teams’ stats, schedule and roster
+- **Players** - View stat leaders, search players and view detailed stats
 <br>
 
 <img width="100%" src="preview.png" alt="preview"/>
