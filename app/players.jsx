@@ -294,7 +294,7 @@ const s = StyleSheet.create({
   modalContainer: {
     position: 'absolute',
     width: '100%',
-    height: '97%',
+    height: '94%',
     bottom: 0,
     backgroundColor: colors.card,
     borderRadius: 15
