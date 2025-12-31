@@ -1,9 +1,6 @@
-import Octicons from '@expo/vector-icons/Octicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
 import Game from "../components/game";
@@ -17,28 +14,19 @@ export default function Index() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [pastSchedule, setPastSchedule] = useState([]);
   const [futureSchedule, setFutureSchedule] = useState([]);
-  const [filteredPast, setFilteredPast] = useState([]);
-  const [filteredFuture, setFilteredFuture] = useState([]);
-  const [favorites, setFavorites] = useState(false);
-  const [favoriteTeams, setFavoriteTeams] = useState([]);
   const [previousStartDate, setPreviousStartDate] = useState('');
   const [nextStartDate, setNextStartDate] = useState('');
 
-  useFocusEffect(
-    useCallback(() => {
-      loadFavorites();
-    }, [])
-  );
-
-  const loadFavorites = async () => {
-    try {
-      const stored = await AsyncStorage.getItem('favoriteTeams');
-      if (stored) {
-        setFavoriteTeams(JSON.parse(stored));
+  const groupGamesByLocalDate = (games) => {
+    const grouped = {};
+    games.forEach(game => {
+      const localDate = new Date(game.startTimeUTC).toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric' });
+      if (!grouped[localDate]) {
+        grouped[localDate] = [];
       }
-    } catch (e) {
-      console.error("Failed to load favorites", e);
-    }
+      grouped[localDate].push(game);
+    });
+    return grouped;
   };
 
   const fetchGames = async () => {
@@ -52,25 +40,21 @@ export default function Index() {
       setPreviousStartDate(data.previousStartDate);
       setNextStartDate(data.nextStartDate);
       
-      const past = [];
-      const future = [];
+      const allGames = (data?.gameWeek ?? []).flatMap(day => day.games ?? []);
+      
+      const pastGames = allGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF');
+      const futureGames = allGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
 
-      (data?.gameWeek ?? []).forEach((day) => {
-        const title = new Date(day.date + 'T00:00:00').toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric' });
-        const dayGames = day.games ?? [];
-        
-        const pastGames = dayGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF');
-        const futureGames = dayGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
+      const pastGrouped = groupGamesByLocalDate(pastGames);
+      const futureGrouped = groupGamesByLocalDate(futureGames);
 
-        if (pastGames.length > 0) {
-          past.push({ title, data: pastGames.reverse() });
-        }
-        if (futureGames.length > 0) {
-          future.push({ title, data: futureGames });
-        }
-      });
+      const past = Object.entries(pastGrouped)
+        .map(([title, data]) => ({ title, data: data.reverse() }))
+        .reverse();
+      const future = Object.entries(futureGrouped)
+        .map(([title, data]) => ({ title, data }));
 
-      setPastSchedule(past.reverse());
+      setPastSchedule(past);
       setFutureSchedule(future);
     } catch (e) {
       console.error("Error fetching games", e);
@@ -80,25 +64,51 @@ export default function Index() {
   };
 
   const parseGames = (gameWeek) => {
-    const past = [];
-    const future = [];
+    const allGames = (gameWeek ?? []).flatMap(day => day.games ?? []);
+    
+    const pastGames = allGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF');
+    const futureGames = allGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
 
-    (gameWeek ?? []).forEach((day) => {
-      const title = new Date(day.date + 'T00:00:00').toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric' });
-      const dayGames = day.games ?? [];
-      
-      const pastGames = dayGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF');
-      const futureGames = dayGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
+    const pastGrouped = groupGamesByLocalDate(pastGames);
+    const futureGrouped = groupGamesByLocalDate(futureGames);
 
-      if (pastGames.length > 0) {
-        past.push({ title, data: pastGames.reverse() });
-      }
-      if (futureGames.length > 0) {
-        future.push({ title, data: futureGames });
+    const past = Object.entries(pastGrouped)
+      .map(([title, data]) => ({ title, data: data.reverse() }));
+    const future = Object.entries(futureGrouped)
+      .map(([title, data]) => ({ title, data }));
+
+    return { past, future };
+  };
+
+  const mergeSchedule = (existing, incoming, prepend = false) => {
+    const merged = {};
+    
+    // Add existing sections
+    existing.forEach(section => {
+      merged[section.title] = [...section.data];
+    });
+    
+    // Merge incoming sections
+    incoming.forEach(section => {
+      if (merged[section.title]) {
+        if (prepend) {
+          merged[section.title] = [...section.data, ...merged[section.title]];
+        } else {
+          merged[section.title] = [...merged[section.title], ...section.data];
+        }
+      } else {
+        merged[section.title] = [...section.data];
       }
     });
 
-    return { past, future };
+    // Convert back to array, maintaining order
+    const existingTitles = existing.map(s => s.title);
+    const incomingTitles = incoming.map(s => s.title);
+    const allTitles = prepend 
+      ? [...incomingTitles.filter(t => !existingTitles.includes(t)), ...existingTitles]
+      : [...existingTitles, ...incomingTitles.filter(t => !existingTitles.includes(t))];
+    
+    return allTitles.map(title => ({ title, data: merged[title] }));
   };
 
   const loadMorePast = useCallback(async () => {
@@ -108,7 +118,7 @@ export default function Index() {
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${previousStartDate}`);
       const data = await response.json();
       const { past } = parseGames(data?.gameWeek);
-      setPastSchedule(prev => [...prev, ...past.reverse()]);
+      setPastSchedule(prev => mergeSchedule(prev, past.reverse(), false));
       setPreviousStartDate(data.previousStartDate);
     } catch (e) {
       console.error("Error loading more past games", e);
@@ -124,7 +134,7 @@ export default function Index() {
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${nextStartDate}`);
       const data = await response.json();
       const { future } = parseGames(data?.gameWeek);
-      setFutureSchedule(prev => [...prev, ...future]);
+      setFutureSchedule(prev => mergeSchedule(prev, future, false));
       setNextStartDate(data.nextStartDate);
     } catch (e) {
       console.error("Error loading more future games", e);
@@ -138,34 +148,16 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    const filterGames = (source) => {
-      if (favorites) {
-        return source.map(section => ({
-          ...section,
-          data: section.data.filter(game => 
-            favoriteTeams.includes(game.awayTeam.abbrev) || 
-            favoriteTeams.includes(game.homeTeam.abbrev)
-          )
-        })).filter(section => section.data.length > 0);
-      }
-      return source;
-    };
-
-    setFilteredPast(filterGames(pastSchedule));
-    setFilteredFuture(filterGames(futureSchedule));
-  }, [favorites, favoriteTeams, pastSchedule, futureSchedule]);
-
-  useEffect(() => {
-    if (!loading && !loadingMore && filteredPast.length === 0 && previousStartDate) {
+    if (!loading && !loadingMore && pastSchedule.length === 0 && previousStartDate) {
       loadMorePast();
     }
-  }, [loading, loadingMore, filteredPast, previousStartDate, loadMorePast]);
+  }, [loading, loadingMore, pastSchedule, previousStartDate, loadMorePast]);
 
   useEffect(() => {
-    if (!loading && !loadingMore && filteredFuture.length === 0 && nextStartDate) {
+    if (!loading && !loadingMore && futureSchedule.length === 0 && nextStartDate) {
       loadMoreFuture();
     }
-  }, [loading, loadingMore, filteredFuture, nextStartDate, loadMoreFuture]);
+  }, [loading, loadingMore, futureSchedule, nextStartDate, loadMoreFuture]);
 
   const renderItem = useCallback(({ item }) => (
     <View>
@@ -182,11 +174,7 @@ export default function Index() {
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
         <>
-          <Header text={'Games'}>
-            <TouchableOpacity activeOpacity={0.8} style={s.btn} onPress={() => setFavorites(!favorites)}>
-              <Octicons name={favorites ? 'star-fill' : 'star'} size={18} color={favorites ? colors.brand : colors.text} />
-            </TouchableOpacity>
-          </Header>
+          <Header text={'Games'} />
           <Tab.Navigator
             initialRouteName="Upcoming"
             screenOptions={{
@@ -202,7 +190,7 @@ export default function Index() {
               {() => (
                 <FlatList
                   style={[s.list, { backgroundColor: colors.background }]}
-                  data={filteredPast}
+                  data={pastSchedule}
                   extraData={loadingMore}
                   keyExtractor={(item, index) => item.title + index}
                   renderItem={renderItem}
@@ -221,7 +209,7 @@ export default function Index() {
               {() => (
                 <FlatList
                   style={[s.list, { backgroundColor: colors.background }]}
-                  data={filteredFuture}
+                  data={futureSchedule}
                   extraData={loadingMore}
                   keyExtractor={(item, index) => item.title + index}
                   renderItem={renderItem}
@@ -252,12 +240,6 @@ const s = StyleSheet.create({
     borderRadius: 15,
     marginHorizontal: 10,
     marginTop: 5
-  },
-  btn: { 
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   container: {
     flex: 1, 

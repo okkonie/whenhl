@@ -76,6 +76,7 @@ export default function TeamStats({ visible, logo, item, onClose }) {
               {logo}
               <View style={s.teamInfo}>
                 <Text style={s.teamHeaderName}>{item?.teamName?.default}</Text>
+                <Text style={s.teamMore}>{item?.points} PTS | {item?.gamesPlayed} GP</Text>
               </View>
             </View>
 
@@ -200,7 +201,7 @@ const s = StyleSheet.create({
   modalContainer: {
     position: 'absolute',
     width: '100%',
-    height: '97%',
+    height: '94%',
     bottom: 0,
     backgroundColor: colors.background,
     borderRadius: 15,
@@ -288,7 +289,8 @@ const s = StyleSheet.create({
   },
   gamesTitle: {
     color: colors.text2,
-    fontWeight: 500,
+    fontWeight: 400,
+    fontSize: 14,
     paddingTop: 10,
     paddingLeft: 10
   },
@@ -342,10 +344,10 @@ const s = StyleSheet.create({
     fontSize: 20,
     fontWeight: 600
   },
-  teamScore: {
+  teamMore: {
     color: colors.text2,
-    fontSize: 16,
-    fontWeight: 500,
+    fontSize: 14,
+    fontWeight: 400,
     paddingTop: 4
   },
   statRow: {

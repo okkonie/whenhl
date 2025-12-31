@@ -113,6 +113,7 @@ export default function Teams() {
               <View>
                 <View style={s.sectionHeader}>
                   <Text style={s.sectionTitle}>{item.title}</Text>
+                  <Text style={s.numText}>PTS</Text>
                 </View>
                 <View style={s.teamsContainer}>
                 {item.data.map((team, index) => (
@@ -161,13 +162,24 @@ const s = StyleSheet.create({
     flex: 1,
   },
   sectionHeader: {
-    paddingHorizontal: 25,
+    paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 10
+    paddingBottom: 5,
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+  },
+  numText: {
+    color: colors.text2,
+    width: 35,
+    marginRight: 15,
+    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: '500',
   },
   sectionTitle: {
     color: colors.text,
     fontSize: 15,
+    paddingLeft: 5,
     fontWeight: 500
   },
 });

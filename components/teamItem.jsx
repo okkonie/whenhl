@@ -1,4 +1,3 @@
-import { Octicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from '../assets/colors';
@@ -20,17 +19,7 @@ export default function TeamItem({ item, index, isFavorite, onToggleFavorite }) 
             <Text style={s.teamName}>{item.teamCommonName.default}</Text>
           </View>
         </View>
-        <View style={s.teamRight}>
-          <Text style={s.teamPoints}>{item.points}</Text>
-          <TouchableOpacity style={s.favBtn} onPress={onToggleFavorite}>
-            <Octicons 
-              name={isFavorite ? "star-fill" : "star"} 
-              color={isFavorite ? colors.brand : colors.grey} 
-              size={16} 
-              activeOpacity={0.8} 
-            />
-          </TouchableOpacity>
-        </View>
+        <Text style={s.statValue}>{item.points}</Text>
       </TouchableOpacity>
 
       <TeamStats 
@@ -69,7 +58,19 @@ const s = StyleSheet.create({
   teamRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20
+    gap: 15
+  },
+  statValue: {
+    width: 35,
+    textAlign: 'center',
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  statLabel: {
+    color: colors.text2,
+    fontSize: 10,
+    fontWeight: '500',
   },
   rank: {
     width: 18,
@@ -81,11 +82,6 @@ const s = StyleSheet.create({
   teamName: {
     color: colors.text,
     fontSize: 14,
-  },
-  teamPoints: {
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: '600'
   },
   favBtn: {
     padding: 8,
