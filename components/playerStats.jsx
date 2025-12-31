@@ -1,10 +1,8 @@
-import { Octicons } from "@expo/vector-icons";
 import { Image } from 'expo-image';
 import { useEffect, useState } from "react";
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from '../assets/colors';
-import Loader from './loader';
+import CustomModal from './customModal';
 import TeamLogo from './teamLogo';
 
 export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) {
@@ -148,64 +146,54 @@ export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) 
   }
 
   return (
-    <Modal
+    <CustomModal
       visible={visible}
-      animationType="slide"
       transparent={true}
-      onRequestClose={handleClose}
+      onClose={handleClose}
+      loading={!player || loading}
+      header="Player Stats"
     >
-      <SafeAreaView style={s.modalContainer}>
-        <View style={s.modalHeader}>
-          <Text style={s.modalTitle}>Player Stats</Text>
-          <TouchableOpacity onPress={handleClose} style={s.btn}>
-            <Octicons name="x" size={22} color={colors.text} />
-          </TouchableOpacity>
-        </View>
-        <View style={s.content}>
-          {!player ? <Loader /> : (
-            <ScrollView style={s.player} showsVerticalScrollIndicator={false}>
-              <View style={s.top}>
-                <Image source={player.headshot} style={s.headshot}/>
-                <View style={s.topTexts}>
-                  <Text style={s.name}>{player.firstName.default} {player.lastName.default}</Text>
-                  <View style={s.textsRow}>
-                    {teamAbbrev && <TeamLogo abbrev={teamAbbrev} width={45} height={40} />}
-                    {player.sweaterNumber && <Text style={s.sweaterNubmber}>#{player.sweaterNumber}</Text>}
-                  </View>
-                </View>
+      {player && (
+        <>
+          <View style={s.top}>
+            <Image source={player.headshot} style={s.headshot}/>
+            <View style={s.topTexts}>
+              <Text style={s.name}>{player.firstName.default} {player.lastName.default}</Text>
+              <View style={s.textsRow}>
+                {teamAbbrev && <TeamLogo abbrev={teamAbbrev} width={45} height={40} />}
+                {player.sweaterNumber && <Text style={s.sweaterNubmber}>#{player.sweaterNumber}</Text>}
               </View>
-              <Text style={s.header}>Stats</Text>
-              {(player?.featuredStats?.regularSeason?.subSeason || player?.featuredStats?.playoffs?.subSeason) && (
-                <StatContainer 
-                  head={player?.featuredStats?.season ? (player.featuredStats.season.toString().slice(0,4) + '-' + player.featuredStats.season.toString().slice(6)) : 'Season'} 
-                  category={'subseason'} 
-                  position={player?.position} 
-                />
-              )}
-
-              {(player?.careerTotals?.regularSeason || player?.careerTotals?.playoffs) && (
-                <StatContainer 
-                  head={'Career'} 
-                  category={'career'} 
-                  position={player?.position} 
-                />
-              )}
-              <Text style={s.header}>Details</Text>
-              <View style={s.details}>
-                {player.position && <Detail detail="Position" value={getPosition(player.position)} />}
-                {player.shootsCatches && <Detail detail="Shoots/Catches" value={player.shootsCatches == 'L' ? 'Left' : 'Right'} />}
-                {player.draftDetails &&  <Detail detail="Draft" value={`${getOrdinalSuffix(player.draftDetails.overallPick)} by ${player.draftDetails.teamAbbrev}, ${player.draftDetails.year}`} />}
-                {player.birthDate && <Detail detail="Birth Date" value={formatDate(player.birthDate)} />}
-                {player.birthCity?.default && <Detail detail="Birth Place" value={`${player.birthCity.default}${player.birthCountry ? `, ${player.birthCountry}` : ''}`} />}
-                {player.heightInCentimeters && <Detail detail="Height" value={`${player.heightInCentimeters} cm${player.heightInInches ? ` / ${inchesToFeet(player.heightInInches)}` : ''}`} />}
-                {player.weightInKilograms && <Detail detail="Weight" value={`${player.weightInKilograms} kg${player.weightInPounds ? ` / ${player.weightInPounds} lb` : ''}`} isLast />}
-              </View>
-              <View style={{height: 20}}/>
-            </ScrollView>
+            </View>
+          </View>
+          <Text style={s.header}>Stats</Text>
+          {(player?.featuredStats?.regularSeason?.subSeason || player?.featuredStats?.playoffs?.subSeason) && (
+            <StatContainer 
+              head={player?.featuredStats?.season ? (player.featuredStats.season.toString().slice(0,4) + '-' + player.featuredStats.season.toString().slice(6)) : 'Season'} 
+              category={'subseason'} 
+              position={player?.position} 
+            />
           )}
-        </View>
-      </SafeAreaView>
-    </Modal>
+
+          {(player?.careerTotals?.regularSeason || player?.careerTotals?.playoffs) && (
+            <StatContainer 
+              head={'Career'} 
+              category={'career'} 
+              position={player?.position} 
+            />
+          )}
+          <Text style={s.header}>Details</Text>
+          <View style={s.details}>
+            {player.position && <Detail detail="Position" value={getPosition(player.position)} />}
+            {player.shootsCatches && <Detail detail="Shoots/Catches" value={player.shootsCatches == 'L' ? 'Left' : 'Right'} />}
+            {player.draftDetails &&  <Detail detail="Draft" value={`${getOrdinalSuffix(player.draftDetails.overallPick)} by ${player.draftDetails.teamAbbrev}, ${player.draftDetails.year}`} />}
+            {player.birthDate && <Detail detail="Birth Date" value={formatDate(player.birthDate)} />}
+            {player.birthCity?.default && <Detail detail="Birth Place" value={`${player.birthCity.default}${player.birthCountry ? `, ${player.birthCountry}` : ''}`} />}
+            {player.heightInCentimeters && <Detail detail="Height" value={`${player.heightInCentimeters} cm${player.heightInInches ? ` / ${inchesToFeet(player.heightInInches)}` : ''}`} />}
+            {player.weightInKilograms && <Detail detail="Weight" value={`${player.weightInKilograms} kg${player.weightInPounds ? ` / ${player.weightInPounds} lb` : ''}`} isLast />}
+          </View>
+        </>
+      )}
+    </CustomModal>
   );
 }
 

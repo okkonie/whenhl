@@ -1,15 +1,14 @@
 import { Octicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
+import CustomModal from "../components/customModal";
 import Flag from "../components/flag";
 import Header from "../components/header";
 import Loader from "../components/loader";
 import Player from "../components/player";
 import PlayerStats from "../components/playerStats";
-
-const { width, height } = Dimensions.get('window');
 
 const skaterModes = ['points', 'goals', 'assists', 'plusMinus', 'toi', 'goalsPp', 'faceoffLeaders', 'penaltyMins'];
 const goalieModes = ['savePctg', 'goalsAgainstAverage', 'wins', 'shutouts'];
@@ -18,13 +17,13 @@ const statLabels = {
   points: 'Points',
   goals: 'Goals',
   assists: 'Assists',
-  plusMinus: 'Plus Minus',
-  toi: 'Time on Ice',
-  goalsPp: 'Power Play Goals',
+  plusMinus: 'Plus minus',
+  toi: 'Time on ice',
+  goalsPp: 'PP goals',
   faceoffLeaders: 'Faceoff %',
-  penaltyMins: 'Penalty Minutes',
+  penaltyMins: 'Penalty minutes',
   savePctg: 'Save %',
-  goalsAgainstAverage: 'Goals Against Avg',
+  goalsAgainstAverage: 'Goals against avg',
   wins: 'Wins',
   shutouts: 'Shutouts',
 };
@@ -204,35 +203,22 @@ export default function Players() {
             </>
           )}
 
-          <Modal
+          <CustomModal
             visible={modalVisible}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={() => setModalVisible(false)}
+            onClose={() => setModalVisible(false)}
+            title={modalMode ? statLabels[modalMode] : ''}
+            loading={false}
           >
-            <SafeAreaView style={s.modalContainer}>
-              <View style={s.modalHeader}>
-                <Text style={s.modalTitle}>{modalMode ? statLabels[modalMode] : ''}</Text>
-                <TouchableOpacity onPress={() => setModalVisible(false)} style={s.btn}>
-                  <Octicons name="x" size={22} color={colors.text} />
-                </TouchableOpacity>
-              </View>
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                style={s.modalList}
-                data={modalMode ? getPlayers(modalMode) : []}
-                keyExtractor={(item, index) => item.player?.id?.toString() || index.toString()}
-                renderItem={({ item, index }) => (
-                  <Player 
-                    player={item} 
-                    rank={index + 1} 
-                    mode={modalMode}
-                    onPress={() => openPlayerStats(item?.id, item?.teamAbbrev)}
-                  />
-                )}
+            {(modalMode ? getPlayers(modalMode) : []).map((item, index) => (
+              <Player
+                key={item.player?.id?.toString() || index.toString()}
+                player={item}
+                rank={index + 1}
+                mode={modalMode}
+                onPress={() => openPlayerStats(item?.id, item?.teamAbbrev)}
               />
-            </SafeAreaView>
-          </Modal>
+            ))}
+          </CustomModal>
 
           <PlayerStats 
             visible={playerStatsVisible} 

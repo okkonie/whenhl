@@ -1,10 +1,8 @@
-import { Octicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View } from "react-native";
 import { colors } from '../assets/colors';
+import CustomModal from './customModal';
 import Flag from './flag';
-import Loader from './loader';
 
 export default function RosterModal({ visible, onClose, teamAbbrev }) {
   const [roster, setRoster] = useState([]);
@@ -46,78 +44,34 @@ export default function RosterModal({ visible, onClose, teamAbbrev }) {
   }, [visible, teamAbbrev]);
 
   return (
-    <Modal
+    <CustomModal
       visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
+      onClose={onClose}
+      title="Roster"
+      loading={loading}
     >
-      <SafeAreaView style={s.modalContainer}>
-        <View style={s.modalHeader}>
-          <Text style={s.modalTitle}>Roster</Text>
-          <TouchableOpacity onPress={onClose} style={s.btn}>
-            <Octicons name="x" size={22} color={colors.text} />
-          </TouchableOpacity>
-        </View>
-        {loading ? <Loader /> : (
-          <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
-            <View style={s.rosterCard}>
-              {roster.map((player, index) => {
-                const isLast = index === roster.length - 1;
-                return (
-                  <View key={player.id} style={[s.playerRow, !isLast && s.playerRowBorder]}>
-                    <View style={s.left}>
-                      <Text style={s.position}>{player.position}</Text>
-                      <View style={s.nameContainer}>
-                        <Flag country={player.birthCountry} />
-                        <Text style={s.player} numberOfLines={1}>{player.first} {player.last}</Text>
-                      </View>
-                    </View>
-                    <Text style={s.number}>#{player.number}</Text>
-                  </View>
-                );
-              })}
+      <View style={s.rosterCard}>
+        {roster.map((player, index) => {
+          const isLast = index === roster.length - 1;
+          return (
+            <View key={player.id} style={[s.playerRow, !isLast && s.playerRowBorder]}>
+              <View style={s.left}>
+                <Text style={s.position}>{player.position}</Text>
+                <View style={s.nameContainer}>
+                  <Flag country={player.birthCountry} />
+                  <Text style={s.player} numberOfLines={1}>{player.first} {player.last}</Text>
+                </View>
+              </View>
+              <Text style={s.number}>#{player.number}</Text>
             </View>
-          </ScrollView>
-        )}
-      </SafeAreaView>
-    </Modal>
+          );
+        })}
+      </View>
+    </CustomModal>
   );
 }
 
 const s = StyleSheet.create({
-  modalContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '94%',
-    bottom: 0,
-    backgroundColor: colors.background,
-    borderRadius: 15,
-    flex: 1
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingVertical: 10,
-  },
-  content: {
-    paddingHorizontal: 10,
-    paddingBottom: 20,
-  },
-  modalTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  btn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   rosterCard: {
     backgroundColor: colors.card,
     borderRadius: 15,

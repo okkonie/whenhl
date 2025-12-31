@@ -1,8 +1,7 @@
-import { Octicons } from '@expo/vector-icons';
 import { memo, useMemo } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View } from "react-native";
 import { colors } from '../assets/colors';
+import CustomModal from './customModal';
 
 const CompletedGame = memo(({ opponent, won }) => (
   <View style={s.fullGameBox}>
@@ -43,94 +42,48 @@ export default function FullScheduleModal({ visible, onClose, schedule, item, ge
   }, [schedule.allGames, item.teamAbbrev.default, getGameResult]);
 
   return (
-    <Modal
+    <CustomModal
       visible={visible}
-      animationType="slide"
       transparent={true}
-      onRequestClose={onClose}
+      onClose={onClose}
+      loading={false}
+      title="Full Schedule"
     >
-      <SafeAreaView style={[s.modalContainer, s.overlayBg]}>
-        <View style={s.modalHeader}>
-          <Text style={s.modalTitle}>Full Schedule</Text>
-          <TouchableOpacity onPress={onClose} style={s.btn}>
-            <Octicons name="x" size={22} color={colors.text} />
-          </TouchableOpacity>
+      {completedGames.length > 0 && (
+        <View style={s.fullSection}>
+          <Text style={s.fullSectionTitle}>Completed Games</Text>
+          <View style={s.fullScheduleGrid}>
+            {completedGames.map(game => (
+              <CompletedGame key={game.id} opponent={game.opponent} won={game.won} />
+            ))}
+          </View>
         </View>
-        <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
-          {completedGames.length > 0 && (
-            <View style={s.fullSection}>
-              <Text style={s.fullSectionTitle}>Completed Games</Text>
-              <View style={s.fullScheduleGrid}>
-                {completedGames.map(game => (
-                  <CompletedGame key={game.id} opponent={game.opponent} won={game.won} />
-                ))}
-              </View>
-            </View>
-          )}
-          
-          {upcomingGames.length > 0 && (
-            <View style={s.fullSection}>
-              <Text style={s.fullSectionTitle}>Upcoming Games</Text>
-              <View style={s.upcomingGrid}>
-                {upcomingGames.map(game => (
-                  <UpcomingGame key={game.id} opponent={game.opponent} dateStr={game.dateStr} isLast={game.isLast} />
-                ))}
-              </View>
-            </View>
-          )}
-          
-          {schedule.allGames.length === 0 && (
-            <Text style={s.emptyText}>No schedule available.</Text>
-          )}
-        </ScrollView>
-      </SafeAreaView>
-    </Modal>
+      )}
+      
+      {upcomingGames.length > 0 && (
+        <View style={s.fullSection}>
+          <Text style={s.fullSectionTitle}>Upcoming Games</Text>
+          <View style={s.upcomingGrid}>
+            {upcomingGames.map(game => (
+              <UpcomingGame key={game.id} opponent={game.opponent} dateStr={game.dateStr} isLast={game.isLast} />
+            ))}
+          </View>
+        </View>
+      )}
+      
+      {schedule.allGames.length === 0 && (
+        <Text style={s.emptyText}>No schedule available.</Text>
+      )}
+    </CustomModal>
   );
 }
 
 const s = StyleSheet.create({
-  modalContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '94%',
-    bottom: 0,
-    backgroundColor: colors.background,
-    borderRadius: 15,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingVertical: 10,
-  },
-  modalTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  overlayBg: {
-    backgroundColor: colors.background,
-  },
-  btn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 15,
-  },
-  fullSection: {
-    marginBottom: 20,
-  },
   fullSectionTitle: {
     color: colors.text,
     fontSize: 14,
     fontWeight: 500,
-    marginTop: 10,
+    paddingTop: 20,
     marginLeft: 10,
     marginBottom: 10,
   },
