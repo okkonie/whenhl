@@ -39,6 +39,8 @@ npx expo start
 
 ## To-do
 - [x] team item component
+- [ ] fix: favorites empty keeps fetching
+- [ ] logo
 - [ ] ? gamestory
 - [ ] playoff bracket
 - [ ] ? SQLite instead of AsyncStorage
