@@ -74,12 +74,37 @@ export default function TeamStats({ visible, logo, item, onClose }) {
           <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
             <View style={s.teamHeader}>
               {logo}
-              <View>
+              <View style={s.teamInfo}>
                 <Text style={s.teamHeaderName}>{item?.teamName?.default}</Text>
-                <Text style={s.teamScore}>{item?.wins}-{item?.losses}-{item?.otLosses}</Text>
               </View>
             </View>
-            <View style={s.actionsRow}>
+
+            <Text style={s.sectionTitle}>Stats</Text>
+            <View style={s.statRow}>
+              <StatItem
+                head="Goals For"
+                value={item?.goalFor}
+              />
+              <StatItem
+                head="Goals Against"
+                value={item?.goalAgainst}
+              />
+              <StatItem
+                head="Win Pctg"
+                value={`${(item?.winPctg * 100).toFixed(2)}%`}
+              />
+              <StatItem
+                head="Rec"
+                value={`${item?.wins}-${item?.losses}-${item?.otLosses}`}
+              />
+              <StatItem
+                head="Home Rec"
+                value={`${item?.homeWins}-${item?.homeLosses}-${item?.homeOtLosses}`}
+              />
+              <StatItem
+                head="Road Rec"
+                value={`${item?.roadWins}-${item?.roadLosses}-${item?.roadOtLosses}`}
+              />
             </View>
 
             <Text style={s.sectionTitle}>Schedule</Text>
@@ -130,37 +155,25 @@ export default function TeamStats({ visible, logo, item, onClose }) {
               )}
               <TouchableOpacity style={s.scheduleBtn} onPress={() => setShowScheduleModal(true)} activeOpacity={0.85}>
                 <Octicons name="calendar" color={colors.text} size={16} />
-                <Text style={s.scheduleBtnText}>View Full Schedule</Text>
+                <Text style={s.btnText}>View Full Schedule</Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={s.sectionTitle}>Stats</Text>
-            <View style={s.statRow}>
-              <StatItem
-                head="Goals For"
-                value={item?.goalFor}
-              />
-              <StatItem
-                head="Goals Against"
-                value={item?.goalAgainst}
-              />
-              <StatItem
-                head="Rec"
-                value={`${item?.wins}-${item?.losses}-${item?.otLosses}`}
-              />
-              <StatItem
-                head="Home Rec"
-                value={`${item?.homeWins}-${item?.homeLosses}-${item?.homeOtLosses}`}
-              />
-              <StatItem
-                head="Road Rec"
-                value={`${item?.roadWins}-${item?.roadLosses}-${item?.roadOtLosses}`}
-              />
-              <StatItem
-                head="Win Pctg"
-                value={`${(item?.winPctg * 100).toFixed(2)}%`}
-              />
-            </View>
+            
+            <TouchableOpacity style={s.rosterBtn} onPress={() => setShowRosterModal(true)} activeOpacity={0.85}>
+              <View style={s.rosterBtnLeft}>
+                <View style={s.rosterIconBg}>
+                  <Octicons name="people" color={colors.text} size={18}/>
+                </View>
+                <View>
+                  <Text style={s.rosterBtnTitle}>Roster</Text>
+                  <Text style={s.rosterBtnSubtitle}>View all players</Text>
+                </View>
+              </View>
+              <Octicons name="chevron-right" color={colors.text2} size={20}/>
+            </TouchableOpacity>
+
+            <View style={{height: 20}}/>
           </ScrollView>
         )}
       </SafeAreaView>
@@ -171,6 +184,7 @@ export default function TeamStats({ visible, logo, item, onClose }) {
         schedule={schedule}
         item={item}
         getGameResult={getGameResult}
+        loading={loading}
       />
 
       <RosterModal
@@ -222,24 +236,50 @@ const s = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
   },
-  scheduleBtnText: {
+  btnText: {
     color: colors.text,
     fontWeight: 500,
   },
   rosterBtn: {
-    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 15,
+    marginTop: 10,
+  },
+  rosterBtnLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: colors.card,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    gap: 14,
+  },
+  rosterIconBg: {
+    width: 44,
+    height: 44,
     borderRadius: 12,
+    backgroundColor: colors.border,
+    alignItems: 'center',
     justifyContent: 'center',
   },
-  rosterBtnText: {
+  rosterBtnTitle: {
     color: colors.text,
-    fontWeight: '700',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  rosterBtnSubtitle: {
+    color: colors.text2,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  teamInfo: {
+    flex: 1,
+  },
+  teamRecord: {
+    color: colors.text2,
+    fontSize: 14,
+    marginTop: 4,
   },
   scheduleSection: {
     backgroundColor: colors.card,

@@ -1,18 +1,18 @@
 import { Octicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../assets/colors';
+import Flag from './flag';
+import Loader from './loader';
 
 export default function RosterModal({ visible, onClose, teamAbbrev }) {
   const [roster, setRoster] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (visible && teamAbbrev) {
       setLoading(true);
-      setError(null);
 
       fetch(`https://api-web.nhle.com/v1/roster/${teamAbbrev}/current`)
         .then(res => res.json())
@@ -27,6 +27,7 @@ export default function RosterModal({ visible, onClose, teamAbbrev }) {
             last: player?.lastName?.default || '',
             number: player?.sweaterNumber || '-',
             position: player?.positionCode || positionLabel,
+            birthCountry: player?.birthCountry
           });
 
           const combined = [
@@ -39,7 +40,6 @@ export default function RosterModal({ visible, onClose, teamAbbrev }) {
         })
         .catch(err => {
           console.error('Error fetching roster:', err);
-          setError('Could not load roster right now.');
         })
         .finally(() => setLoading(false));
     }
@@ -52,36 +52,34 @@ export default function RosterModal({ visible, onClose, teamAbbrev }) {
       transparent={true}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={[s.modalContainer, s.overlayBg]}>
+      <SafeAreaView style={s.modalContainer}>
         <View style={s.modalHeader}>
           <Text style={s.modalTitle}>Roster</Text>
           <TouchableOpacity onPress={onClose} style={s.btn}>
             <Octicons name="x" size={22} color={colors.text} />
           </TouchableOpacity>
         </View>
-        <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
-          {loading && (
-            <View style={s.loadingRow}>
-              <ActivityIndicator color={colors.text} />
-              <Text style={s.loadingText}>Loading roster...</Text>
+        {loading ? <Loader /> : (
+          <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
+            <View style={s.rosterCard}>
+              {roster.map((player, index) => {
+                const isLast = index === roster.length - 1;
+                return (
+                  <View key={player.id} style={[s.playerRow, !isLast && s.playerRowBorder]}>
+                    <View style={s.left}>
+                      <Text style={s.position}>{player.position}</Text>
+                      <View style={s.nameContainer}>
+                        <Flag country={player.birthCountry} />
+                        <Text style={s.player} numberOfLines={1}>{player.first} {player.last}</Text>
+                      </View>
+                    </View>
+                    <Text style={s.number}>#{player.number}</Text>
+                  </View>
+                );
+              })}
             </View>
-          )}
-          {error && <Text style={s.errorText}>{error}</Text>}
-          {!loading && !error && roster.map(player => (
-            <View key={player.id} style={s.playerRow}>
-              <View style={s.playerBadge}>
-                <Text style={s.playerNumber}>{player.number}</Text>
-              </View>
-              <View style={s.playerInfo}>
-                <Text style={s.playerName}>{player.first} {player.last}</Text>
-                <Text style={s.playerMeta}>{player.position}</Text>
-              </View>
-            </View>
-          ))}
-          {!loading && !error && roster.length === 0 && (
-            <Text style={s.emptyText}>No roster found.</Text>
-          )}
-        </ScrollView>
+          </ScrollView>
+        )}
       </SafeAreaView>
     </Modal>
   );
@@ -95,6 +93,7 @@ const s = StyleSheet.create({
     bottom: 0,
     backgroundColor: colors.background,
     borderRadius: 15,
+    flex: 1
   },
   modalHeader: {
     flexDirection: 'row',
@@ -104,13 +103,14 @@ const s = StyleSheet.create({
     paddingRight: 10,
     paddingVertical: 10,
   },
+  content: {
+    paddingHorizontal: 10,
+    paddingBottom: 20,
+  },
   modalTitle: {
     color: colors.text,
     fontSize: 20,
     fontWeight: '800',
-  },
-  overlayBg: {
-    backgroundColor: colors.background,
   },
   btn: {
     width: 40,
@@ -118,62 +118,43 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 15,
-  },
-  loadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 12,
-  },
-  loadingText: {
-    color: colors.text,
-    fontWeight: '600',
-  },
-  errorText: {
-    color: colors.red,
-    paddingVertical: 10,
+  rosterCard: {
+    backgroundColor: colors.card,
+    borderRadius: 15,
+    marginVertical: 10,
+    paddingHorizontal: 10,
   },
   playerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 10,
-    backgroundColor: colors.card,
-    borderRadius: 10,
-    marginBottom: 8,
   },
-  playerBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
+  playerRowBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  playerNumber: {
-    color: colors.text,
-    fontWeight: '800',
-  },
-  playerInfo: {
+  left: {
+    flexDirection: 'row',
+    gap: 20,
     flex: 1,
   },
-  playerName: {
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+  },
+  number: {
     color: colors.text,
-    fontWeight: '700',
-    fontSize: 15,
+    fontWeight: '600',
   },
-  playerMeta: {
-    color: colors.text2,
-    fontSize: 12,
-    marginTop: 2,
+  player: {
+    color: colors.text,
+    fontWeight: '400',
   },
-  emptyText: {
-    color: colors.text2,
-    textAlign: 'center',
-    paddingVertical: 10,
+  position: {
+    color: colors.text2
   },
 });

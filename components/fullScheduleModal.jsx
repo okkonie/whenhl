@@ -1,10 +1,47 @@
 import { Octicons } from '@expo/vector-icons';
+import { memo, useMemo } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../assets/colors';
-import TeamLogo from './teamLogo';
+
+const CompletedGame = memo(({ opponent, won }) => (
+  <View style={s.fullGameBox}>
+    <Text style={s.fullGameOpponent}>{opponent}</Text>
+    <View style={won ? s.winIndicator : s.lossIndicator} />
+  </View>
+));
+
+const UpcomingGame = memo(({ opponent, dateStr, isLast }) => (
+  <View style={[s.fullFutGameBox, !isLast && s.gameBorder]}>
+    <Text style={s.opponentName}>{opponent}</Text>
+    <Text style={s.fullGameDate}>{dateStr}</Text>
+  </View>
+));
 
 export default function FullScheduleModal({ visible, onClose, schedule, item, getGameResult }) {
+  const { completedGames, upcomingGames } = useMemo(() => {
+    const completed = schedule.allGames
+      .filter(g => g.gameState === 'OFF' || g.gameState === 'FINAL')
+      .map((game, idx) => {
+        const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
+        const opponent = isHome ? game.awayTeam.abbrev : game.homeTeam.abbrev;
+        const result = getGameResult(game);
+        return { id: `completed-${idx}`, opponent, won: result.won };
+      });
+
+    const upcoming = schedule.allGames
+      .filter(g => g.gameState === 'FUT')
+      .map((game, idx, arr) => {
+        const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
+        const opponent = isHome ? game.awayTeam.abbrev : game.homeTeam.abbrev
+        const date = new Date(game.startTimeUTC);
+        const dateStr = date.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', });
+        return { id: `upcoming-${idx}`, opponent, dateStr, isLast: idx === arr.length - 1 };
+      });
+    
+    return { completedGames: completed, upcomingGames: upcoming };
+  }, [schedule.allGames, item.teamAbbrev.default, getGameResult]);
+
   return (
     <Modal
       visible={visible}
@@ -20,48 +57,24 @@ export default function FullScheduleModal({ visible, onClose, schedule, item, ge
           </TouchableOpacity>
         </View>
         <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
-          {schedule.allGames.filter(g => g.gameState === 'OFF' || g.gameState === 'FINAL').length > 0 && (
+          {completedGames.length > 0 && (
             <View style={s.fullSection}>
               <Text style={s.fullSectionTitle}>Completed Games</Text>
               <View style={s.fullScheduleGrid}>
-                {schedule.allGames
-                  .filter(g => g.gameState === 'OFF' || g.gameState === 'FINAL')
-                  .map((game, idx) => {
-                    const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
-                    const opponent = isHome ? game.awayTeam.abbrev : game.homeTeam.abbrev;
-                    const result = getGameResult(game);
-                    
-                    return (
-                      <View key={idx} style={s.fullGameBox}>
-                        <Text style={s.fullGameOpponent}>{opponent}</Text>
-                        <View style={{ backgroundColor: result.won ? colors.green : colors.red, width: '20%', height: 2 }}/>
-                      </View>
-                    );
-                  })}
+                {completedGames.map(game => (
+                  <CompletedGame key={game.id} opponent={game.opponent} won={game.won} />
+                ))}
               </View>
             </View>
           )}
           
-          {schedule.allGames.filter(g => g.gameState === 'FUT').length > 0 && (
+          {upcomingGames.length > 0 && (
             <View style={s.fullSection}>
               <Text style={s.fullSectionTitle}>Upcoming Games</Text>
-              <View style={s.fullScheduleGrid}>
-                {schedule.allGames
-                  .filter(g => g.gameState === 'FUT')
-                  .map((game, idx) => {
-                    const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
-                    const opponent = isHome ? game.awayTeam.abbrev : game.homeTeam.abbrev;
-                    const date = new Date(game.startTimeUTC);
-                    
-                    return (
-                      <View key={idx} style={s.fullFutGameBox}>
-                        <TeamLogo abbrev={opponent} width={40} height={30} />
-                        <Text style={s.fullGameTime}>
-                          {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} {date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
-                        </Text>
-                      </View>
-                    );
-                  })}
+              <View style={s.upcomingGrid}>
+                {upcomingGames.map(game => (
+                  <UpcomingGame key={game.id} opponent={game.opponent} dateStr={game.dateStr} isLast={game.isLast} />
+                ))}
               </View>
             </View>
           )}
@@ -114,7 +127,7 @@ const s = StyleSheet.create({
     marginBottom: 20,
   },
   fullSectionTitle: {
-    color: colors.text2,
+    color: colors.text,
     fontSize: 14,
     fontWeight: 500,
     marginTop: 10,
@@ -122,39 +135,69 @@ const s = StyleSheet.create({
     marginBottom: 10,
   },
   fullScheduleGrid: {
-    flex: 3,
+    flex: 1,
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    backgroundColor: colors.card,
+    paddingVertical: 10,
+    borderRadius: 15,
+  },
+  upcomingGrid: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderRadius: 15,
   },
   fullGameBox: {
     borderRadius: 8,
     alignItems: 'center',
-    width: '16%',
+    width: `${100 / 6}%`,
     padding: 8,
     gap: 2,
   },
   fullFutGameBox: {
-    borderRadius: 8,
+    gap: 3,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    gap: 4,
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    marginHorizontal: 10,
+    paddingVertical: 10,
+  },
+  gameBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  opponentName: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '500',
   },
   fullGameOpponent: {
     color: colors.text,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   fullGameTime: {
-    color: colors.text,
+    color: colors.text2,
+    fontSize: 12,
+  },
+  fullGameDate: {
+    color: colors.text2,
     fontSize: 12,
   },
   emptyText: {
     color: colors.text2,
     textAlign: 'center',
     paddingVertical: 10,
+  },
+  winIndicator: {
+    backgroundColor: colors.green,
+    width: '20%',
+    height: 2,
+  },
+  lossIndicator: {
+    backgroundColor: colors.red,
+    width: '20%',
+    height: 2,
   },
 });
