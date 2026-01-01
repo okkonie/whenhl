@@ -209,15 +209,20 @@ export default function Players() {
             title={modalMode ? statLabels[modalMode] : ''}
             loading={false}
           >
-            {(modalMode ? getPlayers(modalMode) : []).map((item, index) => (
-              <Player
-                key={item.player?.id?.toString() || index.toString()}
-                player={item}
-                rank={index + 1}
-                mode={modalMode}
-                onPress={() => openPlayerStats(item?.id, item?.teamAbbrev)}
-              />
-            ))}
+            <FlatList
+              data={modalMode ? getPlayers(modalMode) : []}
+              keyExtractor={(item, index) => item.player?.id?.toString() || index.toString()}
+              renderItem={({ item, index }) => (
+                <Player
+                  player={item}
+                  rank={index + 1}
+                  mode={modalMode}
+                  onPress={() => openPlayerStats(item?.id, item?.teamAbbrev)}
+                />
+              )}
+              contentContainerStyle={s.modalList}
+              showsVerticalScrollIndicator={false}
+            />
           </CustomModal>
 
           <PlayerStats 

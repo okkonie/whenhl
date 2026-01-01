@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors } from '../assets/colors';
 import CustomModal from './customModal';
 import Flag from './flag';
@@ -50,31 +50,35 @@ export default function RosterModal({ visible, onClose, teamAbbrev }) {
       title="Roster"
       loading={loading}
     >
-      <View style={s.rosterCard}>
-        {roster.map((player, index) => {
-          const isLast = index === roster.length - 1;
-          return (
-            <View key={player.id} style={[s.playerRow, !isLast && s.playerRowBorder]}>
-              <View style={s.left}>
-                <Text style={s.position}>{player.position}</Text>
-                <View style={s.nameContainer}>
-                  <Flag country={player.birthCountry} />
-                  <Text style={s.player} numberOfLines={1}>{player.first} {player.last}</Text>
+      <ScrollView style={s.content} contentContainerStyle={{paddingBottom: 20}} showsVerticalScrollIndicator={false}>
+        <View style={s.rosterCard}>
+          {roster.map((player, index) => {
+            const isLast = index === roster.length - 1;
+            return (
+              <View key={player.id} style={[s.playerRow, !isLast && s.playerRowBorder]}>
+                <View style={s.left}>
+                  <Text style={s.position}>{player.position}</Text>
+                  <View style={s.nameContainer}>
+                    <Flag country={player.birthCountry} />
+                    <Text style={s.player} numberOfLines={1}>{player.first} {player.last}</Text>
+                  </View>
                 </View>
+                <Text style={s.number}>#{player.number}</Text>
               </View>
-              <Text style={s.number}>#{player.number}</Text>
-            </View>
-          );
-        })}
-      </View>
+            );
+          })}
+        </View>
+      </ScrollView>
     </CustomModal>
   );
 }
 
 const s = StyleSheet.create({
+  content: {
+    paddingHorizontal: 10,
+    paddingBottom: 20,
+  },
   rosterCard: {
-    backgroundColor: colors.card,
-    borderRadius: 15,
     marginVertical: 10,
     paddingHorizontal: 10,
   },

@@ -1,5 +1,5 @@
 import { Octicons } from '@expo/vector-icons';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { Modal, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../assets/colors';
 import Loader from './loader';
@@ -14,18 +14,14 @@ export default function CustomModal({children, title, onClose, visible, loading}
       transparent={true}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={[s.modalContainer, {width: width, height: height * 0.93}]}>
+      <SafeAreaView style={[s.modalContainer, {width: width, height: height * 0.93}]}> 
         <View style={s.modalHeader}>
           <Text style={s.modalTitle}>{title}</Text>
           <TouchableOpacity onPress={onClose} style={s.btn}>
             <Octicons name="x" size={22} color={colors.text} />
           </TouchableOpacity>
         </View>
-        {loading ? <Loader /> : 
-          <ScrollView style={s.content} contentContainerStyle={{paddingBottom: 20}} showsVerticalScrollIndicator={false}>
-            {children}
-          </ScrollView>
-        }
+        {loading ? <Loader /> : children}
       </SafeAreaView>
     </Modal>
   )
@@ -35,7 +31,7 @@ const s = StyleSheet.create({
   modalContainer: {
     position: 'absolute',
     bottom: 0,
-    backgroundColor: colors.background,
+    backgroundColor: colors.card,
     borderRadius: 15,
     flex: 1
   },
@@ -46,10 +42,6 @@ const s = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 10,
     paddingVertical: 10,
-  },
-  content: {
-    paddingHorizontal: 10,
-    paddingBottom: 20,
   },
   modalTitle: {
     color: colors.text,

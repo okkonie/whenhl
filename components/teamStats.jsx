@@ -1,6 +1,6 @@
 import { Octicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from '../assets/colors';
 import CustomModal from './customModal';
 import FullScheduleModal from './fullScheduleModal';
@@ -62,148 +62,128 @@ export default function TeamStats({ visible, logo, item, onClose }) {
       onClose={onClose}
       title="Team Details"
     >
-      <View style={s.teamHeader}>
-        {logo}
-        <View style={s.teamInfo}>
-          <Text style={s.teamHeaderName}>{item?.teamName?.default}</Text>
-          <Text style={s.teamMore}>{item?.points} PTS | {item?.gamesPlayed} GP</Text>
+      <ScrollView style={s.content} contentContainerStyle={{paddingBottom: 20}} showsVerticalScrollIndicator={false}>
+        <View style={s.teamHeader}>
+          {logo}
+          <View style={s.teamInfo}>
+            <Text style={s.teamHeaderName}>{item?.teamName?.default}</Text>
+            <Text style={s.teamMore}>{item?.points} PTS    {item?.gamesPlayed} GP</Text>
+          </View>
         </View>
-      </View>
 
-      <Text style={s.sectionTitle}>Stats</Text>
-      <View style={s.statRow}>
-        <StatItem
-          head="Goals For"
-          value={item?.goalFor}
-        />
-        <StatItem
-          head="Goals Against"
-          value={item?.goalAgainst}
-        />
-        <StatItem
-          head="Win Pctg"
-          value={`${(item?.winPctg * 100).toFixed(2)}%`}
-        />
-        <StatItem
-          head="Rec"
-          value={`${item?.wins}-${item?.losses}-${item?.otLosses}`}
-        />
-        <StatItem
-          head="Home Rec"
-          value={`${item?.homeWins}-${item?.homeLosses}-${item?.homeOtLosses}`}
-        />
-        <StatItem
-          head="Road Rec"
-          value={`${item?.roadWins}-${item?.roadLosses}-${item?.roadOtLosses}`}
-        />
-      </View>
+        <Text style={s.sectionTitle}>Stats</Text>
+        <View style={s.statRow}>
+          <StatItem
+            head="Goals For"
+            value={item?.goalFor}
+          />
+          <StatItem
+            head="Goals Against"
+            value={item?.goalAgainst}
+          />
+          <StatItem
+            head="Win Pctg"
+            value={`${(item?.winPctg * 100).toFixed(2)}%`}
+          />
+          <StatItem
+            head="Rec"
+            value={`${item?.wins}-${item?.losses}-${item?.otLosses}`}
+          />
+          <StatItem
+            head="Home Rec"
+            value={`${item?.homeWins}-${item?.homeLosses}-${item?.homeOtLosses}`}
+          />
+          <StatItem
+            head="Road Rec"
+            value={`${item?.roadWins}-${item?.roadLosses}-${item?.roadOtLosses}`}
+          />
+        </View>
 
-      <Text style={s.sectionTitle}>Schedule</Text>
-      <View style={s.scheduleSection}>
-        {schedule.recentGames.length > 0 && (
-          <View style={[s.gamesSection, {borderBottomWidth: 1, borderColor: colors.border}]}>
-            <Text style={s.gamesTitle}>Recently played</Text>
-            <View style={s.gamesRow}>
-              {schedule.recentGames.map((game, idx) => {
-                const result = getGameResult(game);
-                return (
-                  <View 
-                    key={idx} 
-                    style={s.gameBox}
-                  >
-                    <Text style={s.gameOpponent}>{result.opponent}</Text>
-                    <View style={{ backgroundColor: result.won ? colors.green : colors.red, width: '20%', height: 2 }}/>
-                  </View>
-                );
-              })}
+        <Text style={s.sectionTitle}>Schedule</Text>
+        <View style={s.scheduleSection}>
+          {schedule.recentGames.length > 0 && (
+            <View style={[s.gamesSection, {borderBottomWidth: 1, borderColor: colors.border}]}>
+              <Text style={s.gamesTitle}>Recently played</Text>
+              <View style={s.gamesRow}>
+                {schedule.recentGames.map((game, idx) => {
+                  const result = getGameResult(game);
+                  return (
+                    <View 
+                      key={idx} 
+                      style={s.gameBox}
+                    >
+                      <Text style={s.gameOpponent}>{result.opponent}</Text>
+                      <View style={{ backgroundColor: result.won ? colors.green : colors.red, width: '20%', height: 2 }}/>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {schedule.upcomingGames.length > 0 && (
+            <View style={s.gamesSection}>
+              <Text style={s.gamesTitle}>Upcoming</Text>
+              <View style={s.gamesRow}>
+                {schedule.upcomingGames.map((game, idx) => {
+                  const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
+                  const opponent = isHome ? game.awayTeam.abbrev : game.homeTeam.abbrev;
+                  const date = new Date(game.startTimeUTC);
+                  
+                  return (
+                    <View key={idx} style={s.upcomingGameBox}>
+                      <TeamLogo abbrev={opponent} width={40} height={30} />
+                      <Text style={s.gameTime}>
+                        {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </Text>
+                      <Text style={s.gameTime}>
+                        {date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+          <TouchableOpacity style={s.scheduleBtn} onPress={() => setShowScheduleModal(true)} activeOpacity={0.85}>
+            <Octicons name="calendar" color={colors.text} size={16} />
+            <Text style={s.btnText}>View Full Schedule</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={s.rosterBtn} onPress={() => setShowRosterModal(true)} activeOpacity={0.85}>
+          <View style={s.rosterBtnLeft}>
+            <View style={s.rosterIconBg}>
+              <Octicons name="people" color={colors.text} size={18}/>
+            </View>
+            <View>
+              <Text style={s.rosterBtnTitle}>Roster</Text>
+              <Text style={s.rosterBtnSubtitle}>View all players</Text>
             </View>
           </View>
-        )}
-
-        {schedule.upcomingGames.length > 0 && (
-          <View style={s.gamesSection}>
-            <Text style={s.gamesTitle}>Upcoming</Text>
-            <View style={s.gamesRow}>
-              {schedule.upcomingGames.map((game, idx) => {
-                const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
-                const opponent = isHome ? game.awayTeam.abbrev : game.homeTeam.abbrev;
-                const date = new Date(game.startTimeUTC);
-                
-                return (
-                  <View key={idx} style={s.upcomingGameBox}>
-                    <TeamLogo abbrev={opponent} width={40} height={30} />
-                    <Text style={s.gameTime}>
-                      {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </Text>
-                    <Text style={s.gameTime}>
-                      {date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
-                    </Text>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        )}
-        <TouchableOpacity style={s.scheduleBtn} onPress={() => setShowScheduleModal(true)} activeOpacity={0.85}>
-          <Octicons name="calendar" color={colors.text} size={16} />
-          <Text style={s.btnText}>View Full Schedule</Text>
+          <Octicons name="chevron-right" color={colors.text2} size={20}/>
         </TouchableOpacity>
-      </View>
 
-            
-      <TouchableOpacity style={s.rosterBtn} onPress={() => setShowRosterModal(true)} activeOpacity={0.85}>
-        <View style={s.rosterBtnLeft}>
-          <View style={s.rosterIconBg}>
-            <Octicons name="people" color={colors.text} size={18}/>
-          </View>
-          <View>
-            <Text style={s.rosterBtnTitle}>Roster</Text>
-            <Text style={s.rosterBtnSubtitle}>View all players</Text>
-          </View>
-        </View>
-        <Octicons name="chevron-right" color={colors.text2} size={20}/>
-      </TouchableOpacity>
+        <FullScheduleModal
+          visible={showScheduleModal}
+          onClose={() => setShowScheduleModal(false)}
+          schedule={schedule}
+          item={item}
+          getGameResult={getGameResult}
+          loading={loading}
+        />
 
-      <FullScheduleModal
-        visible={showScheduleModal}
-        onClose={() => setShowScheduleModal(false)}
-        schedule={schedule}
-        item={item}
-        getGameResult={getGameResult}
-        loading={loading}
-      />
-
-      <RosterModal
-        visible={showRosterModal}
-        onClose={() => setShowRosterModal(false)}
-        teamAbbrev={item?.teamAbbrev?.default}
-      />
+        <RosterModal
+          visible={showRosterModal}
+          onClose={() => setShowRosterModal(false)}
+          teamAbbrev={item?.teamAbbrev?.default}
+        />
+      </ScrollView>
     </CustomModal>
   );
 }
 
 const s = StyleSheet.create({
-  modalContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '94%',
-    bottom: 0,
-    backgroundColor: colors.background,
-    borderRadius: 15,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingVertical: 10,
-  },
-  modalTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '800',
-  },
   sectionTitle: {
     color: colors.text,
     fontSize: 16,
@@ -230,7 +210,8 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 15,
@@ -268,7 +249,8 @@ const s = StyleSheet.create({
     marginTop: 4,
   },
   scheduleSection: {
-    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: 15,
     padding: 10
   },
@@ -339,7 +321,8 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
-    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: 15,
     paddingVertical: 10
   },

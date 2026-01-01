@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors } from '../assets/colors';
 import CustomModal from './customModal';
 
@@ -49,31 +49,33 @@ export default function FullScheduleModal({ visible, onClose, schedule, item, ge
       loading={false}
       title="Full Schedule"
     >
-      {completedGames.length > 0 && (
-        <View style={s.fullSection}>
-          <Text style={s.fullSectionTitle}>Completed Games</Text>
-          <View style={s.fullScheduleGrid}>
-            {completedGames.map(game => (
-              <CompletedGame key={game.id} opponent={game.opponent} won={game.won} />
-            ))}
+      <ScrollView style={s.content} contentContainerStyle={{paddingBottom: 20}} showsVerticalScrollIndicator={false}>
+        {completedGames.length > 0 && (
+          <View style={s.fullSection}>
+            <Text style={s.fullSectionTitle}>Completed Games</Text>
+            <View style={s.fullScheduleGrid}>
+              {completedGames.map(game => (
+                <CompletedGame key={game.id} opponent={game.opponent} won={game.won} />
+              ))}
+            </View>
           </View>
-        </View>
-      )}
-      
-      {upcomingGames.length > 0 && (
-        <View style={s.fullSection}>
-          <Text style={s.fullSectionTitle}>Upcoming Games</Text>
-          <View style={s.upcomingGrid}>
-            {upcomingGames.map(game => (
-              <UpcomingGame key={game.id} opponent={game.opponent} dateStr={game.dateStr} isLast={game.isLast} />
-            ))}
+        )}
+        
+        {upcomingGames.length > 0 && (
+          <View style={s.fullSection}>
+            <Text style={s.fullSectionTitle}>Upcoming Games</Text>
+            <View style={s.upcomingGrid}>
+              {upcomingGames.map(game => (
+                <UpcomingGame key={game.id} opponent={game.opponent} dateStr={game.dateStr} isLast={game.isLast} />
+              ))}
+            </View>
           </View>
-        </View>
-      )}
-      
-      {schedule.allGames.length === 0 && (
-        <Text style={s.emptyText}>No schedule available.</Text>
-      )}
+        )}
+        
+        {schedule.allGames.length === 0 && (
+          <Text style={s.emptyText}>No schedule available.</Text>
+        )}
+      </ScrollView>
     </CustomModal>
   );
 }
@@ -87,17 +89,23 @@ const s = StyleSheet.create({
     marginLeft: 10,
     marginBottom: 10,
   },
+  content: {
+    paddingHorizontal: 10,
+    paddingBottom: 20,
+  },
   fullScheduleGrid: {
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    backgroundColor: colors.card,
+    borderColor: colors.border,
+    borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 15,
   },
   upcomingGrid: {
     flex: 1,
-    backgroundColor: colors.card,
+    borderColor: colors.border,
+    borderWidth: 1,
     borderRadius: 15,
   },
   fullGameBox: {
@@ -112,8 +120,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    marginHorizontal: 10,
+    paddingHorizontal: 5,
+    marginHorizontal: 15,
     paddingVertical: 10,
   },
   gameBorder: {
@@ -130,12 +138,9 @@ const s = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  fullGameTime: {
-    color: colors.text2,
-    fontSize: 12,
-  },
   fullGameDate: {
     color: colors.text2,
+    fontWeight: 500,
     fontSize: 12,
   },
   emptyText: {

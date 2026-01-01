@@ -40,10 +40,8 @@ npx expo start
 ## To-do
 - [x] team item component
 - [x] fix: games on wrong dateheader
-- [x] icon
-- [x] fix: layout issue on buildd
-- [x] modal component
-- [ ] top 100 modal FlatList
+- [x] fix: modal layout issue on build
+- [x] top 100 modal FlatList
 - [ ] ? gamestory
 - [ ] playoff bracket
 - [ ] ? SQLite instead of AsyncStorage
