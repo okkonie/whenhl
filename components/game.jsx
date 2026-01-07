@@ -4,7 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from '../assets/colors';
 import TeamLogo from './teamLogo';
 
-function Game({ game, isFirst }) {
+function Game({ game, isFirst, onPress }) {
   const [pick, setPick] = useState(null);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ function Game({ game, isFirst }) {
   }
 
   return (
-    <View style={[s.container, isFirst && { borderTopWidth: 0 }]}>
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={[s.container, isFirst && { borderTopWidth: 0 }]}>
       <View style={s.top}>
         <Text style={s.time}>
           {
@@ -129,7 +129,7 @@ function Game({ game, isFirst }) {
           )}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
