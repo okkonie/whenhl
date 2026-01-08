@@ -4,7 +4,6 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-nativ
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
 import Game from "../components/game";
-import GameStory from "../components/gamestory";
 import Header from '../components/header';
 import Loader from '../components/loader';
 
@@ -17,8 +16,6 @@ export default function Index() {
   const [futureSchedule, setFutureSchedule] = useState([]);
   const [previousStartDate, setPreviousStartDate] = useState('');
   const [nextStartDate, setNextStartDate] = useState('');
-  const [currentGame, setCurrentGame] = useState('');
-  const [gameVisible, setGameVisible] = useState(false);
  
   const groupGamesByLocalDate = (games) => {
     const grouped = {};
@@ -170,11 +167,7 @@ export default function Index() {
           <Game 
             key={game.id || game.gameId || index} 
             game={game} 
-            isFirst={index === 0} 
-            onPress={() => { 
-              setCurrentGame(game.id || game.gameId); 
-              setGameVisible(true);
-            }}
+            isFirst={index === 0}
           />
         ))}
       </View>
@@ -236,7 +229,6 @@ export default function Index() {
               )}
             </Tab.Screen>
           </Tab.Navigator>
-          <GameStory visible={gameVisible} onClose={() => setGameVisible(false)} gameId={currentGame} />
         </>
       )}
     </SafeAreaView>

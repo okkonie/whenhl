@@ -3,9 +3,11 @@ import { memo, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from '../assets/colors';
 import TeamLogo from './teamLogo';
+import GameStory from './gamestory';
 
-function Game({ game, isFirst, onPress }) {
+function Game({ game, isFirst }) {
   const [pick, setPick] = useState(null);
+  const [gameVisible, setGameVisible] = useState(false);
 
   useEffect(() => {
     loadPick();
@@ -37,7 +39,7 @@ function Game({ game, isFirst, onPress }) {
   const start = game?.startTimeUTC ? new Date(game.startTimeUTC) : null;
   const isValidStart = start && !isNaN(start);
   const timeLabel = isValidStart
-    ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    ? start.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
     : '';
 
   const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE' && game.gameState !== 'PRE';
@@ -65,71 +67,86 @@ function Game({ game, isFirst, onPress }) {
   }
 
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={[s.container, isFirst && { borderTopWidth: 0 }]}>
-      <View style={s.top}>
-        <Text style={s.time}>
-          {
-            (game?.gameState == "FUT" || game?.gameState == "PRE") ? timeLabel 
-            : game.gameState == "LIVE" ? "LIVE" 
-            : game?.gameOutcome && game?.gameOutcome.lastPeriodType
-          }
-        </Text>
-      </View>
-      <View style={s.body}>
-        <View>
-          <View style={s.teamRow}>
-            <TeamLogo abbrev={game?.homeTeam?.abbrev} width={35} height={30} />
-            
-              <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default}</Text>
-          </View>
-          <View style={s.teamRow}>
-            <TeamLogo abbrev={game?.awayTeam?.abbrev} width={35} height={30} />
-            
-            <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
-            <View>
-              <Text style={s.secText}></Text>
-            </View>
-          </View>
+    <>
+      <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={[s.container, isFirst && { borderTopWidth: 0 }]}>
+        <View style={s.top}>
+          <Text style={s.time}>
+            {
+              (game?.gameState == "FUT" || game?.gameState == "PRE") ? timeLabel 
+              : game.gameState == "LIVE" ? "LIVE" 
+              : game?.gameOutcome && game?.gameOutcome.lastPeriodType
+            }
+          </Text>
         </View>
-        <View style={s.infoCol}>
-          {(game?.gameState != "FUT" && game?.gameState != "PRE") && (
-            <View style={s.scoreCol}>
-              <View style={s.scoreRow}>
-                {pickResult && pick === 'home' && (
-                  <View style={[s.resultDot, pickResult === 'correct' ? s.correctDot : s.wrongDot]} />
-                )}
-                <Text style={homeScoreStyle}>{game?.homeTeam?.score ? game?.homeTeam?.score : 0}</Text>
-              </View>
-              <View style={s.scoreRow}>
-                {pickResult && pick === 'away' && (
-                  <View style={[s.resultDot, pickResult === 'correct' ? s.correctDot : s.wrongDot]} />
-                )}
-                <Text style={awayScoreStyle}>{game?.awayTeam?.score ? game?.awayTeam?.score : 0}</Text>
+        <View style={s.body}>
+          <View>
+            <View style={s.teamRow}>
+              <TeamLogo abbrev={game?.homeTeam?.abbrev} width={35} height={30} />
+              
+                <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default}</Text>
+            </View>
+            <View style={s.teamRow}>
+              <TeamLogo abbrev={game?.awayTeam?.abbrev} width={35} height={30} />
+              
+              <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
+              <View>
+                <Text style={s.secText}></Text>
               </View>
             </View>
-          )}
+          </View>
+          <View style={s.infoCol}>
+            {(game?.gameState != "FUT" && game?.gameState != "PRE") && (
+              <View style={s.scoreCol}>
+                <View style={s.scoreRow}>
+                  {pickResult && pick === 'home' && (
+                    <View style={[s.resultDot, pickResult === 'correct' ? s.correctDot : s.wrongDot]} />
+                  )}
+                  <Text style={homeScoreStyle}>{game?.homeTeam?.score ? game?.homeTeam?.score : 0}</Text>
+                </View>
+                <View style={s.scoreRow}>
+                  {pickResult && pick === 'away' && (
+                    <View style={[s.resultDot, pickResult === 'correct' ? s.correctDot : s.wrongDot]} />
+                  )}
+                  <Text style={awayScoreStyle}>{game?.awayTeam?.score ? game?.awayTeam?.score : 0}</Text>
+                </View>
+              </View>
+            )}
 
-          {(game?.gameState == "FUT" || game?.gameState == "PRE") && (
-            <View style={s.scoreCol}>
-              <TouchableOpacity 
-                activeOpacity={0.7} 
-                style={s.pickBtn}
-                onPress={handlePick(game.homeTeam)}
-              >
-                <View style={[s.pickButton, pick === 'home' && s.pickButtonActive]}/>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                activeOpacity={0.7} 
-                style={s.pickBtn}
-                onPress={handlePick(game.awayTeam)}
-              >
-                <View style={[s.pickButton, pick === 'away' && s.pickButtonActive]}/>
-              </TouchableOpacity>
-            </View>
-          )}
+            {(game?.gameState == "FUT" || game?.gameState == "PRE") && (
+              <View style={s.scoreCol}>
+                <TouchableOpacity 
+                  activeOpacity={0.7} 
+                  style={s.pickBtn}
+                  onPress={handlePick(game.homeTeam)}
+                >
+                  <View style={[s.pickButton, pick === 'home' && s.pickButtonActive]}/>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  activeOpacity={0.7} 
+                  style={s.pickBtn}
+                  onPress={handlePick(game.awayTeam)}
+                >
+                  <View style={[s.pickButton, pick === 'away' && s.pickButtonActive]}/>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+      <GameStory 
+        visible={gameVisible} 
+        game={game} 
+        id={game.id} 
+        onClose={() => setGameVisible(false)} 
+        timeLabel={timeLabel} 
+        isPlayed={isPlayed} 
+        homeScoreNum={homeScoreNum} 
+        awayScoreNum={awayScoreNum}
+        start={start}
+        handlePick={handlePick}
+        pick={pick}
+      />
+    </>
   );
 }
 

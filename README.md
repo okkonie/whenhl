@@ -42,7 +42,7 @@ npx expo start
 - [x] fix: games on wrong dateheader
 - [x] fix: modal layout issue on build
 - [x] top 100 modal FlatList
-- [ ] PTS text
-- [ ] ? gamestory
+- [x] PTS text
+- [x] gamestory
 - [ ] playoff bracket (use regularSeasonEndDate to view if active)
 - [ ] ? SQLite instead of AsyncStorage

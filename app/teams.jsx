@@ -167,6 +167,7 @@ const s = StyleSheet.create({
     paddingBottom: 5,
     justifyContent: 'space-between',
     flexDirection: 'row',
+    alignItems: 'flex-end'
   },
   numText: {
     color: colors.text2,
