@@ -54,11 +54,11 @@ function Game({ game }) {
     <>
       <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
         <View style={s.teams}>
-          <TouchableOpacity style={s.teamRow} activeOpacity={0.8}>
+          <TouchableOpacity style={s.teamRow} activeOpacity={0.8} disabled={isPlayed}>
             <TeamLogo abbrev={game?.homeTeam?.abbrev} />
             <Text style={s.teamName}>{game?.homeTeam?.commonName.default}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={s.teamRow} activeOpacity={0.8}>
+          <TouchableOpacity style={s.teamRow} activeOpacity={0.8} disabled={isPlayed}>
             <TeamLogo abbrev={game?.awayTeam?.abbrev} />
             <Text style={s.teamName}>{game?.awayTeam?.commonName.default}</Text>
           </TouchableOpacity>

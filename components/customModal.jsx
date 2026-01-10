@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../assets/colors';
 import Loader from './loader';
 
-export default function CustomModal({children, title, onClose, visible, loading}){
+export default function CustomModal({children, title, onClose, visible, loading, modalHeight = 0.93}){
   const { width, height } = useWindowDimensions();
 
   return (
@@ -14,7 +14,7 @@ export default function CustomModal({children, title, onClose, visible, loading}
       transparent={true}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={[s.modalContainer, {width: width, height: height * 0.93}]}> 
+      <SafeAreaView style={[s.modalContainer, {width: width, height: height * modalHeight}]}> 
         <View style={s.modalHeader}>
           <Text style={s.modalTitle}>{title}</Text>
           <TouchableOpacity onPress={onClose} style={s.btn}>

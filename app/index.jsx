@@ -15,8 +15,12 @@ export default function Index() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [pastSchedule, setPastSchedule] = useState([]);
   const [futureSchedule, setFutureSchedule] = useState([]);
-  const [previousStartDate, setPreviousStartDate] = useState('');
-  const [nextStartDate, setNextStartDate] = useState('');
+  const [previousStartDate, setPreviousStartDate] = useState("");
+  const [nextStartDate, setNextStartDate] = useState("");
+  const [seasonStart, setSeasonStart ] = useState("");
+  const [seasonEnd, setSeasonEnd ] = useState("");
+  const [playoffStart, setPlayoffStart ] = useState("");
+
 
   const fetchGames = async () => {
     try {
@@ -28,6 +32,9 @@ export default function Index() {
 
       setPreviousStartDate(data.previousStartDate);
       setNextStartDate(data.nextStartDate);
+      setSeasonStart(data.preSeasonStartDate);
+      setSeasonEnd(data.playoffEndDate);
+      setPlayoffStart(data.regularSeasonEndDate);
 
       const allGames = (data?.gameWeek ?? []).flatMap(day => day.games ?? []);
 
@@ -40,31 +47,14 @@ export default function Index() {
     }
   };
   
-  // Merge two arrays of games, avoiding duplicates by id
-  const mergeSchedule = (existing, incoming, prepend = false) => {
-    const seen = new Set();
-    const addGames = (arr) => arr.filter(g => {
-      const id = g.id || g.gameId;
-      if (seen.has(id)) return false;
-      seen.add(id);
-      return true;
-    });
-    if (prepend) {
-      return [...addGames(incoming), ...addGames(existing)];
-    } else {
-      return [...addGames(existing), ...addGames(incoming)];
-    }
-  };
-
   const loadMorePast = useCallback(async () => {
     if (loadingMore || !previousStartDate) return;
     try {
       setLoadingMore(true);
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${previousStartDate}`);
       const data = await response.json();
-      const allGames = (data?.gameWeek ?? []).flatMap(day => day.games ?? []);
-      const pastGames = allGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF').reverse();
-      setPastSchedule(prev => mergeSchedule(prev, pastGames, false));
+      const games = (data?.gameWeek ?? []).flatMap(day => day.games ?? []).reverse();
+      setPastSchedule(prev => [...prev, ...games]);
       setPreviousStartDate(data.previousStartDate);
     } catch (e) {
       console.error("Error loading more past games", e);
@@ -79,9 +69,8 @@ export default function Index() {
       setLoadingMore(true);
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${nextStartDate}`);
       const data = await response.json();
-      const allGames = (data?.gameWeek ?? []).flatMap(day => day.games ?? []);
-      const futureGames = allGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
-      setFutureSchedule(prev => mergeSchedule(prev, futureGames, false));
+      const games = (data?.gameWeek ?? []).flatMap(day => day.games ?? []);
+      setFutureSchedule(prev => [...prev, ...games]);
       setNextStartDate(data.nextStartDate);
     } catch (e) {
       console.error("Error loading more future games", e);
@@ -147,7 +136,7 @@ export default function Index() {
                       {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
                     </View>
                   }
-                  onEndReached={loadMorePast}
+                  onEndReached={seasonStart < previousStartDate ? loadMorePast : null}
                   onEndReachedThreshold={0.5}
                 />
               )}
@@ -166,7 +155,7 @@ export default function Index() {
                       {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
                     </View>
                   }
-                  onEndReached={loadMoreFuture}
+                  onEndReached={seasonEnd > nextStartDate ? loadMoreFuture : null}
                   onEndReachedThreshold={0.5}
                 />
               )}

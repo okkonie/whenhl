@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 5,
     height: 27,
-    backgroundColor: colors.text2 + '30',
+    backgroundColor: colors.highlight,
     borderRadius: 999,
   },
 });
