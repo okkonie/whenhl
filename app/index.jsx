@@ -7,6 +7,7 @@ import { colors } from '../assets/colors';
 import Game from "../components/game";
 import Header from '../components/header';
 import Loader from '../components/loader';
+import Standings from '../components/standings';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -20,6 +21,8 @@ export default function Index() {
   const [seasonStart, setSeasonStart ] = useState("");
   const [seasonEnd, setSeasonEnd ] = useState("");
   const [playoffStart, setPlayoffStart ] = useState("");
+  const [standings, setStandings ] = useState(false);
+
 
 
   const fetchGames = async () => {
@@ -107,10 +110,11 @@ export default function Index() {
       {loading ? <Loader /> : (
         <>
           <Header text={'Games'}>
-            <TouchableOpacity style={s.btn} activeOpacity={0.8}>
+            <TouchableOpacity style={s.btn} activeOpacity={0.8} onPress={() => setStandings(true)}>
               <Octicons name="list-ordered" size={16} color= {colors.text} />
             </TouchableOpacity>
           </Header>
+          <Standings visible={standings} onClose={() => setStandings(false)}/>
           <Tab.Navigator
             initialRouteName="Upcoming"
             screenOptions={{
@@ -131,6 +135,7 @@ export default function Index() {
                   keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
                   renderItem={renderItem}
                   showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{paddingTop: 10}}
                   ListFooterComponent={
                     <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
                       {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
@@ -150,6 +155,7 @@ export default function Index() {
                   keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
                   renderItem={renderItem}
                   showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{paddingTop: 10}}
                   ListFooterComponent={
                     <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
                       {loadingMore && <ActivityIndicator size="small" color={colors.text} />}

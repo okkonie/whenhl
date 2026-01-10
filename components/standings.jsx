@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
+import { colors } from "../assets/colors";
 import CustomModal from "./customModal";
 
-export default function(visible, onClose){
+export default function Standings({visible, onClose}){
   const [loading, setLoading] = useState(true);
   const [stadings, setStandings] = useState(true);
 
   useEffect(() => {
     try {
       setLoading(true);
-      const res = fetch("https://api-web.nhle.com/v1/standings/now");
-      const data = res.json();
+      const fetchStandings = async () => {
+        const res = await fetch("https://api-web.nhle.com/v1/standings/now");
+        const data = await res.json();
+        setStandings(data);
+      }
+      
+      fetchStandings();
+
     } catch (e){
       console.log("Error fetchings standings", e)
     } finally {
@@ -36,5 +43,6 @@ export default function(visible, onClose){
 const s = StyleSheet.create({
   content: {
     flex: 1,
+    backgroundColor: colors.bg
   }
 })

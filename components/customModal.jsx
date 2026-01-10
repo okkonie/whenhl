@@ -1,11 +1,12 @@
 import { Octicons } from '@expo/vector-icons';
 import { Modal, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../assets/colors';
 import Loader from './loader';
 
 export default function CustomModal({children, title, onClose, visible, loading, modalHeight = 0.93}){
   const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   return (
     <Modal
@@ -14,15 +15,20 @@ export default function CustomModal({children, title, onClose, visible, loading,
       transparent={true}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={[s.modalContainer, {width: width, height: height * modalHeight}]}> 
+      <View style={[s.modalContainer, {
+        width: width, 
+        height: height * modalHeight,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+      }]}> 
         <View style={s.modalHeader}>
           <Text style={s.modalTitle}>{title}</Text>
           <TouchableOpacity onPress={onClose} style={s.btn}>
-            <Octicons name="x" size={22} color={colors.text} />
+            <Octicons name="x" size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
         {loading ? <Loader /> : children}
-      </SafeAreaView>
+      </View>
     </Modal>
   )
 }
@@ -31,17 +37,21 @@ const s = StyleSheet.create({
   modalContainer: {
     position: 'absolute',
     bottom: 0,
-    backgroundColor: colors.card,
+    backgroundColor: colors.background,
     borderRadius: 15,
     flex: 1
   },
+  headerText: {
+    fontSize: 22,
+    color: colors.text,
+    fontWeight: 800,
+  },
   modalHeader: {
+    height: 50,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingVertical: 10,
+    alignItems: 'center'
   },
   modalTitle: {
     color: colors.text,
@@ -49,8 +59,9 @@ const s = StyleSheet.create({
     fontWeight: '800',
   },
   btn: {
-    width: 40,
-    height: 40,
+    padding: 10,
+    backgroundColor: colors.highlight,
+    borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -65,7 +65,8 @@ function Game({ game }) {
         </View>
 
         <View style={s.time}>
-          <Text style={s.label}>{timeLabel} {dateLabel}</Text>
+          <Text style={s.date}>{dateLabel}</Text>
+          <Text style={s.date}>{timeLabel}</Text>
         </View>
 
       </TouchableOpacity>
@@ -111,7 +112,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     alignItems: 'center',
-    padding: 5,
+    padding: 3,
     borderWidth: 1,
     borderColor: 'transparent',
     flex: 1,
@@ -126,8 +127,8 @@ const s = StyleSheet.create({
     borderRadius: 2,
   },
   date: {
-    color: colors.text2,
-    fontSize: 12,
+    color: colors.text,
+    fontSize: 13,
   },
   teamName: {
     color: colors.text,
