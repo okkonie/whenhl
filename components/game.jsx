@@ -43,49 +43,30 @@ function Game({ game }) {
     : '';
 
   const dateLabel = isValidStart
-    ? start.toLocaleDateString(undefined, { day: 'numeric', month: 'numeric' })
+    ? start.toLocaleDateString(undefined, { weekday: "short", day: 'numeric', month: 'numeric' })
     : '';
 
   const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE' && game.gameState !== 'PRE';
   const homeScoreNum = game?.homeTeam?.score;
   const awayScoreNum = game?.awayTeam?.score;
 
-  let homeNameStyle = s.teamName;
-  let awayNameStyle = s.teamName;
-  let homeScoreStyle = s.score;
-  let awayScoreStyle = s.score;
-
-  let pickResult = null; // 'correct' or 'wrong'
-  if (isPlayed && !isNaN(homeScoreNum) && !isNaN(awayScoreNum) && homeScoreNum !== awayScoreNum) {
-    const homeIsWinner = homeScoreNum > awayScoreNum;
-    homeNameStyle = [s.teamName, { color: homeIsWinner ? colors.text : colors.text2 }];
-    awayNameStyle = [s.teamName, { color: homeIsWinner ? colors.text2 : colors.text }];
-    homeScoreStyle = [s.score, { color: homeIsWinner ? colors.text : colors.text2 }];
-    awayScoreStyle = [s.score, { color: homeIsWinner ? colors.text2 : colors.text }];
-
-    // Check if pick was correct
-    if (pick) {
-      const pickedHome = pick === 'home';
-      pickResult = (pickedHome === homeIsWinner) ? 'correct' : 'wrong';
-    }
-  }
-
   return (
     <>
       <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
-        <View style={s.time}>
-          <Text style={s.timeLabel}>{dateLabel}</Text>
-          <Text style={s.timeLabel}>{timeLabel}</Text>
+        <View style={s.teams}>
+          <TouchableOpacity style={s.teamRow} activeOpacity={0.8}>
+            <TeamLogo abbrev={game?.homeTeam?.abbrev} />
+            <Text style={s.teamName}>{game?.homeTeam?.commonName.default}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={s.teamRow} activeOpacity={0.8}>
+            <TeamLogo abbrev={game?.awayTeam?.abbrev} />
+            <Text style={s.teamName}>{game?.awayTeam?.commonName.default}</Text>
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={s.teamRow}>
-          <TeamLogo abbrev={game?.homeTeam?.abbrev} />
-          <Text style={s.teamName}>{game?.homeTeam?.abbrev}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={s.teamRow}>
-          <TeamLogo abbrev={game?.awayTeam?.abbrev} />
-          <Text style={s.teamName}>{game?.awayTeam?.abbrev}</Text>
-        </TouchableOpacity>
+        <View style={s.time}>
+          <Text style={s.label}>{timeLabel} {dateLabel}</Text>
+        </View>
 
       </TouchableOpacity>
       <GameStory 
@@ -108,30 +89,49 @@ function Game({ game }) {
 const s = StyleSheet.create({
   container: {
     backgroundColor: colors.card,
-    flexDirection: 'column',
+    flexDirection: 'row',
     flex: 1,
-    borderRadius: 2,
-    padding: 5,
+    borderRadius: 5,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    marginHorizontal: 10,
+    marginTop: 5,
   },
   time: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    justifyContent: 'center',
+    gap: 5,
     padding: 5,
+  },
+  teams: {
+    flex: 1,
   },
   teamRow: {
     flexDirection: 'row',
     gap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
+    padding: 5,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    flex: 1,
   },
-  timeLabel: {
+  label: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: 500,
+    backgroundColor: colors.highlight,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 2,
+  },
+  date: {
     color: colors.text2,
     fontSize: 12,
   },
   teamName: {
     color: colors.text,
     fontSize: 14,
-    fontWeight: 500
   }
 });
 

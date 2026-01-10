@@ -71,8 +71,7 @@ export default function RootLayout() {
             fontWeight: 400
           },
           tabBarStyle: {
-            borderTopWidth: 0.5,
-            borderTopColor: colors.card,
+            borderTopWidth: 0,
             height: 50,
             position: 'absolute',
             width: '100%',

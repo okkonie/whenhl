@@ -1,6 +1,7 @@
+import { Octicons } from '@expo/vector-icons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
 import Game from "../components/game";
@@ -116,7 +117,11 @@ export default function Index() {
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
         <>
-          <Header text={'Games'} />
+          <Header text={'Games'}>
+            <TouchableOpacity style={s.btn} activeOpacity={0.8}>
+              <Octicons name="list-ordered" size={16} color= {colors.text} />
+            </TouchableOpacity>
+          </Header>
           <Tab.Navigator
             initialRouteName="Upcoming"
             screenOptions={{
@@ -132,14 +137,11 @@ export default function Index() {
               {() => (
                 <FlatList
                   style={s.list}
-                  numColumns={2}
                   data={pastSchedule}
                   extraData={loadingMore}
                   keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
                   renderItem={renderItem}
                   showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{paddingHorizontal: 2, paddingTop: 10}}
-                  columnWrapperStyle={{ gap: 2, marginBottom: 2 }}
                   ListFooterComponent={
                     <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
                       {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
@@ -154,14 +156,11 @@ export default function Index() {
               {() => (
                 <FlatList
                   style={s.list}
-                  numColumns={2}
                   data={futureSchedule}
                   extraData={loadingMore}
                   keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
                   renderItem={renderItem}
                   showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{paddingHorizontal: 2, paddingTop: 10}}
-                  columnWrapperStyle={{ gap: 2, marginBottom: 2 }}
                   ListFooterComponent={
                     <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
                       {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
@@ -191,4 +190,9 @@ const s = StyleSheet.create({
     backgroundColor: colors.background,
     flex: 1
   },
+  btn: {
+    padding: 10,
+    borderRadius: 999,
+    backgroundColor: colors.highlight
+  }
 })
