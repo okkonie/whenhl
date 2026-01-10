@@ -2,10 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { memo, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from '../assets/colors';
-import TeamLogo from './teamLogo';
 import GameStory from './gamestory';
+import TeamLogo from './teamLogo';
 
-function Game({ game, isFirst }) {
+function Game({ game }) {
   const [pick, setPick] = useState(null);
   const [gameVisible, setGameVisible] = useState(false);
 
@@ -42,6 +42,10 @@ function Game({ game, isFirst }) {
     ? start.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
     : '';
 
+  const dateLabel = isValidStart
+    ? start.toLocaleDateString(undefined, { day: 'numeric', month: 'numeric' })
+    : '';
+
   const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE' && game.gameState !== 'PRE';
   const homeScoreNum = game?.homeTeam?.score;
   const awayScoreNum = game?.awayTeam?.score;
@@ -68,70 +72,21 @@ function Game({ game, isFirst }) {
 
   return (
     <>
-      <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={[s.container, isFirst && { borderTopWidth: 0 }]}>
-        <View style={s.top}>
-          <Text style={s.time}>
-            {
-              (game?.gameState == "FUT" || game?.gameState == "PRE") ? timeLabel 
-              : game.gameState == "LIVE" ? "LIVE" 
-              : game?.gameOutcome && game?.gameOutcome.lastPeriodType
-            }
-          </Text>
+      <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
+        <View style={s.time}>
+          <Text style={s.timeLabel}>{dateLabel}</Text>
+          <Text style={s.timeLabel}>{timeLabel}</Text>
         </View>
-        <View style={s.body}>
-          <View>
-            <View style={s.teamRow}>
-              <TeamLogo abbrev={game?.homeTeam?.abbrev} width={35} height={30} />
-              
-                <Text style={homeNameStyle}>{game?.homeTeam?.commonName?.default}</Text>
-            </View>
-            <View style={s.teamRow}>
-              <TeamLogo abbrev={game?.awayTeam?.abbrev} width={35} height={30} />
-              
-              <Text style={awayNameStyle}>{game?.awayTeam?.commonName?.default }</Text>
-              <View>
-                <Text style={s.secText}></Text>
-              </View>
-            </View>
-          </View>
-          <View style={s.infoCol}>
-            {(game?.gameState != "FUT" && game?.gameState != "PRE") && (
-              <View style={s.scoreCol}>
-                <View style={s.scoreRow}>
-                  {pickResult && pick === 'home' && (
-                    <View style={[s.resultDot, pickResult === 'correct' ? s.correctDot : s.wrongDot]} />
-                  )}
-                  <Text style={homeScoreStyle}>{game?.homeTeam?.score ? game?.homeTeam?.score : 0}</Text>
-                </View>
-                <View style={s.scoreRow}>
-                  {pickResult && pick === 'away' && (
-                    <View style={[s.resultDot, pickResult === 'correct' ? s.correctDot : s.wrongDot]} />
-                  )}
-                  <Text style={awayScoreStyle}>{game?.awayTeam?.score ? game?.awayTeam?.score : 0}</Text>
-                </View>
-              </View>
-            )}
 
-            {(game?.gameState == "FUT" || game?.gameState == "PRE") && (
-              <View style={s.scoreCol}>
-                <TouchableOpacity 
-                  activeOpacity={0.7} 
-                  style={s.pickBtn}
-                  onPress={handlePick(game.homeTeam)}
-                >
-                  <View style={[s.pickButton, pick === 'home' && s.pickButtonActive]}/>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  activeOpacity={0.7} 
-                  style={s.pickBtn}
-                  onPress={handlePick(game.awayTeam)}
-                >
-                  <View style={[s.pickButton, pick === 'away' && s.pickButtonActive]}/>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </View>
+        <TouchableOpacity style={s.teamRow}>
+          <TeamLogo abbrev={game?.homeTeam?.abbrev} />
+          <Text style={s.teamName}>{game?.homeTeam?.abbrev}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={s.teamRow}>
+          <TeamLogo abbrev={game?.awayTeam?.abbrev} />
+          <Text style={s.teamName}>{game?.awayTeam?.abbrev}</Text>
+        </TouchableOpacity>
+
       </TouchableOpacity>
       <GameStory 
         visible={gameVisible} 
@@ -151,86 +106,32 @@ function Game({ game, isFirst }) {
 }
 
 const s = StyleSheet.create({
-  pickBtn: {
-    paddingRight: 5,
-    paddingLeft: 15,
-    height: '50%',
-    justifyContent: 'center',
-  },
-  pickButton: {
-    width: 15,
-    height: 15,
-    borderRadius: 7,
-    borderWidth: 1,
-    borderColor: colors.grey
-  },
-  pickButtonActive: {
-    backgroundColor: colors.text,
-    borderColor: colors.text,
-  },
-  scoreRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  resultDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  correctDot: {
-    backgroundColor: colors.green,
-  },
-  wrongDot: {
-    backgroundColor: colors.red,
-  },
   container: {
-    paddingVertical: 14,
-    borderTopWidth: 1,
-    marginHorizontal: 20,
-    borderColor: colors.border,
-    flexDirection: 'row'
+    backgroundColor: colors.card,
+    flexDirection: 'column',
+    flex: 1,
+    borderRadius: 2,
+    padding: 5,
   },
-  body: {
+  time: {
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    flex: 1,
+    padding: 5,
   },
   teamRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: 10,
+    alignItems: 'center'
+  },
+  timeLabel: {
+    color: colors.text2,
+    fontSize: 12,
   },
   teamName: {
     color: colors.text,
-    fontSize: 13,
-  },
-  score: {
-    color: colors.text,
-    fontWeight: 500,
-    fontSize: 16,
-  },
-  scoreCol: {
-    flex: 1,
-    justifyContent: 'space-evenly',
-    alignItems: 'flex-end'
-  }, 
-  infoCol: {
-    paddingRight: 10,
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  time: {
-    fontWeight: 500,
-    color: colors.text
-  },
-  top: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 5,
-    width: 70,
+    fontSize: 14,
+    fontWeight: 500
   }
 });
 

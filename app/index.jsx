@@ -1,6 +1,6 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../assets/colors';
 import Game from "../components/game";
@@ -16,18 +16,6 @@ export default function Index() {
   const [futureSchedule, setFutureSchedule] = useState([]);
   const [previousStartDate, setPreviousStartDate] = useState('');
   const [nextStartDate, setNextStartDate] = useState('');
- 
-  const groupGamesByLocalDate = (games) => {
-    const grouped = {};
-    games.forEach(game => {
-      const localDate = new Date(game.startTimeUTC).toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric' });
-      if (!grouped[localDate]) {
-        grouped[localDate] = [];
-      }
-      grouped[localDate].push(game);
-    });
-    return grouped;
-  };
 
   const fetchGames = async () => {
     try {
@@ -36,79 +24,35 @@ export default function Index() {
 
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${date}`);
       const data = await response.json();
-      
+
       setPreviousStartDate(data.previousStartDate);
       setNextStartDate(data.nextStartDate);
-      
+
       const allGames = (data?.gameWeek ?? []).flatMap(day => day.games ?? []);
-      
-      const pastGames = allGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF');
-      const futureGames = allGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
 
-      const pastGrouped = groupGamesByLocalDate(pastGames);
-      const futureGrouped = groupGamesByLocalDate(futureGames);
-
-      const past = Object.entries(pastGrouped)
-        .map(([title, data]) => ({ title, data: data.reverse() }))
-        .reverse();
-      const future = Object.entries(futureGrouped)
-        .map(([title, data]) => ({ title, data }));
-
-      setPastSchedule(past);
-      setFutureSchedule(future);
+      setPastSchedule(allGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF').reverse());
+      setFutureSchedule(allGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF'));
     } catch (e) {
       console.error("Error fetching games", e);
     } finally {
       setLoading(false);
     }
   };
-
-  const parseGames = (gameWeek) => {
-    const allGames = (gameWeek ?? []).flatMap(day => day.games ?? []);
-    
-    const pastGames = allGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF');
-    const futureGames = allGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
-
-    const pastGrouped = groupGamesByLocalDate(pastGames);
-    const futureGrouped = groupGamesByLocalDate(futureGames);
-
-    const past = Object.entries(pastGrouped)
-      .map(([title, data]) => ({ title, data: data.reverse() }));
-    const future = Object.entries(futureGrouped)
-      .map(([title, data]) => ({ title, data }));
-
-    return { past, future };
-  };
-
+  
+  // Merge two arrays of games, avoiding duplicates by id
   const mergeSchedule = (existing, incoming, prepend = false) => {
-    const merged = {};
-    
-    // Add existing sections
-    existing.forEach(section => {
-      merged[section.title] = [...section.data];
+    const seen = new Set();
+    const addGames = (arr) => arr.filter(g => {
+      const id = g.id || g.gameId;
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
     });
-    
-    // Merge incoming sections
-    incoming.forEach(section => {
-      if (merged[section.title]) {
-        if (prepend) {
-          merged[section.title] = [...section.data, ...merged[section.title]];
-        } else {
-          merged[section.title] = [...merged[section.title], ...section.data];
-        }
-      } else {
-        merged[section.title] = [...section.data];
-      }
-    });
-
-    // Convert back to array, maintaining order
-    const existingTitles = existing.map(s => s.title);
-    const incomingTitles = incoming.map(s => s.title);
-    const allTitles = prepend 
-      ? [...incomingTitles.filter(t => !existingTitles.includes(t)), ...existingTitles]
-      : [...existingTitles, ...incomingTitles.filter(t => !existingTitles.includes(t))];
-    
-    return allTitles.map(title => ({ title, data: merged[title] }));
+    if (prepend) {
+      return [...addGames(incoming), ...addGames(existing)];
+    } else {
+      return [...addGames(existing), ...addGames(incoming)];
+    }
   };
 
   const loadMorePast = useCallback(async () => {
@@ -117,8 +61,9 @@ export default function Index() {
       setLoadingMore(true);
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${previousStartDate}`);
       const data = await response.json();
-      const { past } = parseGames(data?.gameWeek);
-      setPastSchedule(prev => mergeSchedule(prev, past.reverse(), false));
+      const allGames = (data?.gameWeek ?? []).flatMap(day => day.games ?? []);
+      const pastGames = allGames.filter(g => g.gameState === 'FINAL' || g.gameState === 'OFF').reverse();
+      setPastSchedule(prev => mergeSchedule(prev, pastGames, false));
       setPreviousStartDate(data.previousStartDate);
     } catch (e) {
       console.error("Error loading more past games", e);
@@ -133,8 +78,9 @@ export default function Index() {
       setLoadingMore(true);
       const response = await fetch(`https://api-web.nhle.com/v1/schedule/${nextStartDate}`);
       const data = await response.json();
-      const { future } = parseGames(data?.gameWeek);
-      setFutureSchedule(prev => mergeSchedule(prev, future, false));
+      const allGames = (data?.gameWeek ?? []).flatMap(day => day.games ?? []);
+      const futureGames = allGames.filter(g => g.gameState !== 'FINAL' && g.gameState !== 'OFF');
+      setFutureSchedule(prev => mergeSchedule(prev, futureGames, false));
       setNextStartDate(data.nextStartDate);
     } catch (e) {
       console.error("Error loading more future games", e);
@@ -159,19 +105,11 @@ export default function Index() {
     }
   }, [loading, loadingMore, futureSchedule, nextStartDate, loadMoreFuture]);
 
-  const renderItem = useCallback(({ item }) => (
-    <View>
-      <Text style={s.sectionTitle}>{item.title}</Text>
-      <View style={s.gameContainer}>
-        {item.data.map((game, index) => (
-          <Game 
-            key={game.id || game.gameId || index} 
-            game={game} 
-            isFirst={index === 0}
-          />
-        ))}
-      </View>
-    </View>
+  const renderItem = useCallback(({ item, index }) => (
+    <Game 
+      key={item.id || item.gameId || index} 
+      game={item} 
+    />
   ), []);
 
   return (
@@ -185,7 +123,7 @@ export default function Index() {
               tabBarActiveTintColor: colors.text,
               tabBarInactiveTintColor: colors.text2,
               tabBarStyle: { backgroundColor: colors.background, height: 36 },
-              tabBarIndicatorStyle: { backgroundColor: colors.text, height: 2 },
+              tabBarIndicatorStyle: { backgroundColor: colors.text, height: 1 },
               tabBarLabelStyle: { fontWeight: '600', textTransform: 'none', fontSize: 12, marginTop: -8 },
             }}
             sceneContainerStyle={{ backgroundColor: colors.background }}
@@ -193,12 +131,15 @@ export default function Index() {
             <Tab.Screen name="Past">
               {() => (
                 <FlatList
-                  style={[s.list, { backgroundColor: colors.background }]}
+                  style={s.list}
+                  numColumns={2}
                   data={pastSchedule}
                   extraData={loadingMore}
-                  keyExtractor={(item, index) => item.title + index}
+                  keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
                   renderItem={renderItem}
                   showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{paddingHorizontal: 2, paddingTop: 10}}
+                  columnWrapperStyle={{ gap: 2, marginBottom: 2 }}
                   ListFooterComponent={
                     <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
                       {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
@@ -212,12 +153,15 @@ export default function Index() {
             <Tab.Screen name="Upcoming">
               {() => (
                 <FlatList
-                  style={[s.list, { backgroundColor: colors.background }]}
+                  style={s.list}
+                  numColumns={2}
                   data={futureSchedule}
                   extraData={loadingMore}
-                  keyExtractor={(item, index) => item.title + index}
+                  keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
                   renderItem={renderItem}
                   showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{paddingHorizontal: 2, paddingTop: 10}}
+                  columnWrapperStyle={{ gap: 2, marginBottom: 2 }}
                   ListFooterComponent={
                     <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
                       {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
@@ -239,32 +183,12 @@ const s = StyleSheet.create({
   pagerView: {
     flex: 1,
   },
-  gameContainer: {
-    backgroundColor: colors.card,
-    borderRadius: 15,
-    marginHorizontal: 10,
-    marginTop: 5
-  },
   container: {
     flex: 1, 
     backgroundColor: colors.background,
   },
   list :{
+    backgroundColor: colors.background,
     flex: 1
-  },
-  sectionTitle: {
-    paddingHorizontal: 25,
-    paddingTop: 20,
-    paddingBottom: 10,
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: 500
-  },
-  underline: {
-    position: 'absolute',
-    height: 2,
-    backgroundColor: colors.text,
-    borderRadius: 2,
-    bottom: 0,
   },
 })
