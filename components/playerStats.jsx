@@ -161,7 +161,7 @@ export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) 
               <View style={s.topTexts}>
                 <Text style={s.name}>{player.firstName.default} {player.lastName.default}</Text>
                 <View style={s.textsRow}>
-                  {teamAbbrev && <TeamLogo abbrev={teamAbbrev} width={45} height={40} />}
+                  {teamAbbrev && <TeamLogo abbrev={teamAbbrev} size={40} />}
                   {player.sweaterNumber && <Text style={s.sweaterNubmber}>#{player.sweaterNumber}</Text>}
                 </View>
               </View>

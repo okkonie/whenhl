@@ -4,7 +4,7 @@ import CustomModal from './customModal';
 import { colors } from '../assets/colors';
 import TeamLogo from './teamLogo';
 
-export default function GameStory({ game, visible, onClose, id, timeLabel, isPlayed, homeScoreNum, awayScoreNum, start, handlePick, pick }) {
+export default function GameStory({ game, visible, onClose, id, timeLabel, isPlayed, homeScoreNum, awayScoreNum, start }) {
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState(null);
 
@@ -35,7 +35,7 @@ export default function GameStory({ game, visible, onClose, id, timeLabel, isPla
       <ScrollView style={s.content} contentContainerStyle={s.contentContainer}>
         <View style={s.header}>
           <View style={s.teamContainer}>
-            <TeamLogo abbrev={game?.homeTeam?.abbrev} width={60} height={50} />
+            <TeamLogo abbrev={game?.homeTeam?.abbrev} size={50} />
             <Text style={s.matchDetail}>{game?.homeTeam?.commonName?.default}</Text>
           </View>
           
@@ -56,7 +56,7 @@ export default function GameStory({ game, visible, onClose, id, timeLabel, isPla
           </View>
           
           <View style={s.teamContainer}>
-            <TeamLogo abbrev={game?.awayTeam?.abbrev} width={60} height={50} />
+            <TeamLogo abbrev={game?.awayTeam?.abbrev} size={50} />
             <Text style={s.matchDetail}>{game?.awayTeam?.commonName?.default}</Text>
           </View>
         </View>
@@ -75,7 +75,7 @@ export default function GameStory({ game, visible, onClose, id, timeLabel, isPla
                   {period.goals?.length > 0 && (
                     period.goals.map((goal, goalIdx) => (
                       <View key={goalIdx} style={s.goalRow}>
-                        <TeamLogo abbrev={goal?.teamAbbrev.default} width={35} height={30} />
+                        <TeamLogo abbrev={goal?.teamAbbrev.default} size={30} />
                         <View style={s.goalTexts}>
                           <Text style={s.goalScorer}>{goal.name.default} ({goal.goalsToDate})</Text>
                           {goal.assists.length > 0 && (
@@ -91,23 +91,6 @@ export default function GameStory({ game, visible, onClose, id, timeLabel, isPla
           </>
         ) : (
           <>
-            <View style={s.row}>
-              <TouchableOpacity 
-                activeOpacity={0.7} 
-                style={s.pickBtn}
-                onPress={handlePick(game.homeTeam)}
-              >
-                <View style={[s.pickButton, pick === 'home' && s.pickButtonActive]}/>
-              </TouchableOpacity>
-              <Text style={s.matchInfoText}>predict</Text>
-              <TouchableOpacity 
-                activeOpacity={0.7} 
-                style={s.pickBtn}
-                onPress={handlePick(game.awayTeam)}
-              >
-                <View style={[s.pickButton, pick === 'away' && s.pickButtonActive]}/>
-              </TouchableOpacity>
-            </View>
             <View style={s.row}>
               <Text style={s.matchDetail}>{details?.homeTeam.record}</Text>
               <Text style={s.matchInfoText}>record</Text>

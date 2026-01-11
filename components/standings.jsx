@@ -47,6 +47,7 @@ export default function Standings({visible, onClose}){
 
     return (
       <View style={s.confContainer} key={confName}>
+        <Text style={s.confTitle}>{confName.slice(0,4)}</Text>
         <View style={s.divRow}>
           {Object.entries(divs).map(([divName, teams]) => (
             <View key={divName} style={s.div}>
@@ -54,7 +55,7 @@ export default function Standings({visible, onClose}){
               {teams.map((team) => (
                 <View style={s.teamItem} key={team.teamAbbrev.default}>
                   <View style={s.teamLeft}>
-                    <TeamLogo abbrev={team.teamAbbrev.default} width={30} height={25} />
+                    <TeamLogo abbrev={team.teamAbbrev.default} size={25} />
                     <Text style={s.teamName}>{team.teamAbbrev.default}</Text>
                   </View>
                   <Text style={s.points}>{team.points}</Text>
@@ -95,9 +96,12 @@ const s = StyleSheet.create({
     marginBottom: 20,
   },
   confTitle: {
-    fontSize: 12,
+    fontSize: 16,
+    textAlign: 'center',
     color: colors.text2,
     paddingBottom: 10,
+    width: '100%',
+
   },
   div: {
     width: '49%',
@@ -122,7 +126,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.card,
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingLeft: 7,
+    paddingRight: 15,
     marginBottom: 5,
     borderRadius: 5
   },

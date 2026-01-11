@@ -45,7 +45,7 @@ async function getLogo(abbrev) {
   }
 }
 
-function TeamLogo({ abbrev, width = 35, height = 30, style }) {
+function TeamLogo({ abbrev, size = 30 }) {
   const [svgXml, setSvgXml] = useState(() => memoryCache.get(abbrev) || null);
 
   useEffect(() => {
@@ -63,8 +63,8 @@ function TeamLogo({ abbrev, width = 35, height = 30, style }) {
   }, [abbrev]);
 
   return (
-    <View style={[s.container, { width, height }, style]}>
-      {svgXml && <SvgXml xml={svgXml} width={width} height={height} />}
+    <View style={[s.container, { width: size * 1.5, height: size }]}>
+      {svgXml && <SvgXml xml={svgXml} width={size * 1.5} height={size} />}
     </View>
   );
 }

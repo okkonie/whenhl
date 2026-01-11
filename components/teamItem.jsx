@@ -24,7 +24,7 @@ export default function TeamItem({ item, index, isFavorite, onToggleFavorite }) 
 
       <TeamStats 
         visible={modalVisible}
-        logo={<TeamLogo abbrev={item.teamAbbrev.default} width={80} height={70} />}
+        logo={<TeamLogo abbrev={item.teamAbbrev.default} size={70} />}
         item={item}
         onClose={() => setModalVisible(false)} 
       />

@@ -132,7 +132,7 @@ export default function TeamStats({ visible, logo, item, onClose }) {
                   
                   return (
                     <View key={idx} style={s.upcomingGameBox}>
-                      <TeamLogo abbrev={opponent} width={40} height={30} />
+                      <TeamLogo abbrev={opponent} size={30} />
                       <Text style={s.gameTime}>
                         {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </Text>

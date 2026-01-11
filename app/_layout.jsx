@@ -66,17 +66,17 @@ export default function RootLayout() {
           headerShown: false,
           tabBarActiveTintColor: colors.text,
           tabBarInactiveTintColor: colors.text2,
-          tabBarLabelStyle: {
-            fontSize: 9,
-            fontWeight: 400
-          },
+          tabBarShowLabel: false,
           tabBarStyle: {
+            paddingTop: 3,
             borderTopWidth: 0,
-            height: 50,
+            height: 45,
             position: 'absolute',
             width: '100%',
             elevation: 0,
-            backgroundColor: colors.background
+            backgroundColor: colors.background,
+            justifyContent: 'center',
+            alignItems: 'center'
           },
           tabBarBackground: () => <TabBarBackground />,
         })}
@@ -90,11 +90,11 @@ export default function RootLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'games',
+            title: 'home',
             tabBarIcon: ({ focused }) => (
               <Octicons
-                name='calendar'
-                size={20}
+                name='home'
+                size={24}
                 color={focused ? colors.text : colors.text2}
               />
             ),
@@ -106,8 +106,8 @@ export default function RootLayout() {
             title: 'players',
             tabBarIcon: ({ focused }) => (
               <Octicons
-                name='people'
-                size={20}
+                name='search'
+                size={24}
                 color={focused ? colors.text : colors.text2}
               />
             ),
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   tabHighlight: {
     position: 'absolute',
     top: 5,
-    height: 27,
+    height: 35,
     backgroundColor: colors.highlight,
     borderRadius: 999,
   },

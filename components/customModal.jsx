@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../assets/colors';
 import Loader from './loader';
 
-export default function CustomModal({children, title, onClose, visible, loading, modalHeight = 0.93}){
+export default function CustomModal({children, title, onClose, visible, loading, modalHeight = 1}){
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 

@@ -43,7 +43,7 @@ export default function Player({ player, rank, mode, isLast, onPress }) {
     >
       <Text style={s.rank}>{rank}</Text>
       <View style={s.info}>
-        <TeamLogo abbrev={player.teamAbbrev} width={35} height={30} />
+        <TeamLogo abbrev={player.teamAbbrev} size={35} />
         <Text style={s.name}>{player.firstName.default} {player.lastName.default}</Text>
       </View>
       <View style={s.statContainer}>
