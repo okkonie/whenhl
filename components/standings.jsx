@@ -18,9 +18,9 @@ export default function Standings({visible, onClose}){
         // Group by conference, then by division
         const groups = {};
         data.standings.forEach(team => {
-          const confKey = team.conferenceAbbrev;
+          const confKey = team.conferenceName;
           const divKey = team.divisionName;
-          
+
           if (!groups[confKey]) {
             groups[confKey] = {};
           }
@@ -41,53 +41,32 @@ export default function Standings({visible, onClose}){
     fetchStandings();
   }, []);
 
-  const renderConference = (conferenceAbbrev) => {
-    const divisions = conferenceStandings[conferenceAbbrev] || {};
-    const divisionNames = Object.keys(divisions);
-    const maxTeams = Math.max(...divisionNames.map(div => divisions[div].length));
-    
-    return (
-      <View key={conferenceAbbrev} style={s.conferenceSection}>
-        <View style={s.tableHeader}>
-          <View style={s.rankColumn}>
-            <Text style={s.headerText}>{conferenceAbbrev}</Text>
-          </View>
-          {divisionNames.map(divName => (
-            <View key={divName} style={s.divisionColumn}>
-              <Text style={s.headerText}>{divName}</Text>
-            </View>
-          ))}
-        </View>
+  const renderConf = (confName) => {
+    const divs = conferenceStandings[confName];
+    if (!divs) return null;
 
-        {/* Rows */}
-        <View style={s.tableBody}>
-          {Array.from({ length: maxTeams }).map((_, rowIndex) => (
-            <View key={rowIndex} style={s.tableRow}>
-              <View style={s.rankColumn}>
-                <Text style={s.rank}>{rowIndex + 1}</Text>
-              </View>
-              {divisionNames.map(divName => {
-                const team = divisions[divName][rowIndex];
-                return (
-                  <View key={divName} style={s.divisionColumn}>
-                    {team ? (
-                      <View style={s.teamCell}>
-                        <TeamLogo abbrev={team.teamAbbrev.default} width={30} height={25} />
-                        <Text style={s.teamAbbrev}>{team.teamAbbrev.default}</Text>
-                        <Text style={s.points}>{team.points}</Text>
-                      </View>
-                    ) : (
-                      <View style={s.teamCell} />
-                    )}
+    return (
+      <View style={s.confContainer} key={confName}>
+        <View style={s.divRow}>
+          {Object.entries(divs).map(([divName, teams]) => (
+            <View key={divName} style={s.div}>
+              <Text style={s.divTitle}>{divName}</Text>
+              {teams.map((team) => (
+                <View style={s.teamItem} key={team.teamAbbrev.default}>
+                  <View style={s.teamLeft}>
+                    <TeamLogo abbrev={team.teamAbbrev.default} width={30} height={25} />
+                    <Text style={s.teamName}>{team.teamAbbrev.default}</Text>
                   </View>
-                );
-              })}
+                  <Text style={s.points}>{team.points}</Text>
+                </View>
+              ))}
             </View>
           ))}
+
         </View>
       </View>
-    );
-  };
+    )
+  }
 
   return (
     <CustomModal
@@ -98,10 +77,10 @@ export default function Standings({visible, onClose}){
       visible={visible}
     >
       <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
-        <View style={s.mainGrid}>
-          {renderConference("W")}
-          {renderConference("E")}
-        </View>
+        {Object.keys(conferenceStandings).map((confName) => 
+          renderConf(confName)
+        )}
+        <View style={{height: 20}} />
       </ScrollView>
     </CustomModal>
   )
@@ -110,69 +89,55 @@ export default function Standings({visible, onClose}){
 const s = StyleSheet.create({
   content: {
     flex: 1,
-    backgroundColor: colors.bg,
     padding: 10,
   },
-  mainGrid: {
-    gap: 25,
+  confContainer: {
+    marginBottom: 20,
   },
-  conferenceTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+  confTitle: {
+    fontSize: 12,
+    color: colors.text2,
+    paddingBottom: 10,
+  },
+  div: {
+    width: '49%',
+  },
+  divTitle: {
+    fontSize: 14,
+    fontWeight: 500,
     color: colors.text,
-    marginBottom: 12,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    marginBottom: 10,
-    padding: 5,
-  },
-  tableBody: {
-    gap: 5,
-    backgroundColor: colors.card,
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    paddingVertical: 10,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    paddingVertical: 6
-  },
-  rankColumn: {
-    width: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  divisionColumn: {
+    paddingBottom: 10,
     flex: 1,
-    alignItems: 'stretch',
+    textAlign: 'center',
   },
-  headerText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.text2,
-  },
-  rank: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.text2,
-  },
-  teamCell: {
+  divRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
+    flex: 1,
     width: '100%',
+    gap: '2%',
   },
-  teamAbbrev: {
-    fontSize: 11,
-    fontWeight: '600',
+  teamItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginBottom: 5,
+    borderRadius: 5
+  },
+  teamLeft: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center'
+  },
+  teamName: {
+    fontSize: 12,
     color: colors.text,
+    fontWeight: 500,
   },
   points: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.text,
-    marginLeft: 'auto',
-  },
+    fontWeight: 500,
+    color: colors.text
+  }
 })

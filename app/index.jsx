@@ -122,7 +122,7 @@ export default function Index() {
               tabBarInactiveTintColor: colors.text2,
               tabBarStyle: { backgroundColor: colors.background, height: 36 },
               tabBarIndicatorStyle: { backgroundColor: colors.text, height: 1 },
-              tabBarLabelStyle: { fontWeight: '600', textTransform: 'none', fontSize: 12, marginTop: -8 },
+              tabBarLabelStyle: { fontWeight: '700', textTransform: 'none', fontSize: 11, marginTop: -8 },
             }}
             sceneContainerStyle={{ backgroundColor: colors.background }}
           >

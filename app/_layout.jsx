@@ -10,7 +10,7 @@ import { cleanupOldPicks } from '../utils/cleanupPicks';
 
 SplashScreen.preventAutoHideAsync();
 
-const TAB_COUNT = 3;
+const TAB_COUNT = 2;
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -47,8 +47,8 @@ export default function RootLayout() {
         style={[
           styles.tabHighlight,
           {
-            width: tabWidth - 60,
-            transform: [{ translateX: Animated.add(translateX, 30) }],
+            width: tabWidth - 120,
+            transform: [{ translateX: Animated.add(translateX, 60) }],
           },
         ]}
       />
@@ -94,19 +94,6 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Octicons
                 name='calendar'
-                size={20}
-                color={focused ? colors.text : colors.text2}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="teams"
-          options={{
-            title: 'standings',
-            tabBarIcon: ({ focused }) => (
-              <Octicons
-                name='list-ordered'
                 size={20}
                 color={focused ? colors.text : colors.text2}
               />
