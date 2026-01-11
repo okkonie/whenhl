@@ -116,7 +116,7 @@ export default function Index() {
           </Header>
           <Standings visible={standings} onClose={() => setStandings(false)}/>
           <Tab.Navigator
-            initialRouteName="Upcoming"
+            initialRouteName="UPCOMING"
             screenOptions={{
               tabBarActiveTintColor: colors.text,
               tabBarInactiveTintColor: colors.text2,
@@ -126,7 +126,7 @@ export default function Index() {
             }}
             sceneContainerStyle={{ backgroundColor: colors.background }}
           >
-            <Tab.Screen name="Past">
+            <Tab.Screen name="PAST">
               {() => (
                 <FlatList
                   style={s.list}
@@ -146,7 +146,7 @@ export default function Index() {
                 />
               )}
             </Tab.Screen>
-            <Tab.Screen name="Upcoming">
+            <Tab.Screen name="UPCOMING">
               {() => (
                 <FlatList
                   style={s.list}

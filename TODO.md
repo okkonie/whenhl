@@ -1,0 +1,4 @@
+- [ ] create standings modal (reg and playoffs)
+- [ ] nav bar
+- [ ] sqlite db
+- [ ] 

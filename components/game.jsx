@@ -54,13 +54,19 @@ function Game({ game }) {
     <>
       <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
         <View style={s.teams}>
-          <TouchableOpacity style={s.teamRow} activeOpacity={0.8} disabled={isPlayed}>
-            <TeamLogo abbrev={game?.homeTeam?.abbrev} />
-            <Text style={s.teamName}>{game?.homeTeam?.commonName.default}</Text>
+          <TouchableOpacity style={s.teamRow} activeOpacity={0.8} disabled={(isPlayed || game.gameState == 'LIVE')} onPress={() => handlePick(game?.homeTeam)}>
+            <View style={s.teamLeft}>
+              <TeamLogo abbrev={game?.homeTeam?.abbrev} />
+              <Text style={s.teamName}>{game?.homeTeam?.commonName.default}</Text>
+            </View>
+            {(isPlayed || game.gameState == 'LIVE') && <Text style={s.score}>{game?.homeTeam?.score}</Text>}
           </TouchableOpacity>
-          <TouchableOpacity style={s.teamRow} activeOpacity={0.8} disabled={isPlayed}>
-            <TeamLogo abbrev={game?.awayTeam?.abbrev} />
-            <Text style={s.teamName}>{game?.awayTeam?.commonName.default}</Text>
+          <TouchableOpacity style={s.teamRow} activeOpacity={0.8} disabled={isPlayed} onPress={() => handlePick(game?.awayTeam)}>
+            <View style={s.teamLeft}>
+              <TeamLogo abbrev={game?.awayTeam?.abbrev} />
+              <Text style={s.teamName}>{game?.awayTeam?.commonName.default}</Text>
+            </View>
+            {(isPlayed || game.gameState == 'LIVE') && <Text style={s.score}>{game?.awayTeam?.score}</Text>}
           </TouchableOpacity>
         </View>
 
@@ -93,38 +99,39 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
     borderRadius: 5,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
+    paddingVertical: 10,
     marginHorizontal: 10,
     marginTop: 5,
   },
   time: {
     alignItems: 'center',
-    paddingHorizontal: 15,
+    width: 100,
     justifyContent: 'center',
     gap: 5,
-    padding: 5,
+    margin: 5,
+    borderLeftWidth: 1,
+    borderColor: colors.border
   },
   teams: {
     flex: 1,
+    paddingHorizontal: 15
   },
-  teamRow: {
+  teamLeft: {
     flexDirection: 'row',
-    gap: 10,
     alignItems: 'center',
-    padding: 3,
-    borderWidth: 1,
-    borderColor: 'transparent',
+    gap: 10,
     flex: 1,
   },
-  label: {
-    color: colors.text,
-    fontSize: 14,
-    fontWeight: 500,
-    backgroundColor: colors.highlight,
+  teamRow: {
+    alignItems: 'center',
+    paddingVertical: 3,
     paddingHorizontal: 5,
-    paddingVertical: 2,
-    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
   date: {
     color: colors.text,
@@ -133,6 +140,11 @@ const s = StyleSheet.create({
   teamName: {
     color: colors.text,
     fontSize: 14,
+  },
+  score: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: 600,
   }
 });
 
