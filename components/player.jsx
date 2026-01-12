@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from '../assets/colors';
+import { colors } from './colors';
 import TeamLogo from './teamLogo';
 
 const statLabels = {

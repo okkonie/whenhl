@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from '../assets/colors';
+import { colors } from './colors';
 import CustomModal from './customModal';
 import TeamLogo from './teamLogo';
 

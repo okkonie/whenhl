@@ -1,8 +1,8 @@
 import { memo, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from '../assets/colors';
+import { colors } from '../../components/colors';
 import GameStory from './gamestory';
-import TeamLogo from './teamLogo';
+import TeamLogo from '../../components/teamLogo';
 
 function Game({ game }) {
   const [pick, setPick] = useState(null);

@@ -3,11 +3,10 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from '../assets/colors';
-import Game from "../components/game";
-import Header from '../components/header';
-import Loader from '../components/loader';
-import Standings from '../components/standings';
+import { colors } from '../../components/colors';
+import Game from "./game";
+import Header from '../../components/header';
+import Loader from '../../components/loader';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -22,8 +21,6 @@ export default function Index() {
   const [seasonEnd, setSeasonEnd ] = useState("");
   const [playoffStart, setPlayoffStart ] = useState("");
   const [standings, setStandings ] = useState(false);
-
-
 
   const fetchGames = async () => {
     try {
@@ -109,12 +106,7 @@ export default function Index() {
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
         <>
-          <Header text={'Games'}>
-            <TouchableOpacity style={s.btn} activeOpacity={0.8} onPress={() => setStandings(true)}>
-              <Octicons name="list-ordered" size={16} color= {colors.text} />
-            </TouchableOpacity>
-          </Header>
-          <Standings visible={standings} onClose={() => setStandings(false)}/>
+          <Header text={'Games'} />
           <Tab.Navigator
             initialRouteName="UPCOMING"
             screenOptions={{
@@ -124,7 +116,6 @@ export default function Index() {
               tabBarIndicatorStyle: { backgroundColor: colors.text, height: 1 },
               tabBarLabelStyle: { fontWeight: '700', textTransform: 'none', fontSize: 11, marginTop: -8 },
             }}
-            sceneContainerStyle={{ backgroundColor: colors.background }}
           >
             <Tab.Screen name="PAST">
               {() => (
@@ -184,10 +175,5 @@ const s = StyleSheet.create({
   list :{
     backgroundColor: colors.background,
     flex: 1
-  },
-  btn: {
-    padding: 10,
-    borderRadius: 999,
-    backgroundColor: colors.highlight
   }
 })

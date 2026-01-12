@@ -1,7 +1,7 @@
 import { Octicons } from '@expo/vector-icons';
 import { Modal, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '../assets/colors';
+import { colors } from './colors';
 import Loader from './loader';
 
 export default function CustomModal({children, title, onClose, visible, loading, modalHeight = 1}){

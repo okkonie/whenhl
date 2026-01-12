@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { TouchableOpacity, ScrollView, StyleSheet, Text, View } from 'react-native';
-import CustomModal from './customModal';
-import { colors } from '../assets/colors';
-import TeamLogo from './teamLogo';
+import CustomModal from '../../components/customModal';
+import { colors } from '../../components/colors';
+import TeamLogo from '../../components/teamLogo';
 
 export default function GameStory({ game, visible, onClose, id, timeLabel, isPlayed, homeScoreNum, awayScoreNum, start }) {
   const [loading, setLoading] = useState(false);

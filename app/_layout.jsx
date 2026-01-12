@@ -5,12 +5,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { Animated, Dimensions, StyleSheet, View } from 'react-native';
-import { colors } from '../assets/colors';
+import { colors } from '../components/colors';
 import { cleanupOldPicks } from '../utils/cleanupPicks';
 
 SplashScreen.preventAutoHideAsync();
 
-const TAB_COUNT = 2;
+const TAB_COUNT = 3;
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -47,8 +47,8 @@ export default function RootLayout() {
         style={[
           styles.tabHighlight,
           {
-            width: tabWidth - 120,
-            transform: [{ translateX: Animated.add(translateX, 60) }],
+            width: tabWidth - 60,
+            transform: [{ translateX: Animated.add(translateX, 30) }],
           },
         ]}
       />
@@ -88,12 +88,25 @@ export default function RootLayout() {
         }}
       >
         <Tabs.Screen
-          name="index"
+          name="home"
           options={{
             title: 'home',
             tabBarIcon: ({ focused }) => (
               <Octicons
                 name='home'
+                size={24}
+                color={focused ? colors.text : colors.text2}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="standings"
+          options={{
+            title: 'standings',
+            tabBarIcon: ({ focused }) => (
+              <Octicons
+                name="list-ordered"
                 size={24}
                 color={focused ? colors.text : colors.text2}
               />

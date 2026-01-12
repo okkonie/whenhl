@@ -1,13 +1,11 @@
 import { Octicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from '../assets/colors';
-import CustomModal from './customModal';
-import FullScheduleModal from './fullScheduleModal';
-import RosterModal from './rosterModal';
-import TeamLogo from './teamLogo';
+import { colors } from '../../components/colors';
+import CustomModal from '../../components/customModal';
+import TeamLogo from '../../components/teamLogo';
 
-export default function TeamStats({ visible, logo, item, onClose }) {
+export default function TeamStats({ visible, item, onClose }) {
   const [schedule, setSchedule] = useState({ recentGames: [], upcomingGames: [], allGames: [] });
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showRosterModal, setShowRosterModal] = useState(false);
@@ -36,16 +34,6 @@ export default function TeamStats({ visible, logo, item, onClose }) {
     }
   }, [visible, item?.teamAbbrev?.default]);
 
-  const getGameResult = (game) => {
-    const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
-    const teamScore = isHome ? game.homeTeam.score : game.awayTeam.score;
-    const oppScore = isHome ? game.awayTeam.score : game.homeTeam.score;
-    const opponent = isHome ? game.awayTeam.abbrev : game.homeTeam.abbrev;
-    const won = teamScore > oppScore;
-    
-    return { opponent, won, isHome };
-  };
-
   const StatItem = ({head, value}) => {
     return (
       <View style={s.statItem}>
@@ -64,7 +52,7 @@ export default function TeamStats({ visible, logo, item, onClose }) {
     >
       <ScrollView style={s.content} contentContainerStyle={{paddingBottom: 20}} showsVerticalScrollIndicator={false}>
         <View style={s.teamHeader}>
-          {logo}
+          {item.teamAbbrev && <TeamLogo abbrev={item.teamAbbrev.default} size={60}/>}
           <View style={s.teamInfo}>
             <Text style={s.teamHeaderName}>{item?.teamName?.default}</Text>
             <Text style={s.teamMore}>{item?.points} PTS    {item?.gamesPlayed} GP</Text>
@@ -98,86 +86,6 @@ export default function TeamStats({ visible, logo, item, onClose }) {
             value={`${item?.roadWins}-${item?.roadLosses}-${item?.roadOtLosses}`}
           />
         </View>
-
-        <Text style={s.sectionTitle}>Schedule</Text>
-        <View style={s.scheduleSection}>
-          {schedule.recentGames.length > 0 && (
-            <View style={[s.gamesSection, {borderBottomWidth: 1, borderColor: colors.border}]}>
-              <Text style={s.gamesTitle}>Recently played</Text>
-              <View style={s.gamesRow}>
-                {schedule.recentGames.map((game, idx) => {
-                  const result = getGameResult(game);
-                  return (
-                    <View 
-                      key={idx} 
-                      style={s.gameBox}
-                    >
-                      <Text style={s.gameOpponent}>{result.opponent}</Text>
-                      <View style={{ backgroundColor: result.won ? colors.green : colors.red, width: '20%', height: 2 }}/>
-                    </View>
-                  );
-                })}
-              </View>
-            </View>
-          )}
-
-          {schedule.upcomingGames.length > 0 && (
-            <View style={s.gamesSection}>
-              <Text style={s.gamesTitle}>Upcoming</Text>
-              <View style={s.gamesRow}>
-                {schedule.upcomingGames.map((game, idx) => {
-                  const isHome = game.homeTeam.abbrev === item.teamAbbrev.default;
-                  const opponent = isHome ? game.awayTeam.abbrev : game.homeTeam.abbrev;
-                  const date = new Date(game.startTimeUTC);
-                  
-                  return (
-                    <View key={idx} style={s.upcomingGameBox}>
-                      <TeamLogo abbrev={opponent} size={30} />
-                      <Text style={s.gameTime}>
-                        {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      </Text>
-                      <Text style={s.gameTime}>
-                        {date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
-            </View>
-          )}
-          <TouchableOpacity style={s.scheduleBtn} onPress={() => setShowScheduleModal(true)} activeOpacity={0.85}>
-            <Octicons name="calendar" color={colors.text} size={16} />
-            <Text style={s.btnText}>View Full Schedule</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity style={s.rosterBtn} onPress={() => setShowRosterModal(true)} activeOpacity={0.85}>
-          <View style={s.rosterBtnLeft}>
-            <View style={s.rosterIconBg}>
-              <Octicons name="people" color={colors.text} size={18}/>
-            </View>
-            <View>
-              <Text style={s.rosterBtnTitle}>Roster</Text>
-              <Text style={s.rosterBtnSubtitle}>View all players</Text>
-            </View>
-          </View>
-          <Octicons name="chevron-right" color={colors.text2} size={20}/>
-        </TouchableOpacity>
-
-        <FullScheduleModal
-          visible={showScheduleModal}
-          onClose={() => setShowScheduleModal(false)}
-          schedule={schedule}
-          item={item}
-          getGameResult={getGameResult}
-          loading={loading}
-        />
-
-        <RosterModal
-          visible={showRosterModal}
-          onClose={() => setShowRosterModal(false)}
-          teamAbbrev={item?.teamAbbrev?.default}
-        />
       </ScrollView>
     </CustomModal>
   );
