@@ -1,12 +1,11 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from '../../components/colors';
 import GameStory from './gamestory';
 import TeamLogo from '../../components/teamLogo';
 
 function Game({ game }) {
-  const [pick, setPick] = useState(null);
-  const [pickResult, setPickResult] = useState(null);
+  
   const [gameVisible, setGameVisible] = useState(false);
 
   const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE' && game.gameState !== 'PRE';
@@ -51,8 +50,14 @@ function Game({ game }) {
         </View>
 
         <View style={s.time}>
-          <Text style={s.date}>{dateLabel}</Text>
-          <Text style={s.date}>{timeLabel}</Text>
+          {
+            game.gameState == 'LIVE' ? <Text style={s.date}>LIVE</Text>
+            : isPlayed ? <Text style={s.date}>{game.gameOutcome?.lastPeriodType}</Text>
+            : <>
+                <Text style={s.date}>{dateLabel}</Text>
+                <Text style={s.date}>{timeLabel}</Text>
+              </>
+          }
         </View>
 
       </TouchableOpacity>

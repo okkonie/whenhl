@@ -17,12 +17,14 @@ const s = StyleSheet.create({
     paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   headerText: {
     fontSize: 22,
     color: colors.text,
     fontWeight: 800,
+    flex: 1,
+    textAlign: 'center'
   },
   buttons: {
     gap: 10,

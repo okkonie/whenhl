@@ -4,9 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from './colors';
 import Loader from './loader';
 
-export default function CustomModal({children, title, onClose, visible, loading, modalHeight = 1}){
+export default function CustomModal({children, title, onClose, visible, loading, modalHeight = 0.92}){
   const { width, height } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
 
   return (
     <Modal
@@ -18,8 +17,6 @@ export default function CustomModal({children, title, onClose, visible, loading,
       <View style={[s.modalContainer, {
         width: width, 
         height: height * modalHeight,
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
       }]}> 
         <View style={s.modalHeader}>
           <Text style={s.modalTitle}>{title}</Text>
@@ -37,7 +34,7 @@ const s = StyleSheet.create({
   modalContainer: {
     position: 'absolute',
     bottom: 0,
-    backgroundColor: colors.background,
+    backgroundColor: colors.card,
     borderRadius: 15,
     flex: 1
   },
@@ -47,8 +44,7 @@ const s = StyleSheet.create({
     fontWeight: 800,
   },
   modalHeader: {
-    height: 50,
-    paddingHorizontal: 20,
+    padding: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'

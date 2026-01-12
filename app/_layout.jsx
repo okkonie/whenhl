@@ -6,7 +6,6 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { Animated, Dimensions, StyleSheet, View } from 'react-native';
 import { colors } from '../components/colors';
-import { cleanupOldPicks } from '../utils/cleanupPicks';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,7 +32,6 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
-      cleanupOldPicks();
     }
   }, [loaded]);
 

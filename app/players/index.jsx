@@ -91,7 +91,7 @@ export default function Players() {
     
     searchTimeout.current = setTimeout(async () => {
       try {
-        const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=100&q=${encodeURIComponent(query)}`);
+        const response = await fetch(`https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=10&q=${encodeURIComponent(query)}`);
         const data = await response.json();
         setSearchResults(data);
       } catch (e) {

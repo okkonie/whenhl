@@ -12,7 +12,7 @@ const Tab = createMaterialTopTabNavigator();
 
 export default function Standings(){
   const [loading, setLoading] = useState(true);
-  const [conferenceStandings, setConferenceStandings] = useState({});
+  const [divisionStandings, setDivisionStandings] = useState({});
   const [teamVisible, setTeamVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState({});
 
@@ -23,22 +23,18 @@ export default function Standings(){
         const res = await fetch("https://api-web.nhle.com/v1/standings/now");
         const data = await res.json();
 
-        // Group by conference, then by division
+        // Group by division
         const groups = {};
         data.standings.forEach(team => {
-          const confKey = team.conferenceName;
-          const divKey = team.divisionName;
+          const divKey = team.divisionAbbrev;
 
-          if (!groups[confKey]) {
-            groups[confKey] = {};
+          if (!groups[divKey]) {
+            groups[divKey] = [];
           }
-          if (!groups[confKey][divKey]) {
-            groups[confKey][divKey] = [];
-          }
-          groups[confKey][divKey].push(team);
+          groups[divKey].push(team);
         });
 
-        setConferenceStandings(groups);
+        setDivisionStandings(groups);
       } catch (e){
         console.log("Error fetching standings", e)
       } finally {
@@ -49,9 +45,9 @@ export default function Standings(){
     fetchStandings();
   }, []);
 
-  const renderConf = (confName) => {
-    const divs = conferenceStandings[confName];
-    if (!divs) return null;
+  const renderDivision = (divName) => {
+    const teams = divisionStandings[divName];
+    if (!teams) return null;
 
     return (
       <ScrollView 
@@ -59,28 +55,22 @@ export default function Standings(){
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingTop: 10, paddingHorizontal: 10}}
       >
-        <View style={s.divRow}>
-          {Object.entries(divs).map(([divName, teams]) => (
-            <View key={divName} style={s.div}>
-              <Text style={s.divTitle}>{divName}</Text>
-              {teams.map((team) => (
-                <TouchableOpacity 
-                  activeOpacity={0.8}
-                  style={s.teamItem} 
-                  key={team.teamAbbrev.default}
-                  onPress={() => {setTeamVisible(true), setSelectedTeam(team)}}
-                >
-                  <View style={s.teamLeft}>
-                    <TeamLogo abbrev={team.teamAbbrev.default} size={30} />
-                    <Text style={s.teamName}>{team.teamAbbrev.default}</Text>
-                  </View>
-                  <Text style={s.points}>{team.points}</Text>
-                </TouchableOpacity>
-              ))}
+        {teams.map((team, idx) => (
+          <TouchableOpacity 
+            activeOpacity={0.8}
+            style={s.teamItem} 
+            key={team.teamAbbrev.default}
+            onPress={() => {setTeamVisible(true), setSelectedTeam(team)}}
+          >
+            <View style={s.teamLeft}>
+              <Text style={s.teamName}>{idx+1}</Text>
+              <TeamLogo abbrev={team.teamAbbrev.default} size={30} />
+              <Text style={s.teamName}>{team.teamCommonName.default}</Text>
             </View>
-          ))}
-        </View>
-        <View style={{height: 20}} />
+            <Text style={s.points}>{team.points}</Text>
+          </TouchableOpacity>
+        ))}
+        <View style={{height: 50}} />
       </ScrollView>
     )
   }
@@ -98,11 +88,12 @@ export default function Standings(){
             tabBarStyle: { backgroundColor: colors.background, height: 36 },
             tabBarIndicatorStyle: { backgroundColor: colors.text, height: 1 },
             tabBarLabelStyle: { fontWeight: '700', textTransform: 'none', fontSize: 11, marginTop: -8 },
+            tabBarScrollEnabled: false,
           }}
         >
-          {Object.keys(conferenceStandings).map((confName) => (
-            <Tab.Screen key={confName} name={confName.toUpperCase()}>
-              {() => renderConf(confName)}
+          {Object.keys(divisionStandings).map((divName) => (
+            <Tab.Screen key={divName} name={divName.toUpperCase()}>
+              {() => renderDivision(divName)}
             </Tab.Screen>
           ))}
         </Tab.Navigator>
@@ -125,22 +116,6 @@ const s = StyleSheet.create({
     backgroundColor: colors.background,
     flex: 1
   },
-  div: {
-    width: '49%',
-  },
-  divTitle: {
-    fontSize: 12,
-    paddingLeft: 5,
-    color: colors.text2,
-    paddingBottom: 10,
-    flex: 1,
-    textAlign: 'center'
-  },
-  divRow: {
-    flexDirection: 'row',
-    width: '100%',
-    gap: '2%',
-  },
   teamItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -159,9 +134,11 @@ const s = StyleSheet.create({
   },
   teamName: {
     fontSize: 14,
+    fontWeight: 500,
     color: colors.text,
   },
   points: {
+    fontSize: 16,
     fontWeight: 500,
     color: colors.text
   }

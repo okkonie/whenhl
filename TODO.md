@@ -1,4 +1,5 @@
-- [ ] create standings modal (reg and playoffs)
-- [ ] nav bar
-- [ ] sqlite db
-- [ ] 
+- [ ] playoff view
+- [ ] finish gamemodal
+- [ ] finish team stats
+- [ ] player search
+- [ ] player info
