@@ -1,9 +1,9 @@
 import { Image } from 'expo-image';
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from './colors';
-import CustomModal from './customModal';
-import TeamLogo from './teamLogo';
+import { colors } from '../../components/colors';
+import CustomModal from '../../components/customModal';
+import TeamLogo from '../../components/teamLogo';
 
 export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) {
   const [loading, setLoading] = useState(true);

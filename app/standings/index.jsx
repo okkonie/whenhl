@@ -63,10 +63,7 @@ export default function Standings(){
           <View key={divKey}>
             <View style={s.divTitleRow}>
               <Text style={s.divisionTitle}>{divKey}</Text>
-              <View style={s.indicators}>
-                <Text style={s.ptsIndicator}>PTS</Text>
-                <Text style={s.ptsIndicator}>GP</Text>
-              </View>
+              <Text style={s.ptsIndicator}>PTS</Text>
             </View>
             {divisions[divKey].map((team, idx) => (
               <TouchableOpacity 
@@ -80,10 +77,7 @@ export default function Standings(){
                   <TeamLogo abbrev={team?.teamAbbrev?.default} size={30} />
                   <Text style={s.teamName}>{team?.teamCommonName?.default}</Text>
                 </View>
-                <View style={s.ptsGp}> 
-                  <Text style={s.points}>{team.points}</Text>
-                  <Text style={s.gp}>{team.gamesPlayed}</Text>
-                </View>
+                <Text style={s.points}>{team.points}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -140,11 +134,11 @@ const s = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     marginBottom: 5,
-    borderRadius: 5
+    borderRadius: 8
   },
   teamLeft: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 10,
     alignItems: 'center'
   },
   teamName: {
@@ -153,11 +147,11 @@ const s = StyleSheet.create({
     color: colors.text,
   },
   teamRank: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.text2,
   },
   points: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 500,
     color: colors.text
   },
@@ -174,24 +168,9 @@ const s = StyleSheet.create({
     fontWeight: 500,
     color: colors.text2,
   },
-  indicators: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 10,
-    gap: 28
-  },
   ptsIndicator: {
+    paddingRight: 10,
     fontSize: 12,
-    color: colors.text2
-  },
-  ptsGp: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 28,
-  },
-  gp: {
-    fontSize: 14,
-    fontWeight: 400,
     color: colors.text2
   }
 })

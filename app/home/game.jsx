@@ -9,6 +9,8 @@ function Game({ game }) {
   const [gameVisible, setGameVisible] = useState(false);
 
   const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE' && game.gameState !== 'PRE';
+  const isLive = game?.gameState == 'LIVE';
+  const isFut = !isPlayed && !isLive
 
   const start = game?.startTimeUTC ? new Date(game.startTimeUTC) : null;
   const isValidStart = start && !isNaN(start);
@@ -20,44 +22,41 @@ function Game({ game }) {
     ? start.toLocaleDateString(undefined, { weekday: "short", day: 'numeric', month: 'numeric' })
     : '';
 
-  const homeScoreNum = game?.homeTeam?.score;
-  const awayScoreNum = game?.awayTeam?.score;
-
   let homeIsWinner = undefined;
-  (homeScoreNum && awayScoreNum) &&  homeIsWinner == homeScoreNum > awayScoreNum
+  isPlayed && homeIsWinner == game?.homeTeam?.score > game?.awayTeam?.score
 
   return (
     <>
       <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
+
         <View style={s.teams}>
-
           <View style={s.teamRow}>
             <View style={s.teamLeft}>
-              <TeamLogo abbrev={game?.homeTeam?.abbrev} size={27}/>
-              <Text style={s.teamName}>{game?.homeTeam?.commonName.default}</Text>
+               <TeamLogo abbrev={game?.homeTeam?.abbrev} size={32}/>          
+               <Text style={s.teamName}>{game?.homeTeam?.commonName.default}</Text>          
             </View>
-            {(isPlayed || game.gameState == 'LIVE') && <Text style={s.score}>{game?.homeTeam?.score}</Text>}
+
+            {!isFut && <Text style={s.score}>{game?.homeTeam?.score}</Text>}
           </View>
 
           <View style={s.teamRow}>
             <View style={s.teamLeft}>
-              <TeamLogo abbrev={game?.awayTeam?.abbrev} size={27}/>
-              <Text style={s.teamName}>{game?.awayTeam?.commonName.default}</Text>
+               <TeamLogo abbrev={game?.awayTeam?.abbrev} size={32}/>
+               <Text style={s.teamName}>{game?.awayTeam?.commonName.default}</Text>
             </View>
-            {(isPlayed || game.gameState == 'LIVE') && <Text style={s.score}>{game?.awayTeam?.score}</Text>}
-          </View>
 
+            {!isFut && <Text style={s.score}>{game?.awayTeam?.score}</Text>}
+          </View>
         </View>
 
-        <View style={s.time}>
-          {
-            game.gameState == 'LIVE' ? <Text style={s.date}>LIVE</Text>
-            : isPlayed ? <Text style={s.date}>{game.gameOutcome?.lastPeriodType}</Text>
-            : <>
-                <Text style={s.date}>{dateLabel}</Text>
-                <Text style={s.date}>{timeLabel}</Text>
-              </>
-          }
+        <View style={s.teamRight}>
+          {isFut && <Text style={s.time}>{timeLabel}</Text>}
+          <Text style={s.label}>
+            {isLive ? 'LIVE' 
+              : isPlayed ? game.gameOutcome.lastPeriodType
+              : dateLabel
+            }
+          </Text>
         </View>
 
       </TouchableOpacity>
@@ -69,8 +68,6 @@ function Game({ game }) {
         id={game.id}
         timeLabel={timeLabel}
         isPlayed={isPlayed} 
-        homeScoreNum={homeScoreNum}
-        awayScoreNum={awayScoreNum}
         start={start}
       />
     </>
@@ -81,57 +78,57 @@ const s = StyleSheet.create({
   container: {
     backgroundColor: colors.card,
     flexDirection: 'row',
-    flex: 1,
-    borderRadius: 5,
-    paddingVertical: 15,
-    marginHorizontal: 10,
-    marginTop: 5,
-  },
-  time: {
+    justifyContent: 'space-between',
     alignItems: 'center',
-    width: 100,
-    justifyContent: 'center',
-    gap: 5,
-    margin: 5,
-    borderLeftWidth: 1,
-    borderColor: colors.border
+    flex: 1,
+    paddingVertical: 18,
+    marginHorizontal: 10,
+    borderRadius: 8,
+    marginTop: 5,
   },
   teams: {
     flex: 1,
-    paddingHorizontal: 10
+    paddingLeft: 15,
+    paddingRight: 20,
+    gap: 6,
+  },
+  teamRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   teamLeft: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    flex: 1,
-  },
-  teamRow: {
-    alignItems: 'center',
-    paddingVertical: 3,
-    paddingLeft: 7,
-    paddingRight: 10,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    borderRadius: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  },
-  date: {
-    color: colors.text,
-    fontSize: 14,
+    gap: 5,
+    alignItems: 'center'
   },
   teamName: {
-    color: colors.text,
     fontSize: 14,
-    fontWeight: 500
+    fontWeight: 500,
+    color: colors.text
   },
   score: {
-    color: colors.text,
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: 700,
+    color: colors.text
   },
+  teamRight: {
+    width: 100,
+    height: '100%',
+    borderLeftWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    gap: 5,
+    justifyContent: 'center'
+  },
+  label: {
+    color: colors.text2,
+  },
+  time: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: 700
+  }
 });
 
 export default memo(Game);

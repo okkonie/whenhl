@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 3,
     height: 30,
-    backgroundColor: colors.highlight,
+    backgroundColor: colors.border,
     borderRadius: 999,
   },
 });
