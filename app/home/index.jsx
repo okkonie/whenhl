@@ -20,7 +20,6 @@ export default function Index() {
   const [seasonStart, setSeasonStart ] = useState("");
   const [seasonEnd, setSeasonEnd ] = useState("");
   const [playoffStart, setPlayoffStart ] = useState("");
-  const [standings, setStandings ] = useState(false);
 
   const fetchGames = async () => {
     try {
@@ -95,9 +94,9 @@ export default function Index() {
     }
   }, [loading, loadingMore, futureSchedule, nextStartDate, loadMoreFuture]);
 
-  const renderItem = useCallback(({ item, index }) => (
+  const renderItem = useCallback(({ item }) => (
     <Game 
-      key={item.id || item.gameId || index} 
+      key={item.id} 
       game={item} 
     />
   ), []);
@@ -105,60 +104,57 @@ export default function Index() {
   return (
     <SafeAreaView style={s.container}>
       {loading ? <Loader /> : (
-        <>
-          <Header text={'Games'} />
-          <Tab.Navigator
-            initialRouteName="UPCOMING"
-            screenOptions={{
-              tabBarActiveTintColor: colors.text,
-              tabBarInactiveTintColor: colors.text2,
-              tabBarStyle: { backgroundColor: colors.background, height: 36 },
-              tabBarIndicatorStyle: { backgroundColor: colors.text, height: 1 },
-              tabBarLabelStyle: { fontWeight: '700', textTransform: 'none', fontSize: 11, marginTop: -8 },
-            }}
-          >
-            <Tab.Screen name="PAST">
-              {() => (
-                <FlatList
-                  style={s.list}
-                  data={pastSchedule}
-                  extraData={loadingMore}
-                  keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
-                  renderItem={renderItem}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{paddingTop: 10}}
-                  ListFooterComponent={
-                    <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
-                      {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
-                    </View>
-                  }
-                  onEndReached={seasonStart < previousStartDate ? loadMorePast : null}
-                  onEndReachedThreshold={0.5}
-                />
-              )}
-            </Tab.Screen>
-            <Tab.Screen name="UPCOMING">
-              {() => (
-                <FlatList
-                  style={s.list}
-                  data={futureSchedule}
-                  extraData={loadingMore}
-                  keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
-                  renderItem={renderItem}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{paddingTop: 10}}
-                  ListFooterComponent={
-                    <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
-                      {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
-                    </View>
-                  }
-                  onEndReached={seasonEnd > nextStartDate ? loadMoreFuture : null}
-                  onEndReachedThreshold={0.5}
-                />
-              )}
-            </Tab.Screen>
-          </Tab.Navigator>
-        </>
+        <Tab.Navigator
+          initialRouteName="UPCOMING"
+          screenOptions={{
+            tabBarActiveTintColor: colors.text,
+            tabBarInactiveTintColor: colors.text2,
+            tabBarStyle: { backgroundColor: colors.background, height: 40},
+            tabBarIndicatorStyle: { backgroundColor: colors.text, height: 1 },
+            tabBarLabelStyle: { fontWeight: '700', textTransform: 'none', fontSize: 12, paddingBottom: 5 },
+          }}
+        >
+          <Tab.Screen name="PAST">
+            {() => (
+              <FlatList
+                style={s.list}
+                data={pastSchedule}
+                extraData={loadingMore}
+                keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
+                renderItem={renderItem}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{paddingTop: 10}}
+                ListFooterComponent={
+                  <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
+                    {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
+                  </View>
+                }
+                onEndReached={seasonStart < previousStartDate ? loadMorePast : null}
+                onEndReachedThreshold={0.5}
+              />
+            )}
+          </Tab.Screen>
+          <Tab.Screen name="UPCOMING">
+            {() => (
+              <FlatList
+                style={s.list}
+                data={futureSchedule}
+                extraData={loadingMore}
+                keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
+                renderItem={renderItem}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{paddingTop: 10}}
+                ListFooterComponent={
+                  <View style={{alignItems: 'center', paddingTop: 10, paddingBottom: 50,}}>
+                    {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
+                  </View>
+                }
+                onEndReached={seasonEnd > nextStartDate ? loadMoreFuture : null}
+                onEndReachedThreshold={0.5}
+              />
+            )}
+          </Tab.Screen>
+        </Tab.Navigator>
       )}
     </SafeAreaView>
   );

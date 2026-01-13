@@ -52,7 +52,7 @@ export default function TeamStats({ visible, item, onClose }) {
     >
       <ScrollView style={s.content} contentContainerStyle={{paddingBottom: 20}} showsVerticalScrollIndicator={false}>
         <View style={s.teamHeader}>
-          {item.teamAbbrev && <TeamLogo abbrev={item.teamAbbrev.default} size={60}/>}
+          {item?.teamAbbrev?.default && <TeamLogo abbrev={item.teamAbbrev.default} size={60}/>}
           <View style={s.teamInfo}>
             <Text style={s.teamHeaderName}>{item?.teamName?.default}</Text>
             <Text style={s.teamMore}>{item?.points} PTS    {item?.gamesPlayed} GP</Text>

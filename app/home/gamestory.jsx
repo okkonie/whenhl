@@ -13,7 +13,7 @@ export default function GameStory({ game, visible, onClose, id, timeLabel, isPla
       if (!visible || !id) return;
       setLoading(true);
       try {
-        const res = await fetch(`https://api-web.nhle.com/v1/gamecenter/${id}/landing`);
+        const res = await fetch(`https://api-web.nhle.com/v1/gamecenter/${game?.id}/landing`);
         const data = await res.json();
         setDetails(data);
       } catch (e) {

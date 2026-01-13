@@ -3,10 +3,10 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-nati
 import { colors } from "../../components/colors";
 import TeamLogo from "../../components/teamLogo";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Header from "../../components/header";
 import TeamStats from "./teamStats"
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Loader from "../../components/loader";
+import { getPathFromState } from "expo-router/build/fork/getPathFromState";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -26,12 +26,16 @@ export default function Standings(){
         // Group by division
         const groups = {};
         data.standings.forEach(team => {
-          const divKey = team.divisionAbbrev;
+          const confKey = team.conferenceName;
+          const divKey = team.divisionName;
 
-          if (!groups[divKey]) {
-            groups[divKey] = [];
+          if (!groups[confKey]) {
+            groups[confKey] = [];
           }
-          groups[divKey].push(team);
+          if (!groups[confKey][divKey]) {
+            groups[confKey][divKey] = [];
+          }
+          groups[confKey][divKey].push(team);
         });
 
         setDivisionStandings(groups);
@@ -45,9 +49,9 @@ export default function Standings(){
     fetchStandings();
   }, []);
 
-  const renderDivision = (divName) => {
-    const teams = divisionStandings[divName];
-    if (!teams) return null;
+  const renderConference = (confName) => {
+    const divisions = divisionStandings[confName];
+    if (!divisions) return null;
 
     return (
       <ScrollView 
@@ -55,20 +59,34 @@ export default function Standings(){
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingTop: 10, paddingHorizontal: 10}}
       >
-        {teams.map((team, idx) => (
-          <TouchableOpacity 
-            activeOpacity={0.8}
-            style={s.teamItem} 
-            key={team.teamAbbrev.default}
-            onPress={() => {setTeamVisible(true), setSelectedTeam(team)}}
-          >
-            <View style={s.teamLeft}>
-              <Text style={s.teamName}>{idx+1}</Text>
-              <TeamLogo abbrev={team.teamAbbrev.default} size={30} />
-              <Text style={s.teamName}>{team.teamCommonName.default}</Text>
+        {Object.keys(divisions).map((divKey) => (
+          <View key={divKey}>
+            <View style={s.divTitleRow}>
+              <Text style={s.divisionTitle}>{divKey}</Text>
+              <View style={s.indicators}>
+                <Text style={s.ptsIndicator}>PTS</Text>
+                <Text style={s.ptsIndicator}>GP</Text>
+              </View>
             </View>
-            <Text style={s.points}>{team.points}</Text>
-          </TouchableOpacity>
+            {divisions[divKey].map((team, idx) => (
+              <TouchableOpacity 
+                activeOpacity={0.8}
+                style={s.teamItem} 
+                key={team?.teamAbbrev?.default}
+                onPress={() => {setTeamVisible(true), setSelectedTeam(team)}}
+              >
+                <View style={s.teamLeft}>
+                  <Text style={s.teamRank}>{idx+1}</Text>
+                  <TeamLogo abbrev={team?.teamAbbrev?.default} size={30} />
+                  <Text style={s.teamName}>{team?.teamCommonName?.default}</Text>
+                </View>
+                <View style={s.ptsGp}> 
+                  <Text style={s.points}>{team.points}</Text>
+                  <Text style={s.gp}>{team.gamesPlayed}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         ))}
         <View style={{height: 50}} />
       </ScrollView>
@@ -77,7 +95,6 @@ export default function Standings(){
 
   return (
     <SafeAreaView style={s.container}>
-      <Header text="Standings"/>
       {loading ? (
         <Loader />
       ) : (
@@ -85,15 +102,14 @@ export default function Standings(){
           screenOptions={{
             tabBarActiveTintColor: colors.text,
             tabBarInactiveTintColor: colors.text2,
-            tabBarStyle: { backgroundColor: colors.background, height: 36 },
+            tabBarStyle: { backgroundColor: colors.background, height: 40},
             tabBarIndicatorStyle: { backgroundColor: colors.text, height: 1 },
-            tabBarLabelStyle: { fontWeight: '700', textTransform: 'none', fontSize: 11, marginTop: -8 },
-            tabBarScrollEnabled: false,
+            tabBarLabelStyle: { fontWeight: '700', textTransform: 'none', fontSize: 12, paddingBottom: 5 },
           }}
         >
-          {Object.keys(divisionStandings).map((divName) => (
-            <Tab.Screen key={divName} name={divName.toUpperCase()}>
-              {() => renderDivision(divName)}
+          {Object.keys(divisionStandings).map((confName) => (
+            <Tab.Screen key={confName} name={confName.toUpperCase()}>
+              {() => renderConference(confName)}
             </Tab.Screen>
           ))}
         </Tab.Navigator>
@@ -121,10 +137,9 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: colors.card,
-    paddingVertical: 15,
-    paddingLeft: 10,
-    paddingRight: 18,
-    marginBottom: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginBottom: 5,
     borderRadius: 5
   },
   teamLeft: {
@@ -137,9 +152,46 @@ const s = StyleSheet.create({
     fontWeight: 500,
     color: colors.text,
   },
+  teamRank: {
+    fontSize: 12,
+    color: colors.text2,
+  },
   points: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 500,
     color: colors.text
+  },
+  divTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    marginBottom: 8,
+    marginTop: 12,
+  },
+  divisionTitle: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: colors.text2,
+  },
+  indicators: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+    gap: 28
+  },
+  ptsIndicator: {
+    fontSize: 12,
+    color: colors.text2
+  },
+  ptsGp: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 28,
+  },
+  gp: {
+    fontSize: 14,
+    fontWeight: 400,
+    color: colors.text2
   }
 })

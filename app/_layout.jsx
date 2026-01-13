@@ -64,11 +64,10 @@ export default function RootLayout() {
           headerShown: false,
           tabBarActiveTintColor: colors.text,
           tabBarInactiveTintColor: colors.text2,
-          tabBarShowLabel: false,
           tabBarStyle: {
-            paddingTop: 3,
+            paddingTop: 0,
             borderTopWidth: 0,
-            height: 45,
+            height: 50,
             position: 'absolute',
             width: '100%',
             elevation: 0,
@@ -92,7 +91,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Octicons
                 name='home'
-                size={24}
+                size={20}
                 color={focused ? colors.text : colors.text2}
               />
             ),
@@ -105,7 +104,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Octicons
                 name="list-ordered"
-                size={24}
+                size={20}
                 color={focused ? colors.text : colors.text2}
               />
             ),
@@ -118,7 +117,7 @@ export default function RootLayout() {
             tabBarIcon: ({ focused }) => (
               <Octicons
                 name='search'
-                size={24}
+                size={20}
                 color={focused ? colors.text : colors.text2}
               />
             ),
@@ -140,8 +139,8 @@ const styles = StyleSheet.create({
   },
   tabHighlight: {
     position: 'absolute',
-    top: 5,
-    height: 35,
+    top: 3,
+    height: 30,
     backgroundColor: colors.highlight,
     borderRadius: 999,
   },
