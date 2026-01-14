@@ -74,7 +74,7 @@ export default function Standings(){
               >
                 <View style={s.teamLeft}>
                   <Text style={s.teamRank}>{idx+1}</Text>
-                  <TeamLogo abbrev={team?.teamAbbrev?.default} size={30} />
+                  <TeamLogo abbrev={team?.teamAbbrev?.default} size={32}/>
                   <Text style={s.teamName}>{team?.teamCommonName?.default}</Text>
                 </View>
                 <Text style={s.points}>{team.points}</Text>
@@ -138,21 +138,22 @@ const s = StyleSheet.create({
   },
   teamLeft: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 6,
     alignItems: 'center'
   },
   teamName: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: 500,
     color: colors.text,
   },
   teamRank: {
-    fontSize: 13,
+    fontSize: 14,
     color: colors.text2,
+    paddingRight: 5
   },
   points: {
-    fontSize: 16,
-    fontWeight: 500,
+    fontSize: 18,
+    fontWeight: 700,
     color: colors.text
   },
   divTitleRow: {
@@ -166,7 +167,7 @@ const s = StyleSheet.create({
   divisionTitle: {
     fontSize: 14,
     fontWeight: 500,
-    color: colors.text2,
+    color: colors.text,
   },
   ptsIndicator: {
     paddingRight: 10,

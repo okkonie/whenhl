@@ -44,7 +44,7 @@ const s = StyleSheet.create({
     fontWeight: 800,
   },
   modalHeader: {
-    padding: 20,
+    padding: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -56,7 +56,7 @@ const s = StyleSheet.create({
   },
   btn: {
     padding: 10,
-    backgroundColor: colors.highlight,
+    backgroundColor: colors.border,
     borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',

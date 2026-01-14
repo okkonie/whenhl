@@ -1,12 +1,30 @@
-import { memo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { memo, useState, useEffect } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from "react-native";
 import { colors } from '../../components/colors';
-import GameStory from './gamestory';
 import TeamLogo from '../../components/teamLogo';
+import CustomModal from "../../components/customModal";
 
 function Game({ game }) {
-  
   const [gameVisible, setGameVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [details, setDetails] = useState(null);
+  
+  useEffect(() => {
+    const fetchDetails = async () => {
+      if (!gameVisible || !game.id) return;
+      setLoading(true);
+      try {
+        const res = await fetch(`https://api-web.nhle.com/v1/gamecenter/${game?.id}/landing`);
+        const data = await res.json();
+        setDetails(data);
+      } catch (e) {
+        console.log('Failed to load game');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDetails();
+  }, [gameVisible]);
 
   const isPlayed = game?.gameState && game.gameState !== 'FUT' && game.gameState !== 'LIVE' && game.gameState !== 'PRE';
   const isLive = game?.gameState == 'LIVE';
@@ -22,54 +40,128 @@ function Game({ game }) {
     ? start.toLocaleDateString(undefined, { weekday: "short", day: 'numeric', month: 'numeric' })
     : '';
 
-  let homeIsWinner = undefined;
-  isPlayed && homeIsWinner == game?.homeTeam?.score > game?.awayTeam?.score
+  const homeIsWinner = isPlayed && 
+    game?.homeTeam?.score != null && 
+    game?.awayTeam?.score != null
+    ? game.homeTeam.score > game.awayTeam.score
+    : undefined;
 
   return (
     <>
       <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
-
-        <View style={s.teams}>
-          <View style={s.teamRow}>
-            <View style={s.teamLeft}>
-               <TeamLogo abbrev={game?.homeTeam?.abbrev} size={32}/>          
-               <Text style={s.teamName}>{game?.homeTeam?.commonName.default}</Text>          
-            </View>
-
-            {!isFut && <Text style={s.score}>{game?.homeTeam?.score}</Text>}
+        <View style={s.team}>
+          <View style={s.teamInfo}>
+            <TeamLogo abbrev={game?.homeTeam?.abbrev} size={40}/>
+            <Text style={s.teamName}>{game?.homeTeam?.abbrev}</Text>
           </View>
-
-          <View style={s.teamRow}>
-            <View style={s.teamLeft}>
-               <TeamLogo abbrev={game?.awayTeam?.abbrev} size={32}/>
-               <Text style={s.teamName}>{game?.awayTeam?.commonName.default}</Text>
-            </View>
-
-            {!isFut && <Text style={s.score}>{game?.awayTeam?.score}</Text>}
-          </View>
+          {!isFut && 
+            <Text style={[s.score, {color: homeIsWinner ? colors.text : colors.text2}]}>
+              {game?.homeTeam?.score}
+            </Text>
+          }
         </View>
 
-        <View style={s.teamRight}>
+        <View style={s.gameInfo}>
           {isFut && <Text style={s.time}>{timeLabel}</Text>}
           <Text style={s.label}>
-            {isLive ? 'LIVE' 
-              : isPlayed ? game.gameOutcome.lastPeriodType
-              : dateLabel
-            }
+            {isLive ? 'LIVE' : isPlayed ? game.gameOutcome.lastPeriodType :dateLabel}
           </Text>
         </View>
 
+        <View style={s.team}>
+          {!isFut && 
+            <Text style={[s.score, {color: homeIsWinner ? colors.text2 : colors.text}]}>
+              {game?.awayTeam?.score}
+            </Text>
+          }
+          <View style={s.teamInfo}>
+            <TeamLogo abbrev={game?.awayTeam?.abbrev} size={40}/>
+            <Text style={s.teamName}>{game?.awayTeam?.abbrev}</Text>
+          </View>
+        </View>
       </TouchableOpacity>
 
-      <GameStory 
-        visible={gameVisible}
-        game={game}
-        onClose={() => setGameVisible(false)}
-        id={game.id}
-        timeLabel={timeLabel}
-        isPlayed={isPlayed} 
-        start={start}
-      />
+      <CustomModal title="Game details" visible={gameVisible} onClose={() => setGameVisible(false)} loading={loading}>
+        <ScrollView style={s.content} contentContainerStyle={s.contentContainer}>
+  
+          <View style={s.container}>
+            <View style={s.team}>
+              <View style={s.teamInfo}>
+                <TeamLogo abbrev={game?.homeTeam?.abbrev} size={40}/>
+                <Text style={s.teamName}>{game?.homeTeam?.abbrev}</Text>
+              </View>
+              {!isFut && 
+                <Text style={[s.score, {color: homeIsWinner ? colors.text : colors.text2}]}>
+                  {game?.homeTeam?.score}
+                </Text>
+              }
+            </View>
+    
+            <View style={s.gameInfo}>
+              {isFut && <Text style={s.time}>{timeLabel}</Text>}
+              <Text style={s.label}>
+                {isLive ? 'LIVE' : isPlayed ? game.gameOutcome.lastPeriodType : dateLabel}
+              </Text>
+            </View>
+    
+            <View style={s.team}>
+              {!isFut && 
+                <Text style={[s.score, {color: homeIsWinner ? colors.text2 : colors.text}]}>
+                  {game?.awayTeam?.score}
+                </Text>
+              }
+              <View style={s.teamInfo}>
+                <TeamLogo abbrev={game?.awayTeam?.abbrev} size={40}/>
+                <Text style={s.teamName}>{game?.awayTeam?.abbrev}</Text>
+              </View>
+            </View>
+          </View>
+          
+          {isPlayed ? (
+            <>
+              <View style={s.row}>
+                <Text style={s.matchDetail}>{details?.homeTeam.sog}</Text>
+                <Text style={s.matchInfoText}>sog</Text>
+                <Text style={s.matchDetail}>{details?.awayTeam.sog}</Text>
+              </View>
+              <View style={s.scoringContainer}>
+                <Text style={s.matchDetail}>Scoring</Text>
+                {details?.summary?.scoring?.map((period, idx) => (
+                  <View key={idx}>
+                    {period.goals?.length > 0 && (
+                      period.goals.map((goal, goalIdx) => (
+                        <View key={goalIdx} style={s.goalRow}>
+                          <TeamLogo abbrev={goal?.teamAbbrev.default} size={30} />
+                          <View style={s.goalTexts}>
+                            <Text style={s.goalScorer}>{goal.name.default} ({goal.goalsToDate})</Text>
+                            {goal.assists.length > 0 && (
+                              <Text style={s.goalAssist}>{goal.assists.map((assist) => (`${assist.name.default} (${assist.assistsToDate}) `))}</Text>  
+                            )}
+                          </View>
+                        </View>
+                      ))
+                    )}
+                  </View>
+                ))}
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={s.row}>
+                <Text style={s.matchDetail}>{details?.homeTeam.record}</Text>
+                <Text style={s.matchInfoText}>record</Text>
+                <Text style={s.matchDetail}>{details?.awayTeam.record}</Text>
+              </View>
+              <View style={s.row}>
+                <Text style={s.matchInfoText}>location</Text>
+                <Text style={s.matchDetail}>{details?.venue.default} @ {details?.venueLocation.default}</Text>
+              </View>
+            </>
+            
+          )}
+  
+        </ScrollView>
+      </CustomModal>
     </>
   );
 }
@@ -81,54 +173,127 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     flex: 1,
-    paddingVertical: 18,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
     marginHorizontal: 10,
     borderRadius: 8,
     marginTop: 5,
   },
-  teams: {
-    flex: 1,
-    paddingLeft: 15,
-    paddingRight: 20,
-    gap: 6,
-  },
-  teamRow: {
+  team: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 20,
     alignItems: 'center'
   },
-  teamLeft: {
-    flexDirection: 'row',
-    gap: 5,
-    alignItems: 'center'
+  teamInfo: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
+  gameInfo: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
   },
   teamName: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 500,
     color: colors.text
   },
   score: {
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: 700,
-    color: colors.text
   },
-  teamRight: {
-    width: 100,
-    height: '100%',
-    borderLeftWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-    gap: 5,
-    justifyContent: 'center'
+  time: {
+    fontSize: 24,
+    fontWeight: 700,
+    color: colors.text,
   },
   label: {
     color: colors.text2,
   },
-  time: {
+  contentContainer: {
+    paddingBottom: 24,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 10,
+    paddingBottom: 20,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  teamContainer: {
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+  },
+  matchDetail: {
     color: colors.text,
-    fontSize: 18,
-    fontWeight: 700
-  }
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+  },
+  headerScore: {
+    color: colors.text,
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  matchInfo: {
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 12,
+  },
+  matchInfoText: {
+    color: colors.text2,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  scoringContainer: {
+    marginTop: 16,
+  },
+  goalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+    marginTop: 30,
+  },
+  goalTeam: {
+    fontSize: 11,
+    fontWeight: '600',
+    minWidth: 50,
+  },
+  goalTexts: {
+    gap: 3,
+  },
+  goalScorer: {
+    color: colors.text,
+    fontWeight: 500,
+    fontSize: 13,
+  },
+  goalAssist: {
+    color: colors.text2,
+    fontSize: 12,
+    flex: 1,
+  },
+  goalTime: {
+    color: colors.text2,
+    fontSize: 12,
+  },
+  noGoals: {
+    color: colors.text2,
+    fontSize: 12,
+    fontStyle: 'italic',
+  },
 });
 
 export default memo(Game);
