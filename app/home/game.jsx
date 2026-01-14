@@ -49,17 +49,32 @@ function Game({ game }) {
   return (
     <>
       <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
-        <View style={s.team}>
-          <View style={s.teamInfo}>
-            <TeamLogo abbrev={game?.homeTeam?.abbrev} size={40}/>
-            <Text style={s.teamName}>{game?.homeTeam?.abbrev}</Text>
+
+        <View style={s.teams}>
+          <View style={s.teamRow}>
+            <View style={s.teamItem}>
+              <TeamLogo abbrev={game?.homeTeam?.abbrev} size={34}/>
+              <Text style={s.teamName}>{game?.homeTeam?.commonName.default}</Text>
+            </View>
+            {!isFut && 
+              <Text style={[s.score, {color: !homeIsWinner ? colors.text2 : colors.text}]}>
+                {game?.homeTeam?.score}
+              </Text>
+            }
           </View>
-          {!isFut && 
-            <Text style={[s.score, {color: homeIsWinner ? colors.text : colors.text2}]}>
-              {game?.homeTeam?.score}
-            </Text>
-          }
+          <View style={s.teamRow}>
+            <View style={s.teamItem}>
+              <TeamLogo abbrev={game?.awayTeam?.abbrev} size={34}/>
+              <Text style={s.teamName}>{game?.awayTeam?.commonName.default}</Text>
+            </View>
+            {!isFut && 
+              <Text style={[s.score, {color: homeIsWinner ? colors.text2 : colors.text}]}>
+                {game?.awayTeam?.score}
+              </Text>
+            }
+          </View>
         </View>
+
 
         <View style={s.gameInfo}>
           {isFut && <Text style={s.time}>{timeLabel}</Text>}
@@ -67,56 +82,10 @@ function Game({ game }) {
             {isLive ? 'LIVE' : isPlayed ? game.gameOutcome.lastPeriodType :dateLabel}
           </Text>
         </View>
-
-        <View style={s.team}>
-          {!isFut && 
-            <Text style={[s.score, {color: homeIsWinner ? colors.text2 : colors.text}]}>
-              {game?.awayTeam?.score}
-            </Text>
-          }
-          <View style={s.teamInfo}>
-            <TeamLogo abbrev={game?.awayTeam?.abbrev} size={40}/>
-            <Text style={s.teamName}>{game?.awayTeam?.abbrev}</Text>
-          </View>
-        </View>
       </TouchableOpacity>
 
       <CustomModal title="Game details" visible={gameVisible} onClose={() => setGameVisible(false)} loading={loading}>
         <ScrollView style={s.content} contentContainerStyle={s.contentContainer}>
-  
-          <View style={s.container}>
-            <View style={s.team}>
-              <View style={s.teamInfo}>
-                <TeamLogo abbrev={game?.homeTeam?.abbrev} size={40}/>
-                <Text style={s.teamName}>{game?.homeTeam?.abbrev}</Text>
-              </View>
-              {!isFut && 
-                <Text style={[s.score, {color: homeIsWinner ? colors.text : colors.text2}]}>
-                  {game?.homeTeam?.score}
-                </Text>
-              }
-            </View>
-    
-            <View style={s.gameInfo}>
-              {isFut && <Text style={s.time}>{timeLabel}</Text>}
-              <Text style={s.label}>
-                {isLive ? 'LIVE' : isPlayed ? game.gameOutcome.lastPeriodType : dateLabel}
-              </Text>
-            </View>
-    
-            <View style={s.team}>
-              {!isFut && 
-                <Text style={[s.score, {color: homeIsWinner ? colors.text2 : colors.text}]}>
-                  {game?.awayTeam?.score}
-                </Text>
-              }
-              <View style={s.teamInfo}>
-                <TeamLogo abbrev={game?.awayTeam?.abbrev} size={40}/>
-                <Text style={s.teamName}>{game?.awayTeam?.abbrev}</Text>
-              </View>
-            </View>
-          </View>
-          
           {isPlayed ? (
             <>
               <View style={s.row}>
@@ -152,14 +121,9 @@ function Game({ game }) {
                 <Text style={s.matchInfoText}>record</Text>
                 <Text style={s.matchDetail}>{details?.awayTeam.record}</Text>
               </View>
-              <View style={s.row}>
-                <Text style={s.matchInfoText}>location</Text>
-                <Text style={s.matchDetail}>{details?.venue.default} @ {details?.venueLocation.default}</Text>
-              </View>
             </>
             
           )}
-  
         </ScrollView>
       </CustomModal>
     </>
@@ -170,19 +134,30 @@ const s = StyleSheet.create({
   container: {
     backgroundColor: colors.card,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     flex: 1,
     paddingVertical: 20,
     paddingHorizontal: 20,
+    gap: 20,
     marginHorizontal: 10,
     borderRadius: 8,
     marginTop: 5,
   },
-  team: {
+  teams: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 3,
+  },
+  teamRow: {
     flexDirection: 'row',
-    gap: 20,
-    alignItems: 'center'
+    justifyContent: 'space-between',
+    flex: 1,
+    alignItems: 'center',
+  },
+  teamItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   teamInfo: {
     alignItems: 'center',
@@ -193,9 +168,10 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 2,
+    paddingHorizontal: 20,
   },
   teamName: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: 500,
     color: colors.text
   },
@@ -214,31 +190,19 @@ const s = StyleSheet.create({
   contentContainer: {
     paddingBottom: 24,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 10,
-    paddingBottom: 20,
-    paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  teamContainer: {
-    alignItems: 'center',
-    gap: 8,
-    flex: 1,
-  },
+  matchIfo: {
+    paddingHorizontal: 20,
+  },  
   matchDetail: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '500',
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
+    borderTopWidth: 1,
     borderColor: colors.border,
     paddingVertical: 20,
     paddingHorizontal: 15,
