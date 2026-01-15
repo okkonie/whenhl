@@ -53,36 +53,39 @@ function Game({ game }) {
         <View style={s.body}>
           <View style={s.teams}>
             <View style={s.teamItem}>
-              <TeamLogo abbrev={game?.homeTeam?.abbrev} size={30}/>
-              <Text style={[s.teamName, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
-                {game?.homeTeam?.commonName.default}
-              </Text>
+              <View style={s.teamLeft}>
+                <TeamLogo abbrev={game?.homeTeam?.abbrev} size={30}/>
+                <Text style={[s.teamName, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
+                  {game?.homeTeam?.commonName.default}
+                </Text>
+              </View>
             </View>
             <View style={s.teamItem}>
-              <TeamLogo abbrev={game?.awayTeam?.abbrev} size={30}/>
-              <Text style={[s.teamName, {color: homeIsWinner === true ? colors.text2 : colors.text}]}>
-                {game?.awayTeam?.commonName.default}
-              </Text>
+              <View style={s.teamLeft}>
+                <TeamLogo abbrev={game?.awayTeam?.abbrev} size={30}/>
+                <Text style={[s.teamName, {color: homeIsWinner === true ? colors.text2 : colors.text}]}>
+                  {game?.awayTeam?.commonName.default}
+                </Text>
+              </View>
             </View>
           </View>
 
-          <View style={s.gameInfo}>
-            {!isFut ? 
-              <>
-                <Text style={[s.score, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
-                  {game?.homeTeam?.score}
-                  </Text>
-                <Text style={[s.score, {color: homeIsWinner === true ? colors.text2 : colors.text}]}>
-                  {game?.awayTeam?.score}
-                </Text>
-              </>
-            : 
-              <>
-                <Text style={s.label}>{dateLabel}</Text>
-                <Text style={s.gameInfoText}>{timeLabel}</Text>
-              </>
-            }
-          </View>
+          {isFut ?
+            <View style={s.gameInfo}>
+              
+              <Text style={s.gameInfoText}>{timeLabel}</Text>
+              <Text style={s.label}>{dateLabel}</Text>
+            </View>
+          :
+            <View style={s.scores}>
+              <Text style={[s.score, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
+                {game?.homeTeam?.score}
+              </Text>
+              <Text style={[s.score, {color: homeIsWinner === true ? colors.text2 : colors.text}]}>
+                {game?.awayTeam?.score}
+              </Text>
+            </View>
+          }
         </View>
       </TouchableOpacity>
 
@@ -159,14 +162,21 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingRight: 5
   },
   teams: {
     justifyContent: 'center',
-    gap: 4,
-    marginHorizontal: -5
+    flex: 1,
+    gap: 6,
   },
   teamItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  teamLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -174,7 +184,11 @@ const s = StyleSheet.create({
   gameInfo: {
     alignItems: 'flex-end',
     justifyContent: 'center',
-    gap: 5
+    gap: 7,
+  },
+  scores: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
   gameInfoText: {
     fontSize: 22,

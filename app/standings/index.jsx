@@ -57,7 +57,7 @@ export default function Standings(){
       <ScrollView 
         style={s.list} 
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingTop: 10, paddingHorizontal: 10}}
+        contentContainerStyle={{paddingTop: 10, paddingHorizontal: 15}}
       >
         {Object.keys(divisions).map((divKey) => (
           <View key={divKey}>
@@ -130,7 +130,7 @@ const s = StyleSheet.create({
     backgroundColor: colors.card,
     paddingVertical: 10,
     paddingHorizontal: 18,
-    marginBottom: 5,
+    marginBottom: 8,
     borderRadius: 10
   },
   teamLeft: {

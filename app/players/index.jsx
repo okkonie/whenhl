@@ -103,6 +103,7 @@ export default function Players() {
 
   return (
     <SafeAreaView style={s.container}>
+      
       <View style={s.search}>
         <TextInput 
           ref={searchInputRef}
@@ -117,6 +118,7 @@ export default function Players() {
           <Octicons name={search ? "x" : "search"} size={22} color={colors.text2} />
         </TouchableOpacity>
       </View>
+
       {!search && (
         <FlatList 
           data={allModes}
@@ -137,31 +139,34 @@ export default function Players() {
           )}
         />
       )}
+          
       {loading ? <Loader /> : (
-        <FlatList 
-          data={search ? searchResults : stats}
-          keyExtractor={(item, index) => search ? `${item.playerId}-${index}` : `${item.id}-${selectedMode}`}
-          contentContainerStyle={s.list}
-          renderItem={({ item }) => (
-            <TouchableOpacity 
-              style={s.playerItem}
-              onPress={() => openPlayerStats(item.playerId, item.teamAbbrev)}
-              activeOpacity={0.7}
-            >
-              <View style={s.playerInfo}>
-                <Text style={s.playerName}>
-                  {search ? item.name : `${item.firstName.default} ${item.lastName.default}`}
-                </Text>
-                <Text style={s.playerTeam}>
-                  {item.teamAbbrev || item.teamAbbr}
-                </Text>
-              </View>
-              {!search && (
-                <Text style={s.playerStat}>{item.value}</Text>
-              )}
-            </TouchableOpacity>
-          )}
-        />
+        <>
+          <FlatList 
+            data={search ? searchResults : stats}
+            keyExtractor={(item, index) => search ? `${item.playerId}-${index}` : `${item.id}-${selectedMode}`}
+            contentContainerStyle={s.list}
+            renderItem={({ item }) => (
+              <TouchableOpacity 
+                style={s.playerItem}
+                onPress={() => openPlayerStats(item.playerId, item.teamAbbrev)}
+                activeOpacity={0.7}
+              >
+                <View style={s.playerInfo}>
+                  <Text style={s.playerName}>
+                    {search ? item.name : `${item.firstName.default} ${item.lastName.default}`}
+                  </Text>
+                  <Text style={s.playerTeam}>
+                    {item.teamAbbrev || item.teamAbbr}
+                  </Text>
+                </View>
+                {!search && (
+                  <Text style={s.playerStat}>{item.value}</Text>
+                )}
+              </TouchableOpacity>
+            )}
+          />
+        </>
       )}
     </SafeAreaView>
   );

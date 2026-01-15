@@ -85,12 +85,12 @@ export default function RootLayout() {
         }}
       >
         <Tabs.Screen
-          name="home"
+          name="games"
           options={{
-            title: 'home',
+            title: 'games',
             tabBarIcon: ({ focused }) => (
               <Octicons
-                name='home'
+                name='calendar'
                 size={20}
                 color={focused ? colors.text : colors.text2}
               />
