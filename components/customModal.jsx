@@ -35,7 +35,7 @@ const s = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     backgroundColor: colors.card,
-    borderRadius: 15,
+    borderRadius: 20,
     flex: 1
   },
   headerText: {

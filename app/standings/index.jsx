@@ -61,10 +61,7 @@ export default function Standings(){
       >
         {Object.keys(divisions).map((divKey) => (
           <View key={divKey}>
-            <View style={s.divTitleRow}>
-              <Text style={s.divisionTitle}>{divKey}</Text>
-              <Text style={s.ptsIndicator}>PTS</Text>
-            </View>
+            <Text style={s.divisionTitle}>{divKey}</Text>
             {divisions[divKey].map((team, idx) => (
               <TouchableOpacity 
                 activeOpacity={0.8}
@@ -131,10 +128,10 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: colors.card,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
     marginBottom: 5,
-    borderRadius: 8
+    borderRadius: 10
   },
   teamLeft: {
     flexDirection: 'row',
@@ -143,7 +140,7 @@ const s = StyleSheet.create({
   },
   teamName: {
     fontSize: 15,
-    fontWeight: 500,
+    fontWeight: 400,
     color: colors.text,
   },
   teamRank: {
@@ -152,19 +149,14 @@ const s = StyleSheet.create({
     paddingRight: 5
   },
   points: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 700,
     color: colors.text
   },
-  divTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
+  divisionTitle: {
+    marginLeft: 10,
     marginBottom: 8,
     marginTop: 12,
-  },
-  divisionTitle: {
     fontSize: 14,
     fontWeight: 500,
     color: colors.text,

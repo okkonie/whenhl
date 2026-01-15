@@ -2,7 +2,7 @@
   "expo": {
     "name": "whenhl",
     "slug": "whenhl",
-    "version": "2.1.0",
+    "version": "3.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#131313"
+        "backgroundColor": "#ffffff"
       },
       "package": "com.okkonie.whenhl"
     },
@@ -28,13 +28,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/adaptive-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 150,
           "resizeMode": "contain",
-          "backgroundColor": "#131313"
+          "backgroundColor": "#0f0f0f"
         }
-      ],
-      "expo-sqlite"
+      ]
     ],
     "experiments": {
       "typedRoutes": false

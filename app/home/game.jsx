@@ -37,7 +37,7 @@ function Game({ game }) {
     : '';
 
   const dateLabel = isValidStart
-    ? start.toLocaleDateString(undefined, { weekday: "short", day: 'numeric', month: 'numeric' })
+    ? start.toLocaleDateString(undefined, { weekday: "short", day: 'numeric', month: 'short' })
     : '';
 
   const homeIsWinner = isPlayed && 
@@ -48,82 +48,97 @@ function Game({ game }) {
 
   return (
     <>
-      <TouchableOpacity activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
+      <TouchableOpacity disabled={isFut} activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
 
-        <View style={s.teams}>
-          <View style={s.teamRow}>
-            <View style={s.teamItem}>
-              <TeamLogo abbrev={game?.homeTeam?.abbrev} size={34}/>
-              <Text style={s.teamName}>{game?.homeTeam?.commonName.default}</Text>
-            </View>
-            {!isFut && 
-              <Text style={[s.score, {color: !homeIsWinner ? colors.text2 : colors.text}]}>
-                {game?.homeTeam?.score}
-              </Text>
-            }
-          </View>
-          <View style={s.teamRow}>
-            <View style={s.teamItem}>
-              <TeamLogo abbrev={game?.awayTeam?.abbrev} size={34}/>
-              <Text style={s.teamName}>{game?.awayTeam?.commonName.default}</Text>
-            </View>
-            {!isFut && 
-              <Text style={[s.score, {color: homeIsWinner ? colors.text2 : colors.text}]}>
-                {game?.awayTeam?.score}
-              </Text>
-            }
-          </View>
-        </View>
-
-
-        <View style={s.gameInfo}>
-          {isFut && <Text style={s.time}>{timeLabel}</Text>}
+        <View style={s.top}>
           <Text style={s.label}>
-            {isLive ? 'LIVE' : isPlayed ? game.gameOutcome.lastPeriodType :dateLabel}
+             {dateLabel}
           </Text>
+          <Text style={s.label}>
+            {isPlayed ? game?.gameOutcome?.lastPeriodType
+            : isLive ? "LIVE" : game?.venue?.default
+            }
+          </Text>
+        </View>
+        
+        <View style={s.body}>
+          <View style={s.teams}>
+            <View style={s.teamItem}>
+              <TeamLogo abbrev={game?.homeTeam?.abbrev} size={30}/>
+              <Text style={[s.teamName, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
+                {game?.homeTeam?.commonName.default}
+              </Text>
+            </View>
+            <View style={s.teamItem}>
+              <TeamLogo abbrev={game?.awayTeam?.abbrev} size={30}/>
+              <Text style={[s.teamName, {color: homeIsWinner === true ? colors.text2 : colors.text}]}>
+                {game?.awayTeam?.commonName.default}
+              </Text>
+            </View>
+          </View>
+
+          <View style={s.gameInfo}>
+            {!isFut ? 
+              <>
+                <Text style={[s.score, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
+                  {game?.homeTeam?.score}
+                  </Text>
+                <Text style={[s.score, {color: homeIsWinner === true ? colors.text2 : colors.text}]}>
+                  {game?.awayTeam?.score}
+                </Text>
+              </>
+            : <Text style={s.gameInfoText}>{timeLabel}</Text>}
+          </View>
         </View>
       </TouchableOpacity>
 
       <CustomModal title="Game details" visible={gameVisible} onClose={() => setGameVisible(false)} loading={loading}>
-        <ScrollView style={s.content} contentContainerStyle={s.contentContainer}>
-          {isPlayed ? (
-            <>
-              <View style={s.row}>
-                <Text style={s.matchDetail}>{details?.homeTeam.sog}</Text>
-                <Text style={s.matchInfoText}>sog</Text>
-                <Text style={s.matchDetail}>{details?.awayTeam.sog}</Text>
+        <ScrollView style={s.content} contentContainerStyle={s.contentContainer} showsVerticalScrollIndicator={false}>
+
+          <View style={s.modalTop}>
+            <View style={s.modalTeam}>
+              <TeamLogo abbrev={game?.homeTeam?.abbrev} size={50}/>
+              <Text style={[s.teamName, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
+                {game?.homeTeam?.abbrev}
+              </Text>
+            </View>
+            <View style={s.modalDetails}>
+              <Text style={[s.score, {color: colors.text}]}>{game?.homeTeam?.score} - {game?.homeTeam?.score}</Text>
+              <Text style={s.label}>{isLive ? "LIVE" : dateLabel}</Text>
+            </View>
+            <View style={s.modalTeam}>
+              <TeamLogo abbrev={game?.awayTeam?.abbrev} size={50}/>
+              <Text style={[s.teamName, {color: homeIsWinner === true ? colors.text2 : colors.text}]}>
+                {game?.awayTeam?.abbrev}
+              </Text>
+            </View>
+          </View>
+
+          <View style={s.row}>
+            <Text style={s.matchDetail}>{details?.homeTeam.sog}</Text>
+            <Text style={s.label}>sog</Text>
+            <Text style={s.matchDetail}>{details?.awayTeam.sog}</Text>
+          </View>
+          <View style={s.scoringContainer}>
+            <Text style={s.matchDetail}>Scoring</Text>
+            {details?.summary?.scoring?.map((period, idx) => (
+              <View key={idx}>
+                {period.goals?.length > 0 && (
+                  period.goals.map((goal, goalIdx) => (
+                    <View key={goalIdx} style={s.goalRow}>
+                      <TeamLogo abbrev={goal?.teamAbbrev.default} size={30} />
+                      <View style={s.goalTexts}>
+                        <Text style={s.goalScorer}>{goal.name.default} ({goal.goalsToDate})</Text>
+                        {goal.assists.length > 0 && (
+                          <Text style={s.goalAssist}>{goal.assists.map((assist) => (`${assist.name.default} (${assist.assistsToDate}) `))}</Text>  
+                        )}
+                      </View>
+                    </View>
+                  ))
+                )}
               </View>
-              <View style={s.scoringContainer}>
-                <Text style={s.matchDetail}>Scoring</Text>
-                {details?.summary?.scoring?.map((period, idx) => (
-                  <View key={idx}>
-                    {period.goals?.length > 0 && (
-                      period.goals.map((goal, goalIdx) => (
-                        <View key={goalIdx} style={s.goalRow}>
-                          <TeamLogo abbrev={goal?.teamAbbrev.default} size={30} />
-                          <View style={s.goalTexts}>
-                            <Text style={s.goalScorer}>{goal.name.default} ({goal.goalsToDate})</Text>
-                            {goal.assists.length > 0 && (
-                              <Text style={s.goalAssist}>{goal.assists.map((assist) => (`${assist.name.default} (${assist.assistsToDate}) `))}</Text>  
-                            )}
-                          </View>
-                        </View>
-                      ))
-                    )}
-                  </View>
-                ))}
-              </View>
-            </>
-          ) : (
-            <>
-              <View style={s.row}>
-                <Text style={s.matchDetail}>{details?.homeTeam.record}</Text>
-                <Text style={s.matchInfoText}>record</Text>
-                <Text style={s.matchDetail}>{details?.awayTeam.record}</Text>
-              </View>
-            </>
-            
-          )}
+            ))}
+          </View>
         </ScrollView>
       </CustomModal>
     </>
@@ -133,56 +148,55 @@ function Game({ game }) {
 const s = StyleSheet.create({
   container: {
     backgroundColor: colors.card,
-    flexDirection: 'row',
-    alignItems: 'center',
     flex: 1,
     paddingVertical: 20,
     paddingHorizontal: 20,
-    gap: 20,
-    marginHorizontal: 10,
-    borderRadius: 8,
-    marginTop: 5,
+    gap: 12,
+    marginHorizontal: 14,
+    borderRadius: 14,
+    marginTop: 10,
   },
-  teams: {
+  top: {
     flex: 1,
-    justifyContent: 'center',
-    gap: 3,
-  },
-  teamRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  body: {
+    flexDirection: 'row',
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  teams: {
+    justifyContent: 'center',
+    gap: 4,
+    marginHorizontal: -5
   },
   teamItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-  },
-  teamInfo: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
+    gap: 6,
   },
   gameInfo: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 2,
-    paddingHorizontal: 20,
+    gap: 3,
   },
-  teamName: {
-    fontSize: 14,
-    fontWeight: 500,
-    color: colors.text
-  },
-  score: {
-    fontSize: 26,
-    fontWeight: 700,
-  },
-  time: {
-    fontSize: 24,
+  gameInfoText: {
+    fontSize: 22,
     fontWeight: 700,
     color: colors.text,
+    textAlign: 'right'
+  },
+  score: {
+    fontSize: 24,
+    fontWeight: 700,
+    textAlign: 'right'
+  },
+  teamName: {
+    fontSize: 15,
+    fontWeight: 500,
   },
   label: {
     color: colors.text2,
@@ -190,40 +204,42 @@ const s = StyleSheet.create({
   contentContainer: {
     paddingBottom: 24,
   },
-  matchIfo: {
-    paddingHorizontal: 20,
-  },  
+  modalTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 40,
+    paddingHorizontal: 15,
+  },
+  modalTeam: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  modalDetails: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 5,
+  },
   matchDetail: {
     color: colors.text,
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: 700,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: colors.border,
     paddingVertical: 20,
+    marginHorizontal: 20,
     paddingHorizontal: 15,
-  },
-  headerScore: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  matchInfo: {
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 12,
-  },
-  matchInfoText: {
-    color: colors.text2,
-    fontSize: 14,
-    fontWeight: '500',
   },
   scoringContainer: {
     marginTop: 16,
+    marginHorizontal: 20,
   },
   goalRow: {
     flexDirection: 'row',
@@ -248,15 +264,6 @@ const s = StyleSheet.create({
     color: colors.text2,
     fontSize: 12,
     flex: 1,
-  },
-  goalTime: {
-    color: colors.text2,
-    fontSize: 12,
-  },
-  noGoals: {
-    color: colors.text2,
-    fontSize: 12,
-    fontStyle: 'italic',
   },
 });
 
