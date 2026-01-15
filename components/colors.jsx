@@ -3,5 +3,5 @@ export const colors = {
   card: '#181818',
   border: '#202020',
   text: '#ddd',
-  text2: '#aaa',
+  text2: '#999',
 };

@@ -37,7 +37,7 @@ function Game({ game }) {
     : '';
 
   const dateLabel = isValidStart
-    ? start.toLocaleDateString(undefined, { weekday: "short", day: 'numeric', month: 'short' })
+    ? start.toLocaleDateString(undefined, { weekday: "short", day: 'numeric', month: 'numeric' })
     : '';
 
   const homeIsWinner = isPlayed && 
@@ -50,17 +50,6 @@ function Game({ game }) {
     <>
       <TouchableOpacity disabled={isFut} activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
 
-        <View style={s.top}>
-          <Text style={s.label}>
-             {dateLabel}
-          </Text>
-          <Text style={s.label}>
-            {isPlayed ? game?.gameOutcome?.lastPeriodType
-            : isLive ? "LIVE" : game?.venue?.default
-            }
-          </Text>
-        </View>
-        
         <View style={s.body}>
           <View style={s.teams}>
             <View style={s.teamItem}>
@@ -87,13 +76,18 @@ function Game({ game }) {
                   {game?.awayTeam?.score}
                 </Text>
               </>
-            : <Text style={s.gameInfoText}>{timeLabel}</Text>}
+            : 
+              <>
+                <Text style={s.label}>{dateLabel}</Text>
+                <Text style={s.gameInfoText}>{timeLabel}</Text>
+              </>
+            }
           </View>
         </View>
       </TouchableOpacity>
 
       <CustomModal title="Game details" visible={gameVisible} onClose={() => setGameVisible(false)} loading={loading}>
-        <ScrollView style={s.content} contentContainerStyle={s.contentContainer} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={s.contentContainer} showsVerticalScrollIndicator={false}>
 
           <View style={s.modalTop}>
             <View style={s.modalTeam}>
@@ -149,8 +143,7 @@ const s = StyleSheet.create({
   container: {
     backgroundColor: colors.card,
     flex: 1,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
+    padding: 20,
     gap: 12,
     marginHorizontal: 14,
     borderRadius: 14,
@@ -179,9 +172,9 @@ const s = StyleSheet.create({
     gap: 6,
   },
   gameInfo: {
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'center',
-    gap: 3,
+    gap: 5
   },
   gameInfoText: {
     fontSize: 22,
@@ -208,7 +201,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 40,
+    paddingVertical: 30,
     paddingHorizontal: 15,
   },
   modalTeam: {

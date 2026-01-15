@@ -5,7 +5,6 @@ import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../../components/colors';
 import Game from "./game";
-import Header from '../../components/header';
 import Loader from '../../components/loader';
 
 const Tab = createMaterialTopTabNavigator();

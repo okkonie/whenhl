@@ -4,35 +4,33 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-nati
 import { colors } from '../../components/colors';
 import CustomModal from '../../components/customModal';
 import TeamLogo from '../../components/teamLogo';
+import Flag from '../../components/flag';
 
 export default function TeamStats({ visible, item, onClose }) {
-  const [schedule, setSchedule] = useState({ recentGames: [], upcomingGames: [], allGames: [] });
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [showRosterModal, setShowRosterModal] = useState(false);
+  const [schedule, setSchedule] = useState([]);
+  const [roster, setRoster] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (visible && item?.teamAbbrev?.default) {
-      fetch(`https://api-web.nhle.com/v1/club-schedule-season/${item.teamAbbrev.default}/now`)
-        .then(res => res.json())
-        .then(data => {
-          const games = data.games || [];
-          const now = new Date();
-          
-          const completed = games
-            .filter(g => g.gameState === 'OFF' || g.gameState === 'FINAL')
-            .slice(-6);
-          
-          const upcoming = games
-            .filter(g => g.gameState === 'FUT' && new Date(g.startTimeUTC) > now)
-            .slice(0, 3);
-          
-          setSchedule({ recentGames: completed, upcomingGames: upcoming, allGames: games });
-        })
-        .catch(err => console.error('Error fetching schedule:', err))
-        .finally(() => setLoading(false));
+    const getSchedule = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`https://api-web.nhle.com/v1/club-schedule-season/${item.teamAbbrev.default}/now`);
+        const data = await response.json();
+        setSchedule(data.games);
+
+        const rosterResponse = await fetch(`https://api-web.nhle.com/v1/roster/${item.teamAbbrev.default}/current`);
+        const rosterData = await rosterResponse.json();
+        setRoster(rosterData);
+      } catch(e){
+        console.log("Error fecthing data", e)
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [visible, item?.teamAbbrev?.default]);
+
+    visible && getSchedule();
+  }, [item?.teamAbbrev?.default]);
 
   const StatItem = ({head, value}) => {
     return (
@@ -58,33 +56,65 @@ export default function TeamStats({ visible, item, onClose }) {
             <Text style={s.teamMore}>{item?.points} PTS    {item?.gamesPlayed} GP</Text>
           </View>
         </View>
-
-        <Text style={s.sectionTitle}>Stats</Text>
         <View style={s.statRow}>
           <StatItem
-            head="Goals For"
+            head="GOALS"
             value={item?.goalFor}
           />
           <StatItem
-            head="Goals Against"
+            head="G/AGAINST"
             value={item?.goalAgainst}
           />
           <StatItem
-            head="Win Pctg"
+            head="WIN PCTG"
             value={`${(item?.winPctg * 100).toFixed(2)}%`}
           />
           <StatItem
-            head="Rec"
+            head="RECORD"
             value={`${item?.wins}-${item?.losses}-${item?.otLosses}`}
           />
           <StatItem
-            head="Home Rec"
+            head="HOME"
             value={`${item?.homeWins}-${item?.homeLosses}-${item?.homeOtLosses}`}
           />
           <StatItem
-            head="Road Rec"
+            head="AWAY"
             value={`${item?.roadWins}-${item?.roadLosses}-${item?.roadOtLosses}`}
           />
+        </View>
+
+        <View style={s.statRow}>
+          <View style={s.col}>
+            <Text style={s.rosterHead}>FORWARDS</Text>
+            {roster.forwards?.map((player) => (
+              <View style={s.player} key={player.id}>
+                <Text style={s.playerText}>
+                  <Flag country={player.birthCountry}/> {" "}
+                  {player.firstName.default[0]}. {player.lastName.default}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <View style={s.col}>
+            <Text style={s.rosterHead}>DEFENSEMEN</Text>
+            {roster.defensemen?.map((player) => (
+              <View style={s.player} key={player.id}>
+                <Text style={s.playerText}>
+                  <Flag country={player.birthCountry}/> {" "}
+                  {player.firstName.default[0]}. {player.lastName.default}
+                </Text>
+              </View>
+            ))}
+            <Text style={s.rosterHead}>GOALIES</Text>
+            {roster.goalies?.map((player) => (
+              <View style={s.player} key={player.id}>
+                <Text style={s.playerText}>
+                  <Flag country={player.birthCountry}/> {" "}
+                  {player.firstName.default[0]}. {player.lastName.default}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
       </ScrollView>
     </CustomModal>
@@ -92,126 +122,18 @@ export default function TeamStats({ visible, item, onClose }) {
 }
 
 const s = StyleSheet.create({
-  sectionTitle: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '500',
-    paddingLeft: 10,
-    paddingTop: 15,
-    paddingBottom: 5,
-  },
-  scheduleBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: colors.border,
-    paddingVertical: 8,
-    borderRadius: 12,
-    justifyContent: 'center',
-  },
-  btnText: {
-    color: colors.text,
-    fontWeight: 500,
-  },
-  rosterBtn: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 15,
-    marginTop: 10,
-  },
-  rosterBtnLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  rosterIconBg: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rosterBtnTitle: {
-    color: colors.text,
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  rosterBtnSubtitle: {
-    color: colors.text2,
-    fontSize: 12,
-    marginTop: 2,
-  },
   teamInfo: {
     flex: 1,
   },
-  teamRecord: {
-    color: colors.text2,
-    fontSize: 14,
-    marginTop: 4,
-  },
-  scheduleSection: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 15,
-    padding: 10
-  },
-  gamesTitle: {
-    color: colors.text2,
-    fontWeight: 400,
-    fontSize: 14,
-    paddingTop: 10,
-    paddingLeft: 10
-  },
-  gamesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 20
-  },
-  gameBox: {
-    borderRadius: 8,
-    gap: 2,
-    alignItems: 'center',
-    width: '15%'
-  },
-  upcomingGameBox: {
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    width: '32%',
-    gap: 4,
-  },
-  gameOpponent: {
-    color: colors.text,
-    fontSize: 12,
-    fontWeight: 500
-  },
-  gameTime: {
-    color: colors.text,
-    fontSize: 12,
-  },
-  btn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   content: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
   },
   teamHeader: {
     alignItems: 'center',
     gap: 10,
     flexDirection: 'row',
-    paddingVertical: 20,
+    paddingVertical: 30,
     paddingLeft: 5,
   },
   teamHeaderName: {
@@ -229,10 +151,9 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 15,
-    paddingVertical: 10
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderColor: colors.border
   },
   statItem: {
     justifyContent: 'center',
@@ -248,6 +169,23 @@ const s = StyleSheet.create({
   statValue: {
     color: colors.text,
     fontWeight: 500,
-    fontSize: 16
+    fontSize: 18
+  },
+  col: {
+    width: '50%',
+    flexDirection: 'column',
+    paddingHorizontal: 10
+  },
+  rosterHead: {
+    fontSize: 16,
+    fontWeight: 500,
+    color: colors.text2,
+    paddingTop: 20,
+    paddingBottom: 10
+  },
+  playerText: {
+    fontSize: 14,
+    color: colors.text,
+    paddingVertical: 4,
   }
 });
