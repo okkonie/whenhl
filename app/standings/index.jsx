@@ -71,7 +71,7 @@ export default function Standings(){
               >
                 <View style={s.teamLeft}>
                   <Text style={s.teamRank}>{idx+1}</Text>
-                  <TeamLogo abbrev={team?.teamAbbrev?.default} size={32}/>
+                  <TeamLogo abbrev={team?.teamAbbrev?.default} size={30}/>
                   <Text style={s.teamName}>{team?.teamCommonName?.default}</Text>
                 </View>
                 <Text style={s.points}>{team.points}</Text>
@@ -79,7 +79,6 @@ export default function Standings(){
             ))}
           </View>
         ))}
-        <View style={{height: 50}} />
       </ScrollView>
     )
   }
@@ -121,7 +120,8 @@ const s = StyleSheet.create({
   },
   list: {
     backgroundColor: colors.background,
-    flex: 1
+    flex: 1,
+    marginBottom: 50
   },
   teamItem: {
     flexDirection: 'row',
@@ -140,7 +140,7 @@ const s = StyleSheet.create({
   },
   teamName: {
     fontSize: 15,
-    fontWeight: 400,
+    fontWeight: 500,
     color: colors.text,
   },
   teamRank: {

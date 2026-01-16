@@ -95,17 +95,17 @@ function Game({ game }) {
           <View style={s.modalTop}>
             <View style={s.modalTeam}>
               <TeamLogo abbrev={game?.homeTeam?.abbrev} size={50}/>
-              <Text style={[s.teamName, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
+              <Text style={[s.teamName,{color: colors.text}]}>
                 {game?.homeTeam?.abbrev}
               </Text>
             </View>
             <View style={s.modalDetails}>
-              <Text style={[s.score, {color: colors.text}]}>{game?.homeTeam?.score} - {game?.homeTeam?.score}</Text>
+              <Text style={[s.score, {color: colors.text}]}>{game?.homeTeam?.score} - {game?.awayTeam?.score}</Text>
               <Text style={s.label}>{isLive ? "LIVE" : dateLabel}</Text>
             </View>
             <View style={s.modalTeam}>
               <TeamLogo abbrev={game?.awayTeam?.abbrev} size={50}/>
-              <Text style={[s.teamName, {color: homeIsWinner === true ? colors.text2 : colors.text}]}>
+              <Text style={[s.teamName,{color: colors.text}]}>
                 {game?.awayTeam?.abbrev}
               </Text>
             </View>

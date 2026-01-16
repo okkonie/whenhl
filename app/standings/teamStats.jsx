@@ -5,14 +5,18 @@ import { colors } from '../../components/colors';
 import CustomModal from '../../components/customModal';
 import TeamLogo from '../../components/teamLogo';
 import Flag from '../../components/flag';
+import { Calendar } from 'react-native-calendars';
 
 export default function TeamStats({ visible, item, onClose }) {
   const [schedule, setSchedule] = useState([]);
   const [roster, setRoster] = useState({});
   const [loading, setLoading] = useState(true);
+  const [markedDates, setMarkedDates] = useState({});
 
   useEffect(() => {
     const getSchedule = async () => {
+      if (!item?.teamAbbrev?.default) return;
+      
       try {
         setLoading(true);
         const response = await fetch(`https://api-web.nhle.com/v1/club-schedule-season/${item.teamAbbrev.default}/now`);
@@ -29,8 +33,43 @@ export default function TeamStats({ visible, item, onClose }) {
       }
     }
 
-    visible && getSchedule();
-  }, [item?.teamAbbrev?.default]);
+    if (visible) {
+      getSchedule();
+    } else {
+      // Reset state when modal closes
+      setSchedule([]);
+      setRoster({});
+      setMarkedDates({});
+    }
+  }, [visible, item?.teamAbbrev?.default]);
+  
+  useEffect(() => {
+    if (schedule.length > 0 && item?.teamAbbrev?.default) {
+      const marked = {};
+      schedule.forEach(game => {
+        const date = game.gameDate;
+        let dotColor = 'white'; // Future games
+        
+        if (game.gameState === 'OFF' || game.gameState === 'FINAL') {
+          // Game is completed
+          const homeTeam = game.homeTeam.abbrev === item.teamAbbrev.default;
+          const awayTeam = game.awayTeam.abbrev === item.teamAbbrev.default;
+          
+          if (homeTeam) {
+            dotColor = game.homeTeam.score > game.awayTeam.score ? '#4ade80' : '#ef4444';
+          } else if (awayTeam) {
+            dotColor = game.awayTeam.score > game.homeTeam.score ? '#4ade80' : '#ef4444';
+          }
+        }
+        
+        marked[date] = {
+          marked: true,
+          dotColor: dotColor,
+        };
+      });
+      setMarkedDates(marked);
+    }
+  }, [schedule, item?.teamAbbrev?.default]);
 
   const StatItem = ({head, value}) => {
     return (
@@ -82,6 +121,32 @@ export default function TeamStats({ visible, item, onClose }) {
             value={`${item?.roadWins}-${item?.roadLosses}-${item?.roadOtLosses}`}
           />
         </View>
+
+        <Calendar
+          style={{paddingVertical: 20, borderTopWidth: 1, borderColor: colors.border}}
+          firstDay={1}
+          monthFormat='MMM yyyy'
+          markedDates={markedDates}
+          theme={{
+            backgroundColor: colors.card,
+            calendarBackground: colors.card,
+            textSectionTitleColor: colors.text2,
+            todayTextColor: colors.text,
+            todayBackgroundColor: colors.primary,
+            dayTextColor: colors.text2,
+            textDisabledColor: colors.text2,
+            dotColor: colors.text2,
+            selectedDotColor: colors.text2,
+            arrowColor: colors.text,
+            monthTextColor: colors.text,
+            textDayFontWeight: '400',
+            textMonthFontWeight: '600',
+            textDayHeaderFontWeight: '500',
+            textDayFontSize: 14,
+            textMonthFontSize: 16,
+            textDayHeaderFontSize: 12
+          }}
+        />
 
         <View style={s.statRow}>
           <View style={s.col}>

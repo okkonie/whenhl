@@ -4,4 +4,5 @@ export const colors = {
   border: '#202020',
   text: '#ddd',
   text2: '#999',
+  primary: '#343434'
 };
