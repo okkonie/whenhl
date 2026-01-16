@@ -60,8 +60,8 @@ export default function Standings(){
         contentContainerStyle={{paddingTop: 10, paddingHorizontal: 15}}
       >
         {Object.keys(divisions).map((divKey) => (
-          <View key={divKey}>
-            <Text style={s.divisionTitle}>{divKey}</Text>
+          <View key={divKey} style={s.div}>
+            <Text style={s.divisionTitle}>{divKey.toLocaleUpperCase()}</Text>
             {divisions[divKey].map((team, idx) => (
               <TouchableOpacity 
                 activeOpacity={0.8}
@@ -71,7 +71,7 @@ export default function Standings(){
               >
                 <View style={s.teamLeft}>
                   <Text style={s.teamRank}>{idx+1}</Text>
-                  <TeamLogo abbrev={team?.teamAbbrev?.default} size={30}/>
+                  <TeamLogo abbrev={team?.teamAbbrev?.default} size={28}/>
                   <Text style={s.teamName}>{team?.teamCommonName?.default}</Text>
                 </View>
                 <Text style={s.points}>{team.points}</Text>
@@ -123,24 +123,27 @@ const s = StyleSheet.create({
     flex: 1,
     marginBottom: 50
   },
+  div: {
+    marginBottom: 10,
+  },
   teamItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: colors.card,
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 18,
-    marginBottom: 8,
-    borderRadius: 10
+    borderRadius: 14,
+    marginBottom: 6
   },
   teamLeft: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 2,
     alignItems: 'center'
   },
   teamName: {
-    fontSize: 15,
-    fontWeight: 500,
+    fontSize: 14,
+    fontWeight: 400,
     color: colors.text,
   },
   teamRank: {
@@ -154,16 +157,11 @@ const s = StyleSheet.create({
     color: colors.text
   },
   divisionTitle: {
-    marginLeft: 10,
-    marginBottom: 8,
+    marginLeft: 15,
     marginTop: 12,
-    fontSize: 14,
+    marginBottom: 8,
+    fontSize: 12,
     fontWeight: 500,
     color: colors.text,
-  },
-  ptsIndicator: {
-    paddingRight: 10,
-    fontSize: 12,
-    color: colors.text2
   }
 })

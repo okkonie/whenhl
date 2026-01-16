@@ -1,5 +1,1 @@
-- [ ] playoff view
-- [ ] finish gamemodal
-- [ ] finish team stats
-- [ ] player search
-- [ ] player info
+playoff view

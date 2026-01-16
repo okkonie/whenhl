@@ -26,7 +26,7 @@ async function getLogo(abbrev) {
     console.error(`Error reading logo from storage for ${abbrev}`, e);
   }
 
-  // 3. Fetch from network
+  // 3. Fetch
   try {
     const url = `https://assets.nhle.com/logos/nhl/svg/${abbrev}_dark.svg`;
     const response = await fetch(url);

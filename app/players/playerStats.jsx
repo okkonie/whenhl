@@ -75,14 +75,14 @@ export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) 
                 onPress={() => setIsRegular(true)}
                 activeOpacity={0.7}
               >
-                <Text style={[s.toggleText, isRegular && s.toggleTextActive]}>Regular</Text>
+                <Text style={[s.toggleText, isRegular && s.toggleTextActive]}>REGULAR</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[s.toggleBtn, !isRegular && s.toggleBtnActive]} 
                 onPress={() => setIsRegular(false)}
                 activeOpacity={0.7}
               >
-                <Text style={[s.toggleText, !isRegular && s.toggleTextActive]}>Playoffs</Text>
+                <Text style={[s.toggleText, !isRegular && s.toggleTextActive]}>PLAYOFFS</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -161,15 +161,14 @@ export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) 
               <View style={s.topTexts}>
                 <Text style={s.name}>{player.firstName.default} {player.lastName.default}</Text>
                 <View style={s.textsRow}>
-                  {teamAbbrev && <TeamLogo abbrev={teamAbbrev} size={40} />}
-                  {player.sweaterNumber && <Text style={s.sweaterNubmber}>#{player.sweaterNumber}</Text>}
+                  {player.sweaterNumber && <Text style={s.sweaterNumber}>#{player.sweaterNumber}</Text>}
+                  {teamAbbrev && <TeamLogo abbrev={teamAbbrev} size={26} />}
                 </View>
               </View>
             </View>
-            <Text style={s.header}>Stats</Text>
             {(player?.featuredStats?.regularSeason?.subSeason || player?.featuredStats?.playoffs?.subSeason) && (
               <StatContainer 
-                head={player?.featuredStats?.season ? (player.featuredStats.season.toString().slice(0,4) + '-' + player.featuredStats.season.toString().slice(6)) : 'Season'} 
+                head={player?.featuredStats?.season ? (player.featuredStats.season.toString().slice(0,4) + '-' + player.featuredStats.season.toString().slice(6)) : 'SEASON'} 
                 category={'subseason'} 
                 position={player?.position} 
               />
@@ -177,21 +176,18 @@ export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) 
 
             {(player?.careerTotals?.regularSeason || player?.careerTotals?.playoffs) && (
               <StatContainer 
-                head={'Career'} 
+                head={'CAREER'} 
                 category={'career'} 
                 position={player?.position} 
               />
             )}
-            <Text style={s.header}>Details</Text>
-            <View style={s.details}>
-              {player.position && <Detail detail="Position" value={getPosition(player.position)} />}
-              {player.shootsCatches && <Detail detail="Shoots/Catches" value={player.shootsCatches == 'L' ? 'Left' : 'Right'} />}
-              {player.draftDetails &&  <Detail detail="Draft" value={`${getOrdinalSuffix(player.draftDetails.overallPick)} by ${player.draftDetails.teamAbbrev}, ${player.draftDetails.year}`} />}
-              {player.birthDate && <Detail detail="Birth Date" value={formatDate(player.birthDate)} />}
-              {player.birthCity?.default && <Detail detail="Birth Place" value={`${player.birthCity.default}${player.birthCountry ? `, ${player.birthCountry}` : ''}`} />}
-              {player.heightInCentimeters && <Detail detail="Height" value={`${player.heightInCentimeters} cm${player.heightInInches ? ` / ${inchesToFeet(player.heightInInches)}` : ''}`} />}
-              {player.weightInKilograms && <Detail detail="Weight" value={`${player.weightInKilograms} kg${player.weightInPounds ? ` / ${player.weightInPounds} lb` : ''}`} isLast />}
-            </View>
+            {player.position && <Detail detail="Position" value={getPosition(player.position)} />}
+            {player.shootsCatches && <Detail detail="Shoots/Catches" value={player.shootsCatches == 'L' ? 'Left' : 'Right'} />}
+            {player.draftDetails &&  <Detail detail="Draft" value={`${getOrdinalSuffix(player.draftDetails.overallPick)} by ${player.draftDetails.teamAbbrev}, ${player.draftDetails.year}`} />}
+            {player.birthDate && <Detail detail="Birth Date" value={formatDate(player.birthDate)} />}
+            {player.birthCity?.default && <Detail detail="Birth Place" value={`${player.birthCity.default}${player.birthCountry ? `, ${player.birthCountry}` : ''}`} />}
+            {player.heightInCentimeters && <Detail detail="Height" value={`${player.heightInCentimeters} cm${player.heightInInches ? ` / ${inchesToFeet(player.heightInInches)}` : ''}`} />}
+            {player.weightInKilograms && <Detail detail="Weight" value={`${player.weightInKilograms} kg${player.weightInPounds ? ` / ${player.weightInPounds} lb` : ''}`} isLast />}
           </>
         )}
       </ScrollView>
@@ -200,43 +196,9 @@ export default function PlayerStats({ visible, playerId, teamAbbrev, onClose }) 
 }
 
 const s = StyleSheet.create({
-  modalContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '94%',
-    bottom: 0,
-    backgroundColor: colors.background,
-    borderRadius: 15,
-  },
-  header: {
-    marginLeft: 10,
-    fontWeight: 500,
-    fontSize: 16,
-    paddingTop: 20,
-    color: colors.text
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingVertical: 10,
-  },
-  modalTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  btn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   content: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
   },
   player: {
     flex: 1,
@@ -267,32 +229,23 @@ const s = StyleSheet.create({
     fontWeight: 600,
     fontSize: 20,
   },
-  sweaterNubmber: {
+  sweaterNumber: {
     fontSize: 17,
     fontWeight: 500,
     color: colors.text,
-    marginRight: 5,
-  },
-  details: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    marginTop: 10,
   },
   detailItem: {
     paddingVertical: 12,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  detailBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderTopWidth: 1,
+    borderColor: colors.border
   },
   detail: {
     color: colors.text2,
-    fontSize: 14,
+    fontSize: 14
   },
   detailValue: {
     fontWeight: 500,
@@ -300,23 +253,20 @@ const s = StyleSheet.create({
     fontSize: 14,
   },
   statContainer: {
-    borderWidth: 1,
+    borderTopWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
-    marginTop: 10,
     overflow: 'hidden',
+    paddingVertical: 20,
   },
   statHeader: {
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: 15,
-    marginHorizontal: 15,
+    marginBottom: 10,
+    marginHorizontal: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   statHeaderText: {
-    color: colors.text2,
+    color: colors.text,
     fontSize: 14,
     fontWeight: '600'
   },
@@ -333,7 +283,7 @@ const s = StyleSheet.create({
   },
   toggleText: {
     color: colors.text2,
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '500',
   },
   toggleTextActive: {
@@ -342,7 +292,7 @@ const s = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 16,
+    paddingVertical: 8,
   },
   statItem: {
     flex: 1,
