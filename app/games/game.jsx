@@ -100,8 +100,9 @@ function Game({ game }) {
               </Text>
             </View>
             <View style={s.modalDetails}>
+              <Text style={s.label}>{!isLive && dateLabel}</Text>
               <Text style={[s.score, {color: colors.text}]}>{game?.homeTeam?.score} - {game?.awayTeam?.score}</Text>
-              <Text style={s.label}>{isLive ? "LIVE" : dateLabel}</Text>
+              <Text style={s.label}>{isLive ? "LIVE" : game?.gameOutcome?.lastPeriodType}</Text>
             </View>
             <View style={s.modalTeam}>
               <TeamLogo abbrev={game?.awayTeam?.abbrev} size={50}/>

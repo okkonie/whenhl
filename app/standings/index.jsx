@@ -57,28 +57,38 @@ export default function Standings(){
       <ScrollView 
         style={s.list} 
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingTop: 10, paddingHorizontal: 15}}
-      >
-        {Object.keys(divisions).map((divKey) => (
-          <View key={divKey} style={s.div}>
-            <Text style={s.divisionTitle}>{divKey.toLocaleUpperCase()}</Text>
-            {divisions[divKey].map((team, idx) => (
-              <TouchableOpacity 
-                activeOpacity={0.8}
-                style={s.teamItem} 
-                key={team?.teamAbbrev?.default}
-                onPress={() => {setTeamVisible(true), setSelectedTeam(team)}}
-              >
-                <View style={s.teamLeft}>
-                  <Text style={s.teamRank}>{idx+1}</Text>
-                  <TeamLogo abbrev={team?.teamAbbrev?.default} size={28}/>
-                  <Text style={s.teamName}>{team?.teamCommonName?.default}</Text>
-                </View>
-                <Text style={s.points}>{team.points}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        ))}
+        contentContainerStyle={{paddingTop: 10, paddingHorizontal: 5}}
+      > 
+        <View style={s.conference}>
+          
+          {Object.keys(divisions).map((divKey) => (
+            <View key={divKey} style={s.div}>
+              <Text style={s.divisionTitle}>{divKey.toLocaleUpperCase()}</Text>
+              {divisions[divKey].map((team, idx) => (
+                <TouchableOpacity 
+                  activeOpacity={0.8}
+                  style={s.teamItem} 
+                  key={team?.teamAbbrev?.default}
+                  onPress={() => {setTeamVisible(true), setSelectedTeam(team)}}
+                >
+                  <View style={s.teamLeft}>
+                    <TeamLogo abbrev={team?.teamAbbrev?.default} size={30}/>
+                    <Text style={s.teamName}>{team?.teamAbbrev?.default}</Text>
+                  </View>
+                  <View style={s.teamRight}>
+                    <Text style={s.points}>{team.points}</Text>
+                    <Text style={s.score}>
+                      {team.wins}-
+                      {team.losses}-
+                      {team.otLosses}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+        
+        </View>
       </ScrollView>
     )
   }
@@ -123,8 +133,13 @@ const s = StyleSheet.create({
     flex: 1,
     marginBottom: 50
   },
+  conference: {
+    flex: 1,
+    flexDirection: 'row',
+  },
   div: {
-    marginBottom: 10,
+    width: '50%',
+    padding: 5,
   },
   teamItem: {
     flexDirection: 'row',
@@ -134,34 +149,38 @@ const s = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 18,
     borderRadius: 14,
-    marginBottom: 6
+    marginBottom: 10
   },
   teamLeft: {
-    flexDirection: 'row',
+    flexDirection: 'col',
     gap: 2,
     alignItems: 'center'
   },
   teamName: {
-    fontSize: 14,
-    fontWeight: 400,
+    fontSize: 12,
+    fontWeight: 700,
     color: colors.text,
   },
-  teamRank: {
-    fontSize: 14,
-    color: colors.text2,
-    paddingRight: 5
+  teamRight: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: 5,
   },
   points: {
     fontSize: 16,
     fontWeight: 700,
     color: colors.text
   },
+  score: {
+    fontSize: 12,
+    color: colors.text2
+  },
   divisionTitle: {
-    marginLeft: 15,
-    marginTop: 12,
     marginBottom: 8,
     fontSize: 12,
     fontWeight: 500,
     color: colors.text,
+    flex: 1,
+    textAlign: 'center'
   }
 })

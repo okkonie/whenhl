@@ -1,15 +1,16 @@
 # WHENHL 
-Easier and faster way to view NHL games, scores, standings, and player stats on mobile.
 
-Built with React Native & Expo.
+NHL's own mobile app lack features and is hard to use, so I made an easier way to reach basic data from NHL via mobile using their public API.
+Here's a detailed documentation for it https://github.com/Zmalski/NHL-API-Reference.
 <br>
 
 ## Features
-- **Games** - View upcoming and past NHL games with scores
-- **Picks** - Make game predictions and track your picks
-- **Standings** - View team standings: division, conference and league wide
-- **Teams** - View all NHL teams’ stats, schedule and roster
-- **Players** - View stat leaders, search players and view detailed stats
+- **Games** - Upcoming and past NHL games, scores and start times
+- **Gamestory** - Scoring, shots and other information on played games
+- **Standings** - Current league standings 
+- **Team stats** - Team specific stats, roster and schedule
+- **Players** - Player tops and search for specific player
+- **Player stats** - Player specific stats
 <br>
 
 <img width="100%" src="preview.png" alt="preview"/>
@@ -23,7 +24,6 @@ Built with React Native & Expo.
 - [Expo](https://expo.dev/) - React Native framework
 - [Expo Router](https://docs.expo.dev/router/introduction/) - File-based routing
 - [NHL API](https://api-web.nhle.com/) - Official NHL data
-- AsyncStorage - Local data persistence
 
 ## Installation
 ```bash

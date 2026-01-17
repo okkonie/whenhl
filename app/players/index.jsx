@@ -8,6 +8,7 @@ import Loader from "../../components/loader";
 import PlayerStats from "./playerStats";
 import TeamLogo from "../../components/teamLogo";
 import Flag from "../../components/flag";
+import CategoryTop from "./categoryTop";
 
 const skaterModes = ['points', 'goals', 'assists', 'plusMinus', 'toi', 'goalsPp', 'faceoffLeaders', 'penaltyMins'];
 const goalieModes = ['savePctg', 'goalsAgainstAverage', 'wins', 'shutouts'];
@@ -38,6 +39,8 @@ export default function Players() {
   const [stats, setStats] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [selectedPlayerTeam, setSelectedPlayerTeam] = useState(null);
+  const [categoryModal, setCategoryModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const searchTimeout = useRef(null);
   const searchInputRef = useRef(null);
@@ -128,7 +131,7 @@ export default function Players() {
         </View>
 
         {search && searchResults.length > 0 && (
-          <ScrollView style={s.searchResultsContainer}>
+          <ScrollView style={s.searchResultsContainer} showsVerticalScrollIndicator={false}>
             {searchResults.map((item) => (
               <TouchableOpacity 
                 key={`${item.playerId}-search`}
@@ -164,7 +167,17 @@ export default function Players() {
               
               return (
                 <View key={mode} style={s.categoryContainer}>
-                  <Text style={s.categoryLabel}>{statLabels[mode]}</Text>
+                  <TouchableOpacity 
+                    style={s.categoryButton} 
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setSelectedCategory(mode);
+                      setCategoryModal(true);
+                    }}
+                  >
+                    <Text style={s.categoryLabel}>{statLabels[mode]}</Text>
+                    <Text style={s.more}>MORE {`>`}</Text>
+                  </TouchableOpacity>
                   {modeStats.map((item, index) => (
                     <TouchableOpacity 
                       key={`${item.id}-${mode}-${index}`}
@@ -197,6 +210,17 @@ export default function Players() {
         teamAbbrev={selectedPlayerTeam}
         onClose={() => setStats(false)}
       />
+      <CategoryTop
+        visible={categoryModal}
+        category={selectedCategory}
+        onClose={() => setCategoryModal(false)}
+        onPlayerPress={(playerId, teamAbbrev) => {
+          setSelectedPlayer(playerId);
+          setSelectedPlayerTeam(teamAbbrev);
+          setCategoryModal(false);
+          setStats(true);
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -218,6 +242,9 @@ const s = StyleSheet.create({
     right: 15,
     shadowColor: '#000',
     elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.44,
     maxHeight: '60%'
   },
   search: {
@@ -247,13 +274,24 @@ const s = StyleSheet.create({
   categoryContainer: {
     marginBottom: 10,
   },
+  categoryButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 8,
+    paddingTop: 8,
+    marginTop: 4,
+    paddingHorizontal: 15,
+  },
   categoryLabel: {
     color: colors.text,
     fontSize: 12,
     fontWeight: 500,
-    marginTop: 12,
-    marginBottom: 8,
-    marginLeft: 15
+  },
+  more: {
+    color: colors.text2,
+    fontSize: 12,
+    fontWeight: 500,
   },
   playerItem: {
     flexDirection: 'row',

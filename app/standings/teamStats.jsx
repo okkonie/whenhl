@@ -92,7 +92,7 @@ export default function TeamStats({ visible, item, onClose }) {
           {item?.teamAbbrev?.default && <TeamLogo abbrev={item.teamAbbrev.default} size={60}/>}
           <View style={s.teamInfo}>
             <Text style={s.teamHeaderName}>{item?.teamName?.default}</Text>
-            <Text style={s.teamMore}>{item?.points} PTS    {item?.gamesPlayed} GP</Text>
+            <Text style={s.teamMore}>{item.divisionName} division</Text>
           </View>
         </View>
         <View style={s.statRow}>
