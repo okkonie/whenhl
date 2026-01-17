@@ -1,11 +1,10 @@
-import { Octicons } from '@expo/vector-icons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from '../../components/colors';
-import Game from "./game";
-import Loader from '../../components/loader';
+import { colors } from '../components/colors';
+import Game from "../components/game";
+import Loader from '../components/loader';
 
 const Tab = createMaterialTopTabNavigator();
 

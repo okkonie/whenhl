@@ -6,7 +6,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import TeamStats from "./teamStats"
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Loader from "../../components/loader";
-import { getPathFromState } from "expo-router/build/fork/getPathFromState";
 
 const Tab = createMaterialTopTabNavigator();
 

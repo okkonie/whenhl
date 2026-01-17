@@ -30,13 +30,17 @@ export default function RootLayout() {
   };
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded || error) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, error]);
 
   if (error) {
     console.error('Font loading error:', error);
+  }
+
+  if (!loaded && !error) {
+    return null;
   }
 
   const TabBarBackground = () => (
@@ -85,7 +89,7 @@ export default function RootLayout() {
         }}
       >
         <Tabs.Screen
-          name="games"
+          name="index"
           options={{
             title: 'games',
             tabBarIcon: ({ focused }) => (

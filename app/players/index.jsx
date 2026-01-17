@@ -1,8 +1,7 @@
 import { Octicons } from "@expo/vector-icons";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
 import { colors } from '../../components/colors';
 import Loader from "../../components/loader";
 import PlayerStats from "./playerStats";
@@ -42,7 +41,6 @@ export default function Players() {
   const [categoryModal, setCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const searchTimeout = useRef(null);
   const searchInputRef = useRef(null);
 
   const fetchStats = async () => {

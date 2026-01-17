@@ -1,8 +1,8 @@
 import { memo, useState, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from "react-native";
-import { colors } from '../../components/colors';
-import TeamLogo from '../../components/teamLogo';
-import CustomModal from "../../components/customModal";
+import { colors } from './colors';
+import TeamLogo from './teamLogo';
+import CustomModal from "./customModal";
 
 function Game({ game }) {
   const [gameVisible, setGameVisible] = useState(false);

@@ -1,6 +1,5 @@
 import { Octicons } from '@expo/vector-icons';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from './colors';
 import Loader from './loader';
 

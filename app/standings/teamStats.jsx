@@ -1,4 +1,3 @@
-import { Octicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from '../../components/colors';
