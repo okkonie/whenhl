@@ -1,7 +1,6 @@
 # WHENHL 
 
-NHL's own mobile app lack features and is hard to use, so I made an easier way to reach basic data from NHL via mobile using their public API.
-Here's a detailed documentation for it https://github.com/Zmalski/NHL-API-Reference.
+NHL's own mobile app lack features and is hard to use, so I made an easier way to reach basic data from NHL via mobile using their public API (Here's a detailed documentation for it: https://github.com/Zmalski/NHL-API-Reference)
 <br>
 
 ## Features
@@ -24,6 +23,7 @@ Here's a detailed documentation for it https://github.com/Zmalski/NHL-API-Refere
 - [Expo](https://expo.dev/) - React Native framework
 - [Expo Router](https://docs.expo.dev/router/introduction/) - File-based routing
 - [NHL API](https://api-web.nhle.com/) - Official NHL data
+- [async storage](https://github.com/react-native-async-storage/async-storage) - Cache logos in local storage
 
 ## Installation
 ```bash

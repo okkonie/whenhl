@@ -2,6 +2,7 @@ import { Octicons } from '@expo/vector-icons';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from './colors';
 import Loader from './loader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CustomModal({children, title, onClose, visible, loading}){
 
@@ -12,20 +13,25 @@ export default function CustomModal({children, title, onClose, visible, loading}
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={s.modalContainer}> 
-        <View style={s.modalHeader}>
-          <Text style={s.modalTitle}>{title}</Text>
-          <TouchableOpacity onPress={onClose} style={s.btn}>
-            <Octicons name="x" size={18} color={colors.text} />
-          </TouchableOpacity>
+      <SafeAreaView style={s.safeArea}>
+        <View style={s.modalContainer}> 
+          <View style={s.modalHeader}>
+            <Text style={s.modalTitle}>{title}</Text>
+            <TouchableOpacity onPress={onClose} style={s.btn}>
+              <Octicons name="x" size={18} color={colors.text} />
+            </TouchableOpacity>
+          </View>
+          {loading ? <Loader /> : children}
         </View>
-        {loading ? <Loader /> : children}
-      </View>
+      </SafeAreaView>
     </Modal>
   )
 }
 
 const s = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   modalContainer: {
     position: 'absolute',
     backgroundColor: colors.card,
@@ -34,20 +40,15 @@ const s = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    top: 50,
+    top: 40,
     shadowColor: '#000',
     elevation: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.44,
   },
-  headerText: {
-    fontSize: 22,
-    color: colors.text,
-    fontWeight: 800,
-  },
   modalHeader: {
-    padding: 15,
+    padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -55,6 +56,7 @@ const s = StyleSheet.create({
   modalTitle: {
     color: colors.text,
     fontSize: 20,
+    marginLeft: 10,
     fontWeight: '800',
   },
   btn: {

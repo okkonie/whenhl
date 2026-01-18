@@ -96,11 +96,11 @@ export default function TeamStats({ visible, item, onClose }) {
         </View>
         <View style={s.statRow}>
           <StatItem
-            head="GOALS"
+            head="GOALS FOR"
             value={item?.goalFor}
           />
           <StatItem
-            head="G/AGAINST"
+            head="AGAINST"
             value={item?.goalAgainst}
           />
           <StatItem
@@ -232,7 +232,7 @@ const s = StyleSheet.create({
   },
   statValue: {
     color: colors.text,
-    fontWeight: 500,
+    fontWeight: 600,
     fontSize: 18
   },
   col: {
@@ -241,11 +241,11 @@ const s = StyleSheet.create({
     paddingHorizontal: 10
   },
   rosterHead: {
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: 500,
     color: colors.text2,
     paddingTop: 20,
-    paddingBottom: 10
+    paddingBottom: 5
   },
   playerText: {
     fontSize: 14,

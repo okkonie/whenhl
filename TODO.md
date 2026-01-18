@@ -1,3 +1,1 @@
 - [ ] playoff view
-- [ ] lastPeriodType on game
-- [ ] safeAreaInsets on modal

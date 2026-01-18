@@ -49,7 +49,6 @@ function Game({ game }) {
   return (
     <>
       <TouchableOpacity disabled={isFut} activeOpacity={0.8} onPress={() => setGameVisible(true)} style={s.container}>
-
         <View style={s.body}>
           <View style={s.teams}>
             <View style={s.teamItem}>
@@ -59,6 +58,9 @@ function Game({ game }) {
                   {game?.homeTeam?.commonName.default}
                 </Text>
               </View>
+              <Text style={[s.score, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
+                {game?.homeTeam?.score}
+              </Text>
             </View>
             <View style={s.teamItem}>
               <View style={s.teamLeft}>
@@ -67,25 +69,15 @@ function Game({ game }) {
                   {game?.awayTeam?.commonName.default}
                 </Text>
               </View>
-            </View>
-          </View>
-
-          {isFut ?
-            <View style={s.gameInfo}>
-              
-              <Text style={s.gameInfoText}>{timeLabel}</Text>
-              <Text style={s.label}>{dateLabel}</Text>
-            </View>
-          :
-            <View style={s.scores}>
-              <Text style={[s.score, {color: homeIsWinner === false ? colors.text2 : colors.text}]}>
-                {game?.homeTeam?.score}
-              </Text>
               <Text style={[s.score, {color: homeIsWinner === true ? colors.text2 : colors.text}]}>
                 {game?.awayTeam?.score}
               </Text>
             </View>
-          }
+          </View>
+          <View style={s.gameInfo}>
+            <Text style={s.gameInfoText}>{isFut ? timeLabel : isLive ? "LIVE" : game?.gameOutcome?.lastPeriodType}</Text>
+            <Text style={s.label}>{isLive ? game.periodDescriptor?.periodType : dateLabel}</Text>
+          </View>
         </View>
       </TouchableOpacity>
 
@@ -100,9 +92,8 @@ function Game({ game }) {
               </Text>
             </View>
             <View style={s.modalDetails}>
-              <Text style={s.label}>{!isLive && dateLabel}</Text>
               <Text style={[s.score, {color: colors.text}]}>{game?.homeTeam?.score} - {game?.awayTeam?.score}</Text>
-              <Text style={s.label}>{isLive ? "LIVE" : game?.gameOutcome?.lastPeriodType}</Text>
+              <Text style={s.label}>{isLive ? game.periodDescriptor?.periodType : game?.gameOutcome?.lastPeriodType}</Text>
             </View>
             <View style={s.modalTeam}>
               <TeamLogo abbrev={game?.awayTeam?.abbrev} size={50}/>
@@ -114,7 +105,7 @@ function Game({ game }) {
 
           <View style={s.row}>
             <Text style={s.matchDetail}>{details?.homeTeam.sog}</Text>
-            <Text style={s.label}>sog</Text>
+            <Text style={s.label}>SOG</Text>
             <Text style={s.matchDetail}>{details?.awayTeam.sog}</Text>
           </View>
           <View style={s.scoringContainer}>
@@ -147,29 +138,23 @@ const s = StyleSheet.create({
   container: {
     backgroundColor: colors.card,
     flex: 1,
-    padding: 20,
     gap: 12,
     marginHorizontal: 14,
-    borderRadius: 14,
+    borderRadius: 18,
     marginTop: 10,
-  },
-  top: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
+    padding: 16,
   },
   body: {
     flexDirection: 'row',
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingRight: 5
+    gap: 18
   },
   teams: {
     justifyContent: 'center',
     flex: 1,
-    gap: 6,
+    gap: 4,
   },
   teamItem: {
     flexDirection: 'row',
@@ -183,31 +168,36 @@ const s = StyleSheet.create({
     gap: 6,
   },
   gameInfo: {
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'center',
-    gap: 7,
+    gap: 3,
+    backgroundColor: colors.border,
+    height: '100%',
+    width: 80,
+    borderRadius: 12
   },
   scores: {
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
   gameInfoText: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: 700,
     color: colors.text,
     textAlign: 'right'
   },
   score: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 700,
     textAlign: 'right'
   },
   teamName: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 500,
   },
   label: {
     color: colors.text2,
+    fontSize: 12,
   },
   contentContainer: {
     paddingBottom: 24,
@@ -231,19 +221,19 @@ const s = StyleSheet.create({
   },
   matchDetail: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 16,
+    marginLeft: 5,
     fontWeight: 700,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: 20,
+    backgroundColor: colors.border,
+    borderRadius: 14,
+    paddingVertical: 14,
     marginHorizontal: 20,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
   },
   scoringContainer: {
     marginTop: 16,
@@ -252,8 +242,9 @@ const s = StyleSheet.create({
   goalRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 15,
-    marginTop: 30,
+    gap: 10,
+    marginTop: 20,
+    marginBottom: 10,
   },
   goalTeam: {
     fontSize: 11,

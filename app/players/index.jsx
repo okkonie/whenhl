@@ -232,8 +232,6 @@ const s = StyleSheet.create({
     flex: 1,
     position: 'absolute',
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 14,
     zIndex: 10,
     left: 15,
@@ -257,8 +255,7 @@ const s = StyleSheet.create({
     color: colors.text
   },
   searchResultsContainer: {
-    borderTopWidth: 1,
-    borderColor: colors.border,
+    paddingHorizontal: 8,
   },
   scrollView: {
     flex: 1,
@@ -270,7 +267,10 @@ const s = StyleSheet.create({
     paddingBottom: 50,
   },
   categoryContainer: {
-    marginBottom: 10,
+    marginTop: 10,
+    paddingHorizontal: 8,
+    backgroundColor: colors.card,
+    borderRadius: 14,
   },
   categoryButton: {
     flexDirection: 'row',
@@ -279,7 +279,7 @@ const s = StyleSheet.create({
     paddingBottom: 8,
     paddingTop: 8,
     marginTop: 4,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
   },
   categoryLabel: {
     color: colors.text,
@@ -296,20 +296,18 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 12,
-    backgroundColor: colors.card,
     paddingHorizontal: 16,
-    marginBottom: 4,
-    borderRadius: 12,
     borderColor: colors.border,
+    borderTopWidth: 1
   },
   searchItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.card,
+    borderTopWidth: 1,
+    borderColor: colors.border,
     paddingVertical: 14,
     paddingHorizontal: 18,
-    borderRadius: 12
   },
   rank: {
     color: colors.text2,

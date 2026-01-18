@@ -71,16 +71,16 @@ export default function Standings(){
                   onPress={() => {setTeamVisible(true), setSelectedTeam(team)}}
                 >
                   <View style={s.teamLeft}>
-                    <TeamLogo abbrev={team?.teamAbbrev?.default} size={30}/>
-                    <Text style={s.teamName}>{team?.teamAbbrev?.default}</Text>
+                    <TeamLogo abbrev={team?.teamAbbrev?.default} size={26}/>
+                    <Text style={s.teamName}>{team?.teamCommonName?.default}</Text>
                   </View>
                   <View style={s.teamRight}>
-                    <Text style={s.points}>{team.points}</Text>
                     <Text style={s.score}>
                       {team.wins}-
                       {team.losses}-
                       {team.otLosses}
                     </Text>
+                    <Text style={s.points}>{team.points}</Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -134,36 +134,37 @@ const s = StyleSheet.create({
   },
   conference: {
     flex: 1,
-    flexDirection: 'row',
   },
   div: {
-    width: '50%',
-    padding: 5,
+    paddingHorizontal: 8,
+    borderRadius: 14,
+    marginHorizontal: 10,
+    marginVertical: 10,
+    backgroundColor: colors.card
   },
   teamItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.card,
+    borderColor: colors.border,
+    borderTopWidth: 1,
     paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 14,
-    marginBottom: 10
+    paddingHorizontal: 14,
   },
   teamLeft: {
-    flexDirection: 'col',
-    gap: 2,
+    flexDirection: 'row',
+    gap: 5,
     alignItems: 'center'
   },
   teamName: {
-    fontSize: 12,
-    fontWeight: 700,
+    fontSize: 14,
+    fontWeight: 500,
     color: colors.text,
   },
   teamRight: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    gap: 5,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 15,
   },
   points: {
     fontSize: 16,
@@ -175,10 +176,10 @@ const s = StyleSheet.create({
     color: colors.text2
   },
   divisionTitle: {
-    marginBottom: 8,
+    marginVertical: 8,
     fontSize: 12,
     fontWeight: 500,
-    color: colors.text,
+    color: colors.text2,
     flex: 1,
     textAlign: 'center'
   }
