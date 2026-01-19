@@ -96,19 +96,19 @@ export default function TeamStats({ visible, item, onClose }) {
         </View>
         <View style={s.statRow}>
           <StatItem
-            head="GOALS FOR"
+            head="GF"
             value={item?.goalFor}
           />
           <StatItem
-            head="AGAINST"
+            head="GA"
             value={item?.goalAgainst}
           />
           <StatItem
-            head="WIN PCTG"
-            value={`${(item?.winPctg * 100).toFixed(2)}%`}
+            head="WIN%"
+            value={`${(item?.winPctg * 100).toFixed(2)}`}
           />
           <StatItem
-            head="RECORD"
+            head="REC"
             value={`${item?.wins}-${item?.losses}-${item?.otLosses}`}
           />
           <StatItem
@@ -233,7 +233,7 @@ const s = StyleSheet.create({
   statValue: {
     color: colors.text,
     fontWeight: 600,
-    fontSize: 18
+    fontSize: 16
   },
   col: {
     width: '50%',

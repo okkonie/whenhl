@@ -147,13 +147,14 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderColor: colors.border,
-    borderTopWidth: 1,
+    borderTopWidth: 0.5,
     paddingVertical: 12,
     paddingHorizontal: 14,
   },
   teamLeft: {
     flexDirection: 'row',
     gap: 5,
+    marginLeft: -5,
     alignItems: 'center'
   },
   teamName: {

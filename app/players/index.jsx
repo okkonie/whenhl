@@ -47,8 +47,8 @@ export default function Players() {
     setLoading(true);
     try {
       const [skaterResponse, goalieResponse] = await Promise.all([
-        fetch(`https://api-web.nhle.com/v1/skater-stats-leaders/20252026/2?limit=5`),
-        fetch(`https://api-web.nhle.com/v1/goalie-stats-leaders/20252026/2?limit=5`)
+        fetch(`https://api-web.nhle.com/v1/skater-stats-leaders/20252026/2?limit=10`),
+        fetch(`https://api-web.nhle.com/v1/goalie-stats-leaders/20252026/2?limit=10`)
       ]);
       
       const skaterData = await skaterResponse.json();
@@ -154,12 +154,15 @@ export default function Players() {
       </View>
 
       {loading ? <Loader /> : (
-        <ScrollView 
-          style={s.scrollView}
-          contentContainerStyle={s.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-            {allModes.map((mode) => {
+        <ScrollView style={s.mainScrollView} showsVerticalScrollIndicator={false}>
+          <Text style={s.sectionTitle}>Skaters</Text>
+          <ScrollView 
+            style={s.scrollView}
+            contentContainerStyle={s.scrollContent}
+            showsHorizontalScrollIndicator={false}
+            horizontal={true}
+          >
+            {skaterModes.map((mode) => {
               const modeStats = getStatsForMode(mode);
               if (modeStats.length === 0) return null;
               
@@ -200,6 +203,57 @@ export default function Players() {
                 </View>
               );
             })}
+          </ScrollView>
+
+          <Text style={s.sectionTitle}>Goalies</Text>
+          <ScrollView 
+            style={s.scrollView}
+            contentContainerStyle={s.scrollContent}
+            showsHorizontalScrollIndicator={false}
+            horizontal={true}
+          >
+            {goalieModes.map((mode) => {
+              const modeStats = getStatsForMode(mode);
+              if (modeStats.length === 0) return null;
+              
+              return (
+                <View key={mode} style={s.categoryContainer}>
+                  <TouchableOpacity 
+                    style={s.categoryButton} 
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setSelectedCategory(mode);
+                      setCategoryModal(true);
+                    }}
+                  >
+                    <Text style={s.categoryLabel}>{statLabels[mode]}</Text>
+                    <Text style={s.more}>MORE {`>`}</Text>
+                  </TouchableOpacity>
+                  {modeStats.map((item, index) => (
+                    <TouchableOpacity 
+                      key={`${item.id}-${mode}-${index}`}
+                      style={s.playerItem}
+                      activeOpacity={0.7}
+                      onPress={() => {
+                        setSelectedPlayer(item.id);
+                        setSelectedPlayerTeam(item.teamAbbrev);
+                        setStats(true);
+                      }}
+                    >
+                      <View style={s.playerInfo}>
+                        <Text style={s.rank}>{index+1}</Text>
+                        <TeamLogo abbrev={item.teamAbbrev} size={24} />
+                        <Text style={s.playerName}>
+                          {`${item.firstName.default} ${item.lastName.default}`}
+                        </Text>
+                      </View>
+                      <Text style={s.playerStat}>{statCleaner(mode, item.value)}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              );
+            })}
+          </ScrollView>
         </ScrollView>
       )}
       <PlayerStats 
@@ -234,11 +288,10 @@ const s = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: 14,
     zIndex: 10,
-    left: 15,
-    right: 15,
+    left: 10,
+    right: 10,
     shadowColor: '#000',
     elevation: 10,
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.44,
     maxHeight: '60%'
@@ -257,20 +310,30 @@ const s = StyleSheet.create({
   searchResultsContainer: {
     paddingHorizontal: 8,
   },
-  scrollView: {
+  mainScrollView: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 65,
+    marginBottom: 50
+  },
+  sectionTitle: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: 700,
+    marginLeft: 10,
+    paddingHorizontal: 15,
+    marginTop: 15,
   },
   scrollContent: {
     paddingHorizontal: 15,
-    paddingTop: 50,
-    paddingBottom: 50,
+    gap: 15,
+    paddingBottom: 10,
   },
   categoryContainer: {
     marginTop: 10,
     paddingHorizontal: 8,
     backgroundColor: colors.card,
     borderRadius: 14,
+    minWidth: 300,
   },
   categoryButton: {
     flexDirection: 'row',
