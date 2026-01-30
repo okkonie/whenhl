@@ -64,12 +64,18 @@ export default function Standings({visible, setVisible}){
             {divisionStandings.map(({ divisionName, teams }) => (
               <View style={s.division} key={divisionName}>
                 {teams.map((team, index) => (
-                  <View key={team.teamAbbrev.default} style={[s.team, {backgroundColor: index % 2 == 0 && colors.border}]}>
+                  <View 
+                    key={team.teamAbbrev.default} 
+                    style={s.team}
+                  >
                     <View style={s.teamLeft}>
                       <TeamLogo abbrev={team.teamAbbrev.default} size={22}/>
                       <Text style={s.abbrev}>{team.teamAbbrev.default}</Text>
                     </View>
-                    <Text style={s.points}>{team.points}</Text>
+                    <View style={s.teamRight}>
+                      <Text style={s.points}>{team.points}</Text>
+                      <Text style={s.score}>{team.wins}-{team.losses}-{team.otLosses}</Text>
+                    </View>
                   </View>
                 ))}
               </View>
@@ -115,31 +121,41 @@ const s = StyleSheet.create({
   },
   scrollContent: {
     flexDirection: 'row',
-    padding: 15,
-    gap: 15,
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+    gap: 5,
   },
   division: {
+    gap: 5,
   },
   team: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minWidth: 150,
+    width: 150,
     paddingHorizontal: 15,
-    height: 50,
+    height: 65,
   },
   teamLeft: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    justifyContent: 'center',
+    gap: 2,
   },
   abbrev: {
     fontWeight: 500,
+    fontSize: 10,
     color: colors.text,
   },
+  teamRight: {
+    alignItems: 'flex-end',
+  },
   points: {
-    fontWeight: 700,
-    fontSize: 16,
-    color: colors.text
+    fontWeight: 900,
+    fontSize: 14,
+    color: colors.text,
+  },
+  score: {
+    color: colors.text2,
+    fontSize: 12,
   }
 })

@@ -1,6 +1,7 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View, TextInput } from "react-native";
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../components/colors';
 import Game from "../components/game";
@@ -105,71 +106,85 @@ export default function Index() {
 
   return (
     <SafeAreaView style={s.container}>
-      {loading ? <Loader /> : (
-        <>
-          <View style={s.bottomBar}>
-            <TouchableOpacity style={s.bottomButton} onPress={() => setStandingsVisible(true)}>
-              <Octicons name="trophy" size={18} color={colors.text}/>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.bottomButton} onPress={() => setSearchVisible(true)}>
-              <Octicons name="search" size={18} color={colors.text}/>
+        {loading ? <Loader /> : (
+          <>
+            {standingsVisible && <Standings visible={standingsVisible} setVisible={setStandingsVisible}/>}
+            <Tab.Navigator
+              initialRouteName="UPCOMING"
+              screenOptions={{
+                tabBarActiveTintColor: colors.text,
+                tabBarInactiveTintColor: colors.text2,
+                tabBarStyle: { backgroundColor: colors.background, height: 40},
+                tabBarIndicatorStyle: { backgroundColor: colors.text, height: 1 },
+                tabBarLabelStyle: { fontWeight: '700', textTransform: 'none', fontSize: 12, paddingBottom: 5 },
+              }}
+            >
+              <Tab.Screen name="PAST">
+                {() => (
+                  <FlatList
+                    style={s.list}
+                    data={pastSchedule}
+                    extraData={loadingMore}
+                    keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
+                    renderItem={renderItem}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{paddingTop: 10}}
+                    ListFooterComponent={
+                      <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
+                        {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
+                      </View>
+                    }
+                    onEndReached={seasonStart < previousStartDate ? loadMorePast : null}
+                    onEndReachedThreshold={0.5}
+                  />
+                )}
+              </Tab.Screen>
+              <Tab.Screen name="UPCOMING">
+                {() => (
+                  <FlatList
+                    style={s.list}
+                    data={futureSchedule}
+                    extraData={loadingMore}
+                    keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
+                    renderItem={renderItem}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{paddingTop: 10}}
+                    ListFooterComponent={
+                      <View style={{alignItems: 'center', paddingTop: 10, paddingBottom: 50,}}>
+                        {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
+                      </View>
+                    }
+                    onEndReached={seasonEnd > nextStartDate ? loadMoreFuture : null}
+                    onEndReachedThreshold={0.5}
+                  />
+                )}
+              </Tab.Screen>
+            </Tab.Navigator>
+          </>
+        )}
+        <KeyboardAvoidingView style={s.bottomBar} behavior="padding" keyboardVerticalOffset={10}>
+          {searchVisible && (
+            <TextInput 
+              style={s.search}
+              placeholder='Search players...'
+              placeholderTextColor={colors.text2}
+              autoFocus
+              color={colors.text}
+              cursorColor={colors.text}
+              onBlur={() => setSearchVisible(false)}
+            />
+          )}
+          <View style={s.bottomButtons}>
+            {!searchVisible && 
+              <TouchableOpacity style={s.bottomButton} onPress={() => setStandingsVisible(true)} activeOpacity={0.8}>
+                <Octicons name="trophy" size={20} color={colors.text}/>
+              </TouchableOpacity>
+            }
+            <TouchableOpacity style={s.bottomButton} onPress={() => setSearchVisible(!searchVisible)} activeOpacity={0.8}>
+              <Octicons name={searchVisible ? "x" : "search"} size={20} color={colors.text}/>
             </TouchableOpacity>
           </View>
-
-          {standingsVisible && <Standings visible={standingsVisible} setVisible={setStandingsVisible}/>}
-          <Tab.Navigator
-            initialRouteName="UPCOMING"
-            screenOptions={{
-              tabBarActiveTintColor: colors.text,
-              tabBarInactiveTintColor: colors.text2,
-              tabBarStyle: { backgroundColor: colors.background, height: 40},
-              tabBarIndicatorStyle: { backgroundColor: colors.text, height: 1 },
-              tabBarLabelStyle: { fontWeight: '700', textTransform: 'none', fontSize: 12, paddingBottom: 5 },
-            }}
-          >
-            <Tab.Screen name="PAST">
-              {() => (
-                <FlatList
-                  style={s.list}
-                  data={pastSchedule}
-                  extraData={loadingMore}
-                  keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
-                  renderItem={renderItem}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{paddingTop: 10}}
-                  ListFooterComponent={
-                    <View style={{height: 100, paddingTop: 10, alignItems: 'center'}}>
-                      {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
-                    </View>
-                  }
-                  onEndReached={seasonStart < previousStartDate ? loadMorePast : null}
-                  onEndReachedThreshold={0.5}
-                />
-              )}
-            </Tab.Screen>
-            <Tab.Screen name="UPCOMING">
-              {() => (
-                <FlatList
-                  style={s.list}
-                  data={futureSchedule}
-                  extraData={loadingMore}
-                  keyExtractor={(item, index) => (item.id || item.gameId || index).toString()}
-                  renderItem={renderItem}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{paddingTop: 10}}
-                  ListFooterComponent={
-                    <View style={{alignItems: 'center', paddingTop: 10, paddingBottom: 50,}}>
-                      {loadingMore && <ActivityIndicator size="small" color={colors.text} />}
-                    </View>
-                  }
-                  onEndReached={seasonEnd > nextStartDate ? loadMoreFuture : null}
-                  onEndReachedThreshold={0.5}
-                />
-              )}
-            </Tab.Screen>
-          </Tab.Navigator>
-        </>
-      )}
+        </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -186,29 +201,46 @@ const s = StyleSheet.create({
     backgroundColor: colors.background,
     flex: 1
   },
+  kb: {
+    flex: 1,
+  },
   bottomBar: {
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
+    gap: 15,
+    zIndex: 50,
     position: 'absolute',
     bottom: 10,
+    left: 10,
     right: 10,
-    zIndex: 50,
-    backgroundColor: colors.card,
-    padding: 8,
+  },
+  bottomButtons: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 8,
+    height: 55,
+    gap: 5,
+    padding: 5,
+    backgroundColor: colors.card,
     borderRadius: 999,
-    shadowColor: '#000',
-    elevation: 10,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.44,
-    maxHeight: '60%'
+    borderWidth: 1,
+    borderColor: colors.border
+  },
+  search: {
+    flex: 1,
+    alignItems: 'center',
+    height: 55,
+    paddingHorizontal: 20,
+    backgroundColor: colors.card,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border
   },
   bottomButton: {
-    backgroundColor: colors.border,
-    padding: 16,
-    borderRadius: 999,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderRadius: 999,
+    height: 45,
+    width: 45
   }
 })

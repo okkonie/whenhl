@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,7 +27,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <KeyboardProvider>
       <StatusBar
         style="light"
         hidden={false}
@@ -35,6 +36,6 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="standings" />
       </Stack>
-    </>
+    </KeyboardProvider>
   );
 }
